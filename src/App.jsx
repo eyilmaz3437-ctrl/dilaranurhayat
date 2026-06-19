@@ -36,18 +36,28 @@ const menuItems = [
 ];
 
 export default function App() {
-  const [menuOpen, setMenuOpen] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(window.innerWidth > 700);
   const [page, setPage] = useState("home");
   const [subPage, setSubPage] = useState("");
 
   function changePage(key) {
-    setPage(key);
-    setSubPage("");
+  setPage(key);
+  setSubPage("");
+
+  if (window.innerWidth < 700) {
+    setMenuOpen(false);
   }
+}
 
   return (
     <div className="app">
-      <aside className={menuOpen ? "sidebar open" : "sidebar"}>
+  {menuOpen && <div className="mobile-overlay" onClick={() => setMenuOpen(false)}></div>}
+
+  <button className="mobile-menu-button" onClick={() => setMenuOpen(true)}>
+    ☰
+  </button>
+
+  <aside className={menuOpen ? "sidebar open" : "sidebar"}>
         <div className="topbar">
           <div className="brand">{menuOpen ? "🌷 Dilara Nur Hayat" : "🌷"}</div>
           <button className="toggle" onClick={() => setMenuOpen(!menuOpen)}>☰</button>

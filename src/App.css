@@ -247,49 +247,40 @@ section h2 {
 }
 
 /* Telefon */
-@media (max-width: 600px) {
-  .app {
-    align-items: stretch;
-  }
+@media (max-width: 700px) {
 
   .sidebar {
-    width: 70px;
-    padding: 12px 8px;
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100vh;
+    width: 260px;
+    z-index: 1000;
+    transition: all 0.3s ease;
   }
 
   .sidebar.open {
-    width: 196px;
-  }
-
-  .brand {
-    font-size: 13px;
+    left: 0;
   }
 
   .content {
-    padding: 16px;
-  }
-
-  .hero {
-    padding: 22px 16px;
-    border-radius: 20px;
+    margin-left: 0;
+    width: 100%;
+    padding: 15px;
   }
 
   .hero h1 {
-    font-size: 30px;
+    font-size: 32px;
   }
 
-  .cards,
-  .list-grid {
+  .cards {
     grid-template-columns: 1fr;
   }
 
-  .menu-item {
-    padding: 11px;
+  .card {
+    min-height: 110px;
   }
 
-  .card {
-    padding: 18px;
-  }
 }
 
 .text-list {
@@ -315,4 +306,85 @@ section h2 {
   font-size: 18px;
   line-height: 1.8;
   color: #334155;
+}
+.mobile-overlay {
+  display: none;
+}
+
+.mobile-menu-button {
+  display: none;
+}
+
+/* Telefon drawer menü */
+@media (max-width: 700px) {
+  .mobile-menu-button {
+    display: block;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 900;
+    border: 0;
+    background: #162033;
+    color: white;
+    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+  }
+
+  .mobile-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 950;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: -270px;
+    top: 0;
+    width: 260px;
+    height: 100vh;
+    z-index: 1000;
+    transition: left 0.25s ease;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .content {
+    padding: 72px 14px 18px;
+    width: 100%;
+    margin: 0;
+  }
+
+  .hero {
+    padding: 22px 16px;
+  }
+
+  .hero h1 {
+    font-size: 28px;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .card {
+    min-height: 104px;
+    padding: 18px;
+  }
+
+  .reading-card {
+    padding: 18px;
+  }
+
+  .reading-card p {
+    font-size: 17px;
+    line-height: 1.8;
+  }
 }
