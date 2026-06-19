@@ -388,3 +388,28 @@ section h2 {
     line-height: 1.8;
   }
 }
+
+.reader-toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.reader-toolbar button {
+  border: 0;
+  background: #162033;
+  color: white;
+  border-radius: 999px;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.epub-reader {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  min-height: 70vh;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}

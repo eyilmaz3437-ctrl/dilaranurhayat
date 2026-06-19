@@ -1,5 +1,6 @@
 import "./App.css";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import ePub from "epubjs";
 
 const dualar = [
   { title: "Sübhaneke", text: "Sübhânekellâhümme ve bi hamdik ve tebârekesmük ve teâlâ ceddük ve lâ ilâhe ğayrük." },
@@ -96,7 +97,7 @@ export default function App() {
         {page === "egitim" && <SimplePage title="Eğitim" text="Dersler, çalışma takibi ve hedefler bölümü hazırlanıyor." />}
         {page === "hedefler" && <SimplePage title="Hedeflerim" text="Kısa ve uzun vadeli hedefler burada takip edilecek." />}
         {page === "gunluk" && <SimplePage title="Günlüğüm" text="Günlük notlar ve Rabbime mektuplarım burada yer alacak." />}
-        {page === "kutuphane" && <SimplePage title="Kütüphane" text="Kitaplar, PDF dosyaları ve kaynaklar burada toplanacak." />}
+        {page === "kutuphane" && <LibraryPage />}
         {page === "araclar" && <SimplePage title="Araçlar" text="Ezber takibi, namaz takibi ve çalışma araçları burada olacak." />}
       </main>
     </div>
@@ -177,6 +178,43 @@ function BackButton({ onClick }) {
     <button className="back-button" onClick={onClick}>
       ← İslam Bölümüne Dön
     </button>
+  );
+}
+
+function LibraryPage() {
+  const viewerRef = useRef(null);
+  const renditionRef = useRef(null);
+
+  useEffect(() => {
+    if (!viewerRef.current) return;
+
+    viewerRef.current.innerHTML = "";
+
+    const book = ePub("/books/kadin-ve-aile-ilmihali.epub");
+    const rendition = book.renderTo(viewerRef.current, {
+      width: "100%",
+      height: "70vh",
+    });
+
+    rendition.display();
+    renditionRef.current = rendition;
+
+    return () => {
+      rendition.destroy();
+    };
+  }, []);
+
+  return (
+    <>
+      <Hero title="Kütüphane" subtitle="EPUB kitap okuyucu deneme alanı." />
+
+      <div className="reader-toolbar">
+        <button onClick={() => renditionRef.current?.prev()}>← Önceki</button>
+        <button onClick={() => renditionRef.current?.next()}>Sonraki →</button>
+      </div>
+
+      <div className="epub-reader" ref={viewerRef}></div>
+    </>
   );
 }
 
