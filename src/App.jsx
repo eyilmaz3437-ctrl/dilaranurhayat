@@ -189,7 +189,7 @@ function LibraryPage() {
     desc: "İlmihal, aile ve ibadet konuları.",
   },
   {
-    title: "Yeni Kitap",
+    title: "Açıklamalı Kuran Meali",
     file: "/books/meal-a-unal.epub",
     desc: "Kuran Meali.",
   },
