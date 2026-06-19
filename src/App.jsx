@@ -97,7 +97,7 @@ export default function App() {
         {page === "egitim" && <SimplePage title="Eğitim" text="Dersler, çalışma takibi ve hedefler bölümü hazırlanıyor." />}
         {page === "hedefler" && <SimplePage title="Hedeflerim" text="Kısa ve uzun vadeli hedefler burada takip edilecek." />}
         {page === "gunluk" && <SimplePage title="Günlüğüm" text="Günlük notlar ve Rabbime mektuplarım burada yer alacak." />}
-        {page === "kutuphane" && <LibraryPage />}
+        {page === "kutuphane" && <SimplePage title="Kütüphane" text="Kitaplar, PDF dosyaları ve kaynaklar burada toplanacak." />}
         {page === "araclar" && <SimplePage title="Araçlar" text="Ezber takibi, namaz takibi ve çalışma araçları burada olacak." />}
       </main>
     </div>
@@ -210,7 +210,7 @@ function LibraryPage() {
       height: "70vh",
     });
 
-    rendition.display();
+    rendition.display(5);
     renditionRef.current = rendition;
 
     return () => {
