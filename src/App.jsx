@@ -182,15 +182,30 @@ function BackButton({ onClick }) {
 }
 
 function LibraryPage() {
+  const books = [
+  {
+    title: "Kadın ve Aile İlmihali",
+    file: "/books/kadin-ve-aile-ilmihali.epub",
+    desc: "İlmihal, aile ve ibadet konuları.",
+  },
+  {
+    title: "Yeni Kitap",
+    file: "/books/meal-a-unal.epub",
+    desc: "Kuran Meali.",
+  },
+];
+
+function LibraryPage() {
+  const [selectedBook, setSelectedBook] = useState(null);
   const viewerRef = useRef(null);
   const renditionRef = useRef(null);
 
   useEffect(() => {
-    if (!viewerRef.current) return;
+    if (!selectedBook || !viewerRef.current) return;
 
     viewerRef.current.innerHTML = "";
 
-    const book = ePub("/books/kadin-ve-aile-ilmihali.epub");
+    const book = ePub(selectedBook.file);
     const rendition = book.renderTo(viewerRef.current, {
       width: "100%",
       height: "70vh",
@@ -202,11 +217,37 @@ function LibraryPage() {
     return () => {
       rendition.destroy();
     };
-  }, []);
+  }, [selectedBook]);
+
+  if (!selectedBook) {
+    return (
+      <>
+        <Hero title="Kütüphane" subtitle="Okumak istediğin kitabı seç." />
+
+        <div className="cards">
+          {books.map((book) => (
+            <button
+              className="card"
+              key={book.file}
+              onClick={() => setSelectedBook(book)}
+            >
+              <div className="card-icon">📘</div>
+              <h3>{book.title}</h3>
+              <p>{book.desc}</p>
+            </button>
+          ))}
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
-      <Hero title="Kütüphane" subtitle="EPUB kitap okuyucu deneme alanı." />
+      <button className="back-button" onClick={() => setSelectedBook(null)}>
+        ← Kütüphaneye Dön
+      </button>
+
+      <Hero title={selectedBook.title} subtitle="EPUB okuyucu" />
 
       <div className="reader-toolbar">
         <button onClick={() => renditionRef.current?.prev()}>← Önceki</button>
