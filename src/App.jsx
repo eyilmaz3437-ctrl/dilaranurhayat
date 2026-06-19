@@ -181,7 +181,6 @@ function BackButton({ onClick }) {
   );
 }
 
-function LibraryPage() {
   const books = [
   {
     title: "Kadın ve Aile İlmihali",
