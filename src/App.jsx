@@ -1,7 +1,31 @@
 import "./App.css";
 import { useState } from "react";
 
-const anaMenuler = [
+const dualar = [
+  { title: "Sübhaneke", text: "Sübhânekellâhümme ve bi hamdik ve tebârekesmük ve teâlâ ceddük ve lâ ilâhe ğayrük." },
+  { title: "Ettehiyyâtü", text: "Ettehıyyâtü lillâhi vessalevâtü vettayyıbât. Esselâmü aleyke eyyühen-nebiyyü ve rahmetullâhi ve berakâtüh. Esselâmü aleynâ ve alâ ıbâdillâhis-sâlihîn. Eşhedü en lâ ilâhe illallâh ve eşhedü enne Muhammeden abdühû ve rasûlüh." },
+  { title: "Allahümme Salli", text: "Allâhümme salli alâ Muhammedin ve alâ âli Muhammed. Kemâ salleyte alâ İbrâhîme ve alâ âli İbrâhîm. İnneke hamîdün mecîd." },
+  { title: "Allahümme Bârik", text: "Allâhümme bârik alâ Muhammedin ve alâ âli Muhammed. Kemâ bârekte alâ İbrâhîme ve alâ âli İbrâhîm. İnneke hamîdün mecîd." },
+  { title: "Rabbena Âtina ve Rabbenâğfirlî", text: "Rabbenâ âtinâ fid-dünyâ haseneten ve fîl-âhireti haseneten ve kınâ azâben-nâr. Rabbenâğfirlî ve li-vâlideyye ve lil-mü'minîne yevme yekûmül-hısâb." },
+  { title: "Kunut 1", text: "Allâhümme innâ nesteînüke ve nesteğfirüke ve nestedîke. Ve nü'minü bike ve netûbü ileyke ve netevekkelü aleyke ve nüsnî aleykel-hayra küllehû neşkürüke ve lâ nekfürük. Ve nahle'u ve netrükü men yefcürük." },
+  { title: "Kunut 2", text: "Allâhümme iyyâke na'büdü ve leke nüsallî ve nescüdü ve ileyke nes'â ve nahfidü nercû rahmeteke ve nahşâ azâbeke inne azâbeke bil-küffâri mülhık." },
+  { title: "Ayetel Kürsi", text: "Allâhü lâ ilâhe illâ hüvel-hayyül-kayyûm. Lâ te'huzühû sinetün ve lâ nevm. Lehû mâ fis-semâvâti ve mâ fîl-ard. Men zellezî yeşfeu ındehû illâ bi-iznih. Ya'lemü mâ beyne eydîhim ve mâ halfehüm. Ve lâ yuhîtûne bi-şey'in min ılmihî illâ bimâ şâ'. Vesia kürsiyyühüs-semâvâti vel-ard. Ve lâ yeûdühû hıfzuhümâ ve hüvel-aliyyül-azîm." },
+];
+
+const sureler = [
+  { title: "Fil Suresi", text: "Elem tera keyfe fe'ale rabbüke bi-ashâbil-fîl. Elem yec'al keydehüm fî tadlîl. Ve ersele aleyhim tayran ebâbîl. Termîhim bi-hicâratin min siccîl. Fe-ce'alehüm ke'asfin me'kûl." },
+  { title: "Kureyş Suresi", text: "Li-îlâfi kureyş. Îlâfihim rihleted-şitâi ves-sayf. Fel-ya'büdû rabbe hâzel-beyt. Ellezî et'amehüm min cû'ın ve âmenehüm min havf." },
+  { title: "Mâûn Suresi", text: "Era'eytellezî yükezzibü bid-dîn. Fe-zâlikellezî yedü'ul-yetîm. Ve lâ yehüddü alâ taâmil-miskîn. Fe-veylün lil-müsallîn. Ellezînehüm an salâtihim sâhûn. Ellezînehüm yürâûn. Ve yemne'ûnel-mâûn." },
+  { title: "Kevser Suresi", text: "İnnâ a'taynâkel-kevser. Fesalli li-rabbike venhar. İnne şânieke hüvel-ebter." },
+  { title: "Kâfirûn Suresi", text: "Kul yâ eyyühel-kâfirûn. Lâ a'büdü mâ ta'büdûn. Ve lâ entüm âbidûne mâ a'büd. Ve lâ ene âbidün mâ abedtüm. Ve lâ entüm âbidûne mâ a'büd. Leküm dînüküm ve liye dîn." },
+  { title: "Nasr Suresi", text: "İzâ câe nasrullâhi vel-feth. Ve raeyten-nâse yedhulûne fî dînillâhi efvâcâ. Fesebbih bi-hamdi rabbike ves-tağfirh. İnnehû kâne tevvâbâ." },
+  { title: "Tebbet Suresi", text: "Tebbet yedâ ebî lehebin ve tebb. Mâ ağnâ anhü mâlühû ve mâ keseb. Seyaslâ nâran zâte leheb. Vemraetühû hammâletel-hatab. Fî cîdihâ hablün min mesed." },
+  { title: "İhlâs Suresi", text: "Kul hüvallâhü ehad. Allâhüs-samed. Lem yelid ve lem yûled. Ve lem yekün lehû küfüven ehad." },
+  { title: "Felak Suresi", text: "Kul eûzü bi-rabbil-felak. Min şerri mâ halak. Ve min şerri ğâsikın izâ vekab. Ve min şerrin-neffâsâti fîl-ukad. Ve min şerri hâsidin izâ hased." },
+  { title: "Nâs Suresi", text: "Kul eûzü bi-rabbin-nâs. Melikin-nâs. İlâhin-nâs. Min şerril-vesvâsil-hannâs. Ellezî yüvesvisü fî sudûrin-nâs. Minel-cinneti ven-nâs." },
+];
+
+const menuItems = [
   { key: "home", title: "Ana Sayfa", icon: "🏠" },
   { key: "islam", title: "İslam", icon: "☪" },
   { key: "egitim", title: "Eğitim", icon: "📚" },
@@ -11,185 +35,95 @@ const anaMenuler = [
   { key: "araclar", title: "Araçlar", icon: "🧰" },
 ];
 
-const islamKartlari = [
-  { key: "namaz", title: "Namaz", desc: "Vakit namazları, vitir ve tesbihat.", icon: "🕌" },
-  { key: "ilmihal", title: "İlmihal", desc: "Abdest, gusül ve temel bilgiler.", icon: "🌿" },
-  { key: "kuran", title: "Kur'an", desc: "Okuma, meal ve hatim takibi.", icon: "📗" },
-  { key: "sureler", title: "Sureler", desc: "Namaz sureleri ve ezber takibi.", icon: "✨" },
-  { key: "dualar", title: "Dualar", desc: "Namaz duaları ve günlük dualar.", icon: "🤲" },
-  { key: "islam-kutuphane", title: "Kütüphane", desc: "PDF, kitap ve not arşivi.", icon: "📚" },
-];
-
-const namazlar = [
-  "Sabah Namazı",
-  "Öğle Namazı",
-  "İkindi Namazı",
-  "Akşam Namazı",
-  "Yatsı Namazı",
-  "Vitir Namazı",
-  "Namaz Sonrası Tesbihat",
-];
-
-const ilmihal = [
-  "Namaz Abdesti",
-  "Gusül Abdesti",
-  "Teyemmüm",
-  "Namazın Şartları",
-  "Namazı Bozan Durumlar",
-  "Kur'an Okuma Adabı",
-];
-
-const egitimKartlari = [
-  { title: "Matematik", icon: "➗" },
-  { title: "Türkçe", icon: "📝" },
-  { title: "Fen", icon: "🔬" },
-  { title: "Tarih", icon: "🏛️" },
-  { title: "İngilizce", icon: "🌍" },
-  { title: "Çalışma Takibi", icon: "✅" },
-];
-
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(true);
   const [page, setPage] = useState("home");
-  const [subPage, setSubPage] = useState(null);
+  const [subPage, setSubPage] = useState("");
 
-  const goPage = (newPage) => {
-    setPage(newPage);
-    setSubPage(null);
-  };
+  function changePage(key) {
+    setPage(key);
+    setSubPage("");
+  }
 
   return (
     <div className="app">
       <aside className={menuOpen ? "sidebar open" : "sidebar"}>
         <div className="topbar">
           <div className="brand">{menuOpen ? "🌷 Dilara Nur Hayat" : "🌷"}</div>
-          <button className="toggle" onClick={() => setMenuOpen(!menuOpen)} title="Menüyü aç/kapat">
-            ☰
-          </button>
+          <button className="toggle" onClick={() => setMenuOpen(!menuOpen)}>☰</button>
         </div>
 
         <nav className="main-menu">
-          {anaMenuler.map((item) => (
+          {menuItems.map((item) => (
             <button
               key={item.key}
               className={page === item.key ? "menu-item active" : "menu-item"}
-              onClick={() => goPage(item.key)}
+              onClick={() => changePage(item.key)}
             >
-              <span className="menu-icon">{item.icon}</span>
+              <span>{item.icon}</span>
               {menuOpen && <span>{item.title}</span>}
             </button>
           ))}
         </nav>
-
-        {menuOpen && page === "islam" && (
-          <div className="side-sub desktop-only">
-            <div className="side-sub-title">İslam</div>
-            {islamKartlari.map((item) => (
-              <button
-                key={item.key}
-                className={subPage === item.key ? "side-sub-item active" : "side-sub-item"}
-                onClick={() => setSubPage(item.key)}
-              >
-                {item.title}
-              </button>
-            ))}
-          </div>
-        )}
       </aside>
 
       <main className="content">
-        {page === "home" && <Home />}
-        {page === "islam" && (
-          <Islam
-            subPage={subPage}
-            setSubPage={setSubPage}
-          />
+        {page === "home" && (
+          <>
+            <Hero title="Hoş Geldin Dilara" subtitle="Bugün ne olacak?" />
+            <div className="cards">
+              <HomeCard title="İslam" icon="☪" text="Namaz, ilmihal, Kur'an, sureler ve dualar." onClick={() => changePage("islam")} />
+              <HomeCard title="Eğitim" icon="📚" text="Dersler, çalışma takibi ve hedefler." onClick={() => changePage("egitim")} />
+              <HomeCard title="Günlüğüm" icon="📝" text="Notlarım ve Rabbime mektuplarım." onClick={() => changePage("gunluk")} />
+            </div>
+          </>
         )}
-        {page === "egitim" && <Egitim />}
-        {page === "hedefler" && <SimplePage title="Hedeflerim" text="Dilara'nın kısa ve uzun vadeli hedefleri burada takip edilecek." />}
-        {page === "gunluk" && <SimplePage title="Günlüğüm" text="Günlük notlar, Rabbime mektuplarım ve kişisel düşünceler burada yer alacak." />}
-        {page === "kutuphane" && <SimplePage title="Kütüphane" text="PDF dosyaları, kitap notları ve indirilebilir içerikler burada toplanacak." />}
-        {page === "araclar" && <SimplePage title="Araçlar" text="Ezber takibi, namaz takibi ve çalışma planı gibi araçlar burada olacak." />}
+
+        {page === "islam" && (
+          <IslamPage subPage={subPage} setSubPage={setSubPage} />
+        )}
+
+        {page === "egitim" && <SimplePage title="Eğitim" text="Dersler, çalışma takibi ve hedefler bölümü hazırlanıyor." />}
+        {page === "hedefler" && <SimplePage title="Hedeflerim" text="Kısa ve uzun vadeli hedefler burada takip edilecek." />}
+        {page === "gunluk" && <SimplePage title="Günlüğüm" text="Günlük notlar ve Rabbime mektuplarım burada yer alacak." />}
+        {page === "kutuphane" && <SimplePage title="Kütüphane" text="Kitaplar, PDF dosyaları ve kaynaklar burada toplanacak." />}
+        {page === "araclar" && <SimplePage title="Araçlar" text="Ezber takibi, namaz takibi ve çalışma araçları burada olacak." />}
       </main>
     </div>
   );
 }
 
-function Home() {
+function IslamPage({ subPage, setSubPage }) {
+  if (subPage === "dualar") {
+    return (
+      <>
+        <BackButton onClick={() => setSubPage("")} />
+        <Hero title="Namaz Duaları" subtitle="Türkçe okunuşlarıyla namazda okunan dualar." />
+        <TextList items={dualar} />
+      </>
+    );
+  }
+
+  if (subPage === "sureler") {
+    return (
+      <>
+        <BackButton onClick={() => setSubPage("")} />
+        <Hero title="Zamm-ı Sureler" subtitle="Fil Suresi'nden Nâs Suresi'ne kadar Türkçe okunuşlar." />
+        <TextList items={sureler} />
+      </>
+    );
+  }
+
   return (
     <>
-      <Hero title="Hoş Geldin Dilara" subtitle="Bugün ne öğrenmek istiyorsun?" />
+      <Hero title="İslam" subtitle="Namaz, ilmihal, Kur'an, sureler ve dualar." />
       <div className="cards">
-        <InfoCard icon="☪" title="İslam" desc="Namaz, ilmihal, Kur'an, sureler ve dualar." />
-        <InfoCard icon="📚" title="Eğitim" desc="Dersler, çalışma takibi ve hedefler." />
-        <InfoCard icon="📝" title="Günlüğüm" desc="Notlarım ve Rabbime mektuplarım." />
-      </div>
-    </>
-  );
-}
-
-function Islam({ subPage, setSubPage }) {
-  if (subPage === "namaz") {
-    return (
-      <>
-        <BackButton onClick={() => setSubPage(null)} />
-        <Hero title="Namaz" subtitle="Vakit namazları, vitir ve tesbihat." />
-        <ListGrid items={namazlar} />
-      </>
-    );
-  }
-
-  if (subPage === "ilmihal") {
-    return (
-      <>
-        <BackButton onClick={() => setSubPage(null)} />
-        <Hero title="İlmihal" subtitle="Temel ibadet bilgileri." />
-        <ListGrid items={ilmihal} />
-      </>
-    );
-  }
-
-  return (
-    <>
-      <Hero title="İslam" subtitle="Namaz, ilmihal, Kur'an, sureler, dualar ve kütüphane." />
-      <section>
-        <h2>İslam Bölümü</h2>
-        <div className="cards">
-          {islamKartlari.map((item) => (
-            <button className="card clickable" key={item.key} onClick={() => setSubPage(item.key)}>
-              <div className="card-icon">{item.icon}</div>
-              <h3>{item.title}</h3>
-              <p>{item.desc}</p>
-            </button>
-          ))}
-        </div>
-      </section>
-    </>
-  );
-}
-
-function Egitim() {
-  return (
-    <>
-      <Hero title="Eğitim" subtitle="Lise yolculuğu için dersler ve çalışma takibi." />
-      <section>
-        <h2>Eğitim Bölümü</h2>
-        <div className="cards">
-          {egitimKartlari.map((item) => (
-            <InfoCard key={item.title} icon={item.icon} title={item.title} desc="Bu bölüm hazırlanıyor." />
-          ))}
-        </div>
-      </section>
-    </>
-  );
-}
-
-function SimplePage({ title, text }) {
-  return (
-    <>
-      <Hero title={title} subtitle={text} />
-      <div className="card wide">
-        <p>Bu bölümün içeriği sonraki aşamada hazırlanacak.</p>
+        <HomeCard title="Namaz" icon="🕌" text="Vakit namazları ve tesbihat." onClick={() => setSubPage("namaz")} />
+        <HomeCard title="İlmihal" icon="🌿" text="Abdest, gusül ve temel bilgiler." onClick={() => setSubPage("ilmihal")} />
+        <HomeCard title="Kur'an" icon="📗" text="Okuma, meal ve hatim takibi." onClick={() => setSubPage("kuran")} />
+        <HomeCard title="Sureler" icon="✨" text="Zamm-ı surelerin Türkçe okunuşları." onClick={() => setSubPage("sureler")} />
+        <HomeCard title="Dualar" icon="🤲" text="Namaz dualarının Türkçe okunuşları." onClick={() => setSubPage("dualar")} />
+        <HomeCard title="Kütüphane" icon="📚" text="PDF, kitap ve kaynaklar." onClick={() => setSubPage("kutuphane")} />
       </div>
     </>
   );
@@ -198,30 +132,31 @@ function SimplePage({ title, text }) {
 function Hero({ title, subtitle }) {
   return (
     <header className="hero">
-      <p className="small">Dilara Nur Hayat</p>
+      <p>Dilara Nur Hayat</p>
       <h1>{title}</h1>
-      <p>{subtitle}</p>
+      <span>{subtitle}</span>
     </header>
   );
 }
 
-function InfoCard({ icon, title, desc }) {
+function HomeCard({ title, icon, text, onClick }) {
   return (
-    <div className="card">
+    <button className="card" onClick={onClick}>
       <div className="card-icon">{icon}</div>
       <h3>{title}</h3>
-      <p>{desc}</p>
-    </div>
+      <p>{text}</p>
+    </button>
   );
 }
 
-function ListGrid({ items }) {
+function TextList({ items }) {
   return (
-    <div className="list-grid">
+    <div className="text-list">
       {items.map((item) => (
-        <button className="list-card" key={item}>
-          {item}
-        </button>
+        <article className="reading-card" key={item.title}>
+          <h3>{item.title}</h3>
+          <p>{item.text}</p>
+        </article>
       ))}
     </div>
   );
@@ -232,5 +167,17 @@ function BackButton({ onClick }) {
     <button className="back-button" onClick={onClick}>
       ← İslam Bölümüne Dön
     </button>
+  );
+}
+
+function SimplePage({ title, text }) {
+  return (
+    <>
+      <Hero title={title} subtitle={text} />
+      <div className="reading-card">
+        <h3>Hazırlanıyor</h3>
+        <p>Bu bölüm sonraki aşamada doldurulacak.</p>
+      </div>
+    </>
   );
 }
