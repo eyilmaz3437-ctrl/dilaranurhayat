@@ -2,61 +2,278 @@ import "./App.css";
 import { useState } from "react";
 
 const dualar = [
-  { title: "Sübhaneke", text: "Sübhânekellâhümme ve bi hamdik ve tebârekesmük ve teâlâ ceddük ve lâ ilâhe ğayrük." },
-  { title: "Ettehiyyâtü", text: "Ettehıyyâtü lillâhi vessalevâtü vettayyıbât. Esselâmü aleyke eyyühen-nebiyyü ve rahmetullâhi ve berakâtüh. Esselâmü aleynâ ve alâ ıbâdillâhis-sâlihîn. Eşhedü en lâ ilâhe illallâh ve eşhedü enne Muhammeden abdühû ve rasûlüh." },
-  { title: "Allahümme Salli", text: "Allâhümme salli alâ Muhammedin ve alâ âli Muhammed. Kemâ salleyte alâ İbrâhîme ve alâ âli İbrâhîm. İnneke hamîdün mecîd." },
-  { title: "Allahümme Bârik", text: "Allâhümme bârik alâ Muhammedin ve alâ âli Muhammed. Kemâ bârekte alâ İbrâhîme ve alâ âli İbrâhîm. İnneke hamîdün mecîd." },
-  { title: "Rabbena Âtina ve Rabbenâğfirlî", text: "Rabbenâ âtinâ fid-dünyâ haseneten ve fîl-âhireti haseneten ve kınâ azâben-nâr. Rabbenâğfirlî ve li-vâlideyye ve lil-mü'minîne yevme yekûmül-hısâb." },
-  { title: "Kunut 1", text: "Allâhümme innâ nesteînüke ve nesteğfirüke ve nestedîke. Ve nü'minü bike ve netûbü ileyke ve netevekkelü aleyke ve nüsnî aleykel-hayra küllehû neşkürüke ve lâ nekfürük. Ve nahle'u ve netrükü men yefcürük." },
-  { title: "Kunut 2", text: "Allâhümme iyyâke na'büdü ve leke nüsallî ve nescüdü ve ileyke nes'â ve nahfidü nercû rahmeteke ve nahşâ azâbeke inne azâbeke bil-küffâri mülhık." },
-  { title: "Ayetel Kürsi", text: "Allâhü lâ ilâhe illâ hüvel-hayyül-kayyûm. Lâ te'huzühû sinetün ve lâ nevm. Lehû mâ fis-semâvâti ve mâ fîl-ard. Men zellezî yeşfeu ındehû illâ bi-iznih. Ya'lemü mâ beyne eydîhim ve mâ halfehüm. Ve lâ yuhîtûne bi-şey'in min ılmihî illâ bimâ şâ'. Vesia kürsiyyühüs-semâvâti vel-ard. Ve lâ yeûdühû hıfzuhümâ ve hüvel-aliyyül-azîm." },
+  {
+    title: "Sübhaneke",
+    text: "Sübhânekellâhümme ve bi hamdik ve tebârekesmük ve teâlâ ceddük ve lâ ilâhe ğayrük.",
+    arabic: "سُبْحَانَكَ اللّٰهُمَّ وَبِحَمْدِكَ، وَتَبَارَكَ اسْمُكَ، وَتَعَالَى جَدُّكَ، وَلَا إِلٰهَ غَيْرُكَ",
+    meal: "Allah'ım! Seni hamdinle tesbih ederim. Senin ismin mübarektir, şanın yücedir. Senden başka ilah yoktur."
+  },
+  {
+    title: "Ettehiyyâtü",
+    text: "Ettehıyyâtü lillâhi vessalevâtü vettayyıbât. Esselâmü aleyke eyyühen-nebiyyü ve rahmetullâhi ve berakâtüh. Esselâmü aleynâ ve alâ ıbâdillâhis-sâlihîn. Eşhedü en lâ ilâhe illallâh ve eşhedü enne Muhammeden abdühû ve rasûlüh.",
+    arabic: "التَّحِيَّاتُ لِلّٰهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللّٰهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللّٰهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلٰهَ إِلَّا اللّٰهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ",
+    meal: "Bütün selamlar, dualar ve güzel sözler Allah içindir. Ey Peygamber! Allah'ın selamı, rahmeti ve bereketi senin üzerine olsun. Selam bizim ve Allah'ın salih kullarının üzerine olsun. Şahitlik ederim ki Allah'tan başka ilah yoktur; yine şahitlik ederim ki Muhammed O'nun kulu ve elçisidir."
+  },
+  {
+    title: "Allahümme Salli",
+    text: "Allâhümme salli alâ Muhammedin ve alâ âli Muhammed. Kemâ salleyte alâ İbrâhîme ve alâ âli İbrâhîm. İnneke hamîdün mecîd.",
+    arabic: "اَللّٰهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ",
+    meal: "Allah'ım! Muhammed'e ve Muhammed'in ailesine rahmet eyle. İbrahim'e ve İbrahim'in ailesine rahmet ettiğin gibi. Şüphesiz sen övülmeye layıksın, şanı yücesin."
+  },
+  {
+    title: "Allahümme Bârik",
+    text: "Allâhümme bârik alâ Muhammedin ve alâ âli Muhammed. Kemâ bârekte alâ İbrâhîme ve alâ âli İbrâhîm. İnneke hamîdün mecîd.",
+    arabic: "اَللّٰهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ",
+    meal: "Allah'ım! Muhammed'e ve Muhammed'in ailesine bereket ihsan eyle. İbrahim'e ve İbrahim'in ailesine bereket verdiğin gibi. Şüphesiz sen övülmeye layıksın, şanı yücesin."
+  },
+  {
+    title: "Rabbena Âtina ve Rabbenâğfirlî",
+    text: "Rabbenâ âtinâ fid-dünyâ haseneten ve fîl-âhireti haseneten ve kınâ azâben-nâr. Rabbenâğfirlî ve li-vâlideyye ve lil-mü'minîne yevme yekûmül-hısâb.",
+    arabic: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ. رَبَّنَا اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ",
+    meal: "Rabbimiz! Bize dünyada iyilik, ahirette de iyilik ver ve bizi ateş azabından koru. Rabbimiz! Hesap gününde beni, anne babamı ve bütün müminleri bağışla."
+  },
+  {
+    title: "Kunut 1",
+    text: "Allâhümme innâ nesteînüke ve nesteğfirüke ve nestedîke. Ve nü'minü bike ve netûbü ileyke ve netevekkelü aleyke ve nüsnî aleykel-hayra küllehû neşkürüke ve lâ nekfürük. Ve nahle'u ve netrükü men yefcürük.",
+    arabic: "اَللّٰهُمَّ إِنَّا نَسْتَعِينُكَ وَنَسْتَغْفِرُكَ وَنَسْتَهْدِيكَ، وَنُؤْمِنُ بِكَ وَنَتُوبُ إِلَيْكَ، وَنَتَوَكَّلُ عَلَيْكَ، وَنُثْنِي عَلَيْكَ الْخَيْرَ كُلَّهُ، نَشْكُرُكَ وَلَا نَكْفُرُكَ، وَنَخْلَعُ وَنَتْرُكُ مَنْ يَفْجُرُكَ",
+    meal: "Allah'ım! Senden yardım ister, bağışlanma diler ve hidayet isteriz. Sana inanır, sana tevbe eder, sana güveniriz. Seni bütün hayırlarla överiz. Sana şükreder, nankörlük etmeyiz. Sana karşı gelenlerden uzak dururuz."
+  },
+  {
+    title: "Kunut 2",
+    text: "Allâhümme iyyâke na'büdü ve leke nüsallî ve nescüdü ve ileyke nes'â ve nahfidü nercû rahmeteke ve nahşâ azâbeke inne azâbeke bil-küffâri mülhık.",
+    arabic: "اَللّٰهُمَّ إِيَّاكَ نَعْبُدُ، وَلَكَ نُصَلِّي وَنَسْجُدُ، وَإِلَيْكَ نَسْعَى وَنَحْفِدُ، نَرْجُو رَحْمَتَكَ، وَنَخْشَى عَذَابَكَ، إِنَّ عَذَابَكَ بِالْكُفَّارِ مُلْحِقٌ",
+    meal: "Allah'ım! Yalnız sana kulluk ederiz. Senin için namaz kılar ve secde ederiz. Sana yönelir, senin rızanı kazanmak için gayret ederiz. Rahmetini umar, azabından korkarız. Şüphesiz azabın inkârcılara ulaşacaktır."
+  },
+  {
+    title: "Ayetel Kürsi",
+    text: "Allâhü lâ ilâhe illâ hüvel-hayyül-kayyûm. Lâ te'huzühû sinetün ve lâ nevm. Lehû mâ fis-semâvâti ve mâ fîl-ard. Men zellezî yeşfeu ındehû illâ bi-iznih. Ya'lemü mâ beyne eydîhim ve mâ halfehüm. Ve lâ yuhîtûne bi-şey'in min ılmihî illâ bimâ şâ'. Vesia kürsiyyühüs-semâvâti vel-ard. Ve lâ yeûdühû hıfzuhümâ ve hüvel-aliyyül-azîm.",
+    arabic: "اللّٰهُ لَا إِلٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ، لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ، مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ، يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ، وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ، وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ، وَلَا يَئُودُهُ حِفْظُهُمَا، وَهُوَ الْعَلِيُّ الْعَظِيمُ",
+    meal: "Allah'tan başka ilah yoktur. O diridir, her şeyi ayakta tutandır. O'nu ne uyuklama tutar ne de uyku. Göklerde ve yerde ne varsa O'nundur. O'nun izni olmadan katında kim şefaat edebilir? O, kullarının önlerindekini ve arkalarındakini bilir. Onlar ise O'nun ilminden, dilediği kadarından başka hiçbir şeyi kavrayamazlar. O'nun kürsüsü gökleri ve yeri kuşatmıştır. Onları koruyup gözetmek O'na ağır gelmez. O yücedir, büyüktür."
+  },
 ];
 
 const sureler = [
-  { title: "Fil Suresi", text: "Elem tera keyfe fe'ale rabbüke bi-ashâbil-fîl. Elem yec'al keydehüm fî tadlîl. Ve ersele aleyhim tayran ebâbîl. Termîhim bi-hicâratin min siccîl. Fe-ce'alehüm ke'asfin me'kûl." },
-  { title: "Kureyş Suresi", text: "Li-îlâfi kureyş. Îlâfihim rihleted-şitâi ves-sayf. Fel-ya'büdû rabbe hâzel-beyt. Ellezî et'amehüm min cû'ın ve âmenehüm min havf." },
-  { title: "Mâûn Suresi", text: "Era'eytellezî yükezzibü bid-dîn. Fe-zâlikellezî yedü'ul-yetîm. Ve lâ yehüddü alâ taâmil-miskîn. Fe-veylün lil-müsallîn. Ellezînehüm an salâtihim sâhûn. Ellezînehüm yürâûn. Ve yemne'ûnel-mâûn." },
-  { title: "Kevser Suresi", text: "İnnâ a'taynâkel-kevser. Fesalli li-rabbike venhar. İnne şânieke hüvel-ebter." },
-  { title: "Kâfirûn Suresi", text: "Kul yâ eyyühel-kâfirûn. Lâ a'büdü mâ ta'büdûn. Ve lâ entüm âbidûne mâ a'büd. Ve lâ ene âbidün mâ abedtüm. Ve lâ entüm âbidûne mâ a'büd. Leküm dînüküm ve liye dîn." },
-  { title: "Nasr Suresi", text: "İzâ câe nasrullâhi vel-feth. Ve raeyten-nâse yedhulûne fî dînillâhi efvâcâ. Fesebbih bi-hamdi rabbike ves-tağfirh. İnnehû kâne tevvâbâ." },
-  { title: "Tebbet Suresi", text: "Tebbet yedâ ebî lehebin ve tebb. Mâ ağnâ anhü mâlühû ve mâ keseb. Seyaslâ nâran zâte leheb. Vemraetühû hammâletel-hatab. Fî cîdihâ hablün min mesed." },
-  { title: "İhlâs Suresi", text: "Kul hüvallâhü ehad. Allâhüs-samed. Lem yelid ve lem yûled. Ve lem yekün lehû küfüven ehad." },
-  { title: "Felak Suresi", text: "Kul eûzü bi-rabbil-felak. Min şerri mâ halak. Ve min şerri ğâsikın izâ vekab. Ve min şerrin-neffâsâti fîl-ukad. Ve min şerri hâsidin izâ hased." },
-  { title: "Nâs Suresi", text: "Kul eûzü bi-rabbin-nâs. Melikin-nâs. İlâhin-nâs. Min şerril-vesvâsil-hannâs. Ellezî yüvesvisü fî sudûrin-nâs. Minel-cinneti ven-nâs." },
+  {
+    title: "Fil Suresi",
+    text: "Elem tera keyfe fe'ale rabbüke bi-ashâbil-fîl. Elem yec'al keydehüm fî tadlîl. Ve ersele aleyhim tayran ebâbîl. Termîhim bi-hicâratin min siccîl. Fe-ce'alehüm ke'asfin me'kûl.",
+    arabic: "أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَابِ الْفِيلِ ۝ أَلَمْ يَجْعَلْ كَيْدَهُمْ فِي تَضْلِيلٍ ۝ وَأَرْسَلَ عَلَيْهِمْ طَيْرًا أَبَابِيلَ ۝ تَرْمِيهِمْ بِحِجَارَةٍ مِنْ سِجِّيلٍ ۝ فَجَعَلَهُمْ كَعَصْفٍ مَأْكُولٍ",
+    meal: "Rabbinin fil sahiplerine ne yaptığını hatırla. Onların planlarını boşa çıkardı; üzerlerine sürüler halinde kuşlar gönderdi. Kuşlar onlara pişmiş taşlar attı ve onları yenilmiş ekin yaprakları gibi yaptı."
+  },
+  {
+    title: "Kureyş Suresi",
+    text: "Li-îlâfi kureyş. Îlâfihim rihleted-şitâi ves-sayf. Fel-ya'büdû rabbe hâzel-beyt. Ellezî et'amehüm min cû'ın ve âmenehüm min havf.",
+    arabic: "لِإِيلَافِ قُرَيْشٍ ۝ إِيلَافِهِمْ رِحْلَةَ الشِّتَاءِ وَالصَّيْفِ ۝ فَلْيَعْبُدُوا رَبَّ هَٰذَا الْبَيْتِ ۝ الَّذِي أَطْعَمَهُمْ مِنْ جُوعٍ وَآمَنَهُمْ مِنْ خَوْفٍ",
+    meal: "Kureyş'e kolaylık sağlandığı, kış ve yaz yolculukları güven içinde yapıldığı için, onları açlıktan doyuran ve korkudan emin kılan bu evin Rabbine kulluk etsinler."
+  },
+  {
+    title: "Mâûn Suresi",
+    text: "Era'eytellezî yükezzibü bid-dîn. Fe-zâlikellezî yedü'ul-yetîm. Ve lâ yehüddü alâ taâmil-miskîn. Fe-veylün lil-müsallîn. Ellezînehüm an salâtihim sâhûn. Ellezînehüm yürâûn. Ve yemne'ûnel-mâûn.",
+    arabic: "أَرَأَيْتَ الَّذِي يُكَذِّبُ بِالدِّينِ ۝ فَذَٰلِكَ الَّذِي يَدُعُّ الْيَتِيمَ ۝ وَلَا يَحُضُّ عَلَىٰ طَعَامِ الْمِسْكِينِ ۝ فَوَيْلٌ لِلْمُصَلِّينَ ۝ الَّذِينَ هُمْ عَنْ صَلَاتِهِمْ سَاهُونَ ۝ الَّذِينَ هُمْ يُرَاءُونَ ۝ وَيَمْنَعُونَ الْمَاعُونَ",
+    meal: "Hesap gününü yalanlayanı gördün mü? İşte o, yetimi iter, yoksulu doyurmaya teşvik etmez. Namazlarını önemsemeyen, gösteriş yapan ve küçük yardımları bile esirgeyenlere yazıklar olsun."
+  },
+  {
+    title: "Kevser Suresi",
+    text: "İnnâ a'taynâkel-kevser. Fesalli li-rabbike venhar. İnne şânieke hüvel-ebter.",
+    arabic: "إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ ۝ فَصَلِّ لِرَبِّكَ وَانْحَرْ ۝ إِنَّ شَانِئَكَ هُوَ الْأَبْتَرُ",
+    meal: "Biz sana Kevser'i verdik. Öyleyse Rabbin için namaz kıl ve kurban kes. Asıl soyu kesik olan, sana düşmanlık edendir."
+  },
+  {
+    title: "Kâfirûn Suresi",
+    text: "Kul yâ eyyühel-kâfirûn. Lâ a'büdü mâ ta'büdûn. Ve lâ entüm âbidûne mâ a'büd. Ve lâ ene âbidün mâ abedtüm. Ve lâ entüm âbidûne mâ a'büd. Leküm dînüküm ve liye dîn.",
+    arabic: "قُلْ يَا أَيُّهَا الْكَافِرُونَ ۝ لَا أَعْبُدُ مَا تَعْبُدُونَ ۝ وَلَا أَنْتُمْ عَابِدُونَ مَا أَعْبُدُ ۝ وَلَا أَنَا عَابِدٌ مَا عَبَدْتُمْ ۝ وَلَا أَنْتُمْ عَابِدُونَ مَا أَعْبُدُ ۝ لَكُمْ دِينُكُمْ وَلِيَ دِينِ",
+    meal: "De ki: Ey inkârcılar! Ben sizin taptıklarınıza tapmam; siz de benim kulluk ettiğime kulluk etmezsiniz. Sizin dininiz size, benim dinim banadır."
+  },
+  {
+    title: "Nasr Suresi",
+    text: "İzâ câe nasrullâhi vel-feth. Ve raeyten-nâse yedhulûne fî dînillâhi efvâcâ. Fesebbih bi-hamdi rabbike ves-tağfirh. İnnehû kâne tevvâbâ.",
+    arabic: "إِذَا جَاءَ نَصْرُ اللَّهِ وَالْفَتْحُ ۝ وَرَأَيْتَ النَّاسَ يَدْخُلُونَ فِي دِينِ اللَّهِ أَفْوَاجًا ۝ فَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُ ۚ إِنَّهُ كَانَ تَوَّابًا",
+    meal: "Allah'ın yardımı ve fetih geldiğinde, insanların topluluklar halinde Allah'ın dinine girdiklerini gördüğünde, Rabbini hamd ile tesbih et ve O'ndan bağışlanma dile. O, tövbeleri çok kabul edendir."
+  },
+  {
+    title: "Tebbet Suresi",
+    text: "Tebbet yedâ ebî lehebin ve tebb. Mâ ağnâ anhü mâlühû ve mâ keseb. Seyaslâ nâran zâte leheb. Vemraetühû hammâletel-hatab. Fî cîdihâ hablün min mesed.",
+    arabic: "تَبَّتْ يَدَا أَبِي لَهَبٍ وَتَبَّ ۝ مَا أَغْنَىٰ عَنْهُ مَالُهُ وَمَا كَسَبَ ۝ سَيَصْلَىٰ نَارًا ذَاتَ لَهَبٍ ۝ وَامْرَأَتُهُ حَمَّالَةَ الْحَطَبِ ۝ فِي جِيدِهَا حَبْلٌ مِنْ مَسَدٍ",
+    meal: "Ebû Leheb'in elleri kurusun; zaten kurudu. Malı ve kazandıkları ona fayda vermedi. O alevli ateşe girecek; karısı da boynunda ip olduğu halde onunla birlikte cezaya uğrayacaktır."
+  },
+  {
+    title: "İhlâs Suresi",
+    text: "Kul hüvallâhü ehad. Allâhüs-samed. Lem yelid ve lem yûled. Ve lem yekün lehû küfüven ehad.",
+    arabic: "قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ",
+    meal: "De ki: O Allah birdir. Allah Samed'dir; her şey O'na muhtaçtır, O hiçbir şeye muhtaç değildir. Doğurmamış ve doğurulmamıştır. Hiçbir şey O'nun dengi değildir."
+  },
+  {
+    title: "Felak Suresi",
+    text: "Kul eûzü bi-rabbil-felak. Min şerri mâ halak. Ve min şerri ğâsikın izâ vekab. Ve min şerrin-neffâsâti fîl-ukad. Ve min şerri hâsidin izâ hased.",
+    arabic: "قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ مِنْ شَرِّ مَا خَلَقَ ۝ وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ ۝ وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۝ وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ",
+    meal: "De ki: Yarattıklarının şerrinden, çöken karanlığın şerrinden, düğümlere üfleyenlerin şerrinden ve kıskandığı zaman kıskanç kişinin şerrinden sabahın Rabbine sığınırım."
+  },
+  {
+    title: "Nâs Suresi",
+    text: "Kul eûzü bi-rabbin-nâs. Melikin-nâs. İlâhin-nâs. Min şerril-vesvâsil-hannâs. Ellezî yüvesvisü fî sudûrin-nâs. Minel-cinneti ven-nâs.",
+    arabic: "قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۝ مَلِكِ النَّاسِ ۝ إِلَٰهِ النَّاسِ ۝ مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۝ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۝ مِنَ الْجِنَّةِ وَالنَّاسِ",
+    meal: "De ki: İnsanların Rabbine, insanların Melikine, insanların İlahına sığınırım. İnsanların kalplerine vesvese veren, gizlenip geri çekilen şeytanın şerrinden; cinlerden ve insanlardan gelen vesveseden Allah'a sığınırım."
+  },
 ];
 
 const namazHareketleri = [
-  { title: "Rükûda", text: "Sübhâne Rabbiyel Azîm — 3 defa" },
-  { title: "Rükûdan doğrulurken", text: "Semiallahü limen hamideh" },
-  { title: "Ayakta doğrulunca", text: "Rabbenâ lekel hamd" },
-  { title: "Secdede", text: "Sübhâne Rabbiyel A'lâ — 3 defa" },
-  { title: "Selam verirken", text: "Esselâmü aleyküm ve rahmetullah" },
+  {
+    title: "Niyet",
+    text: `Kalpten hangi namaz kılınacaksa ona niyet edilir.
+
+Örnek: Allah rızası için sabah namazının sünnetini kılmaya niyet ettim.`
+  },
+  {
+    title: "İftitah Tekbiri",
+    text: "Eller kaldırılır ve Allahu Ekber denilerek namaza başlanır."
+  },
+  {
+    title: "Kıyam",
+    text: "Ayakta durulur. Önce Sübhaneke okunur. Sonra Eûzü Besmele, Fâtiha ve bir zamm-ı sure okunur."
+  },
+  {
+    title: "Rükû",
+    text: `Eğilerek rükû yapılır.
+
+Rükûda 3 defa:
+Sübhâne Rabbiyel Azîm`
+  },
+  {
+    title: "Rükûdan Doğrulma",
+    text: `Rükûdan kalkarken:
+Semiallahü limen hamideh
+
+Tam doğrulunca:
+Rabbenâ lekel hamd`
+  },
+  {
+    title: "Secde",
+    text: `Secdeye gidilir.
+
+Secdede 3 defa:
+Sübhâne Rabbiyel A'lâ
+
+Sonra kısa oturulur ve ikinci secde yapılır.`
+  },
+  {
+    title: "Son Oturuş",
+    text: "Son oturuşta Ettehiyyâtü, Allahümme Salli, Allahümme Bârik ve Rabbena duaları okunur."
+  },
+  {
+    title: "Selam",
+    text: `Önce sağa, sonra sola selam verilir.
+
+Esselâmü aleyküm ve rahmetullah`
+  },
 ];
 
 const namazlar = [
   {
     title: "Sabah Namazı",
-    text: "2 rekât sünnet + 2 rekât farz. Her iki rekâtlık namazda 1. rekâtta Sübhaneke, Fâtiha ve bir sure okunur. 2. rekâtta Fâtiha ve bir sure okunur. Son oturuşta Ettehiyyâtü, Salli, Bârik ve Rabbena duaları okunur, selam verilir.",
+    text: `Toplam: 2 rekât sünnet + 2 rekât farz.
+
+Sünnet ve farz aynı şekilde kılınır:
+
+1. Rekât:
+• Niyet edilir.
+• Allahu Ekber denilerek namaza başlanır.
+• Sübhaneke okunur.
+• Eûzü Besmele çekilir.
+• Fâtiha okunur.
+• Bir zamm-ı sure okunur.
+• Rükû yapılır.
+• Secdeler yapılır.
+
+2. Rekât:
+• Ayağa kalkılır.
+• Besmele çekilir.
+• Fâtiha okunur.
+• Bir zamm-ı sure okunur.
+• Rükû yapılır.
+• Secdeler yapılır.
+• Son oturuşta Ettehiyyâtü, Salli, Bârik ve Rabbena okunur.
+• Sağa ve sola selam verilir.`
   },
   {
     title: "Öğle Namazı",
-    text: "4 rekât ilk sünnet + 4 rekât farz + 2 rekât son sünnet. Dört rekâtlı sünnette 2. rekâtta Ettehiyyâtü okunup kalkılır; 3. rekâtta Sübhaneke ile devam edilir. Farzda 3. ve 4. rekâtlarda sadece Fâtiha okunur.",
+    text: `Toplam: 4 rekât ilk sünnet + 4 rekât farz + 2 rekât son sünnet.
+
+4 rekât ilk sünnet:
+• 1. rekâtta Sübhaneke, Fâtiha ve sure okunur.
+• 2. rekâtta Fâtiha ve sure okunur.
+• İlk oturuşta Ettehiyyâtü okunur, ayağa kalkılır.
+• 3. rekâtta Sübhaneke ile başlanır, Fâtiha ve sure okunur.
+• 4. rekâtta Fâtiha ve sure okunur.
+• Son oturuşta dualar okunur ve selam verilir.
+
+4 rekât farz:
+• 1. ve 2. rekâtta Fâtiha ve sure okunur.
+• 3. ve 4. rekâtta yalnız Fâtiha okunur.
+
+2 rekât son sünnet:
+• Sabah namazının sünneti gibi kılınır.`
   },
   {
     title: "İkindi Namazı",
-    text: "4 rekât sünnet + 4 rekât farz. Sünnetin 3. rekâtında Sübhaneke ile başlanır. Farzda 3. ve 4. rekâtlarda sadece Fâtiha okunur.",
+    text: `Toplam: 4 rekât sünnet + 4 rekât farz.
+
+4 rekât sünnet:
+• 1. ve 2. rekât normal kılınır.
+• İlk oturuşta Ettehiyyâtü, Salli ve Bârik okunur.
+• 3. rekâta kalkınca Sübhaneke ile başlanır.
+• 3. ve 4. rekâtta Fâtiha ve sure okunur.
+
+4 rekât farz:
+• 1. ve 2. rekâtta Fâtiha ve sure okunur.
+• 3. ve 4. rekâtta yalnız Fâtiha okunur.`
   },
   {
     title: "Akşam Namazı",
-    text: "3 rekât farz + 2 rekât sünnet. Farzın 3. rekâtında sadece Fâtiha okunur. Son oturuşta dualar okunup selam verilir.",
+    text: `Toplam: 3 rekât farz + 2 rekât sünnet.
+
+3 rekât farz:
+• 1. rekâtta Fâtiha ve sure okunur.
+• 2. rekâtta Fâtiha ve sure okunur.
+• İlk oturuşta Ettehiyyâtü okunur.
+• 3. rekâtta sadece Fâtiha okunur.
+• Son oturuşta Ettehiyyâtü, Salli, Bârik ve Rabbena okunur.
+• Selam verilir.
+
+2 rekât sünnet:
+• Sabah namazının sünneti gibi kılınır.`
   },
   {
     title: "Yatsı Namazı",
-    text: "4 rekât ilk sünnet + 4 rekât farz + 2 rekât son sünnet + 3 rekât vitir. Farzda 3. ve 4. rekâtlarda sadece Fâtiha okunur.",
+    text: `Toplam: 4 rekât ilk sünnet + 4 rekât farz + 2 rekât son sünnet + 3 rekât vitir.
+
+4 rekât ilk sünnet:
+• İkindi namazının sünneti gibi kılınır.
+
+4 rekât farz:
+• 1. ve 2. rekâtta Fâtiha ve sure okunur.
+• 3. ve 4. rekâtta yalnız Fâtiha okunur.
+
+2 rekât son sünnet:
+• Sabah namazının sünneti gibi kılınır.
+
+Ardından vitir namazı kılınır.`
   },
   {
     title: "Vitir Namazı",
-    text: "3 rekâttır. 1. ve 2. rekât normal kılınır. 3. rekâtta Fâtiha ve sureden sonra eller kaldırılıp tekbir alınır, ardından Kunut 1 ve Kunut 2 okunur. Sonra rükû ve secdelerle namaz tamamlanır.",
+    text: `Toplam: 3 rekâttır.
+
+1. Rekât:
+• Sübhaneke, Fâtiha ve sure okunur.
+
+2. Rekât:
+• Fâtiha ve sure okunur.
+• Oturuşta Ettehiyyâtü okunur.
+
+3. Rekât:
+• Fâtiha ve sure okunur.
+• Eller kaldırılıp Allahu Ekber denir.
+• Kunut 1 ve Kunut 2 okunur.
+• Rükû ve secdeler yapılır.
+• Son oturuşta dualar okunur ve selam verilir.`
   },
 ];
 
@@ -216,12 +433,54 @@ function HomeCard({ title, icon, text, onClick }) {
 }
 
 function TextList({ items }) {
+  const [openArabic, setOpenArabic] = useState({});
+  const [openMeal, setOpenMeal] = useState({});
+
   return (
     <div className="text-list">
       {items.map((item) => (
         <article className="reading-card" key={item.title}>
           <h3>{item.title}</h3>
-          <p>{item.text}</p>
+
+          <p className="reading-text">{item.text}</p>
+
+          <div className="reading-actions">
+            {item.arabic && (
+              <button
+                type="button"
+                onClick={() =>
+                  setOpenArabic({
+                    ...openArabic,
+                    [item.title]: !openArabic[item.title],
+                  })
+                }
+              >
+                Arapça
+              </button>
+            )}
+
+            {item.meal && (
+              <button
+                type="button"
+                onClick={() =>
+                  setOpenMeal({
+                    ...openMeal,
+                    [item.title]: !openMeal[item.title],
+                  })
+                }
+              >
+                Meal
+              </button>
+            )}
+          </div>
+
+          {openArabic[item.title] && (
+            <div className="arabic-text">{item.arabic}</div>
+          )}
+
+          {openMeal[item.title] && (
+            <div className="meal-text">{item.meal}</div>
+          )}
         </article>
       ))}
     </div>

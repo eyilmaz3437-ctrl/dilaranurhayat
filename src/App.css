@@ -413,3 +413,45 @@ section h2 {
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
 }
+
+.reading-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.reading-actions button {
+  border: 0;
+  background: #162033;
+  color: white;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.arabic-text {
+  margin-top: 14px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  font-size: 26px;
+  line-height: 2.2;
+  text-align: right;
+  direction: rtl;
+}
+
+.meal-text {
+  margin-top: 14px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.reading-text {
+  white-space: pre-line;
+}
