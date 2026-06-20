@@ -1,54 +1,54 @@
 import "./App.css";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const dualar = [
   {
     title: "Sübhaneke",
     text: "Sübhânekellâhümme ve bi hamdik ve tebârekesmük ve teâlâ ceddük ve lâ ilâhe ğayrük.",
-    arabic: "سُبْحَانَكَ اللّٰهُمَّ وَبِحَمْدِكَ، وَتَبَارَكَ اسْمُكَ، وَتَعَالَى جَدُّكَ، وَلَا إِلٰهَ غَيْرُكَ",
-    meal: "Allah'ım! Seni hamdinle tesbih ederim. Senin ismin mübarektir, şanın yücedir. Senden başka ilah yoktur."
+    arabic: "سُبْحَانَكَ اللّٰهُمَّ وَبِحَمْدِكَ وَتَبَارَكَ اسْمُكَ وَتَعَالَى جَدُّكَ وَلَا إِلٰهَ غَيْرُكَ",
+    meal: "Allah'ım! Seni hamdinle tesbih ederim. Senin adın mübarektir, şanın yücedir. Senden başka ilah yoktur."
   },
   {
     title: "Ettehiyyâtü",
     text: "Ettehıyyâtü lillâhi vessalevâtü vettayyıbât. Esselâmü aleyke eyyühen-nebiyyü ve rahmetullâhi ve berakâtüh. Esselâmü aleynâ ve alâ ıbâdillâhis-sâlihîn. Eşhedü en lâ ilâhe illallâh ve eşhedü enne Muhammeden abdühû ve rasûlüh.",
-    arabic: "التَّحِيَّاتُ لِلّٰهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللّٰهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللّٰهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلٰهَ إِلَّا اللّٰهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ",
-    meal: "Bütün selamlar, dualar ve güzel sözler Allah içindir. Ey Peygamber! Allah'ın selamı, rahmeti ve bereketi senin üzerine olsun. Selam bizim ve Allah'ın salih kullarının üzerine olsun. Şahitlik ederim ki Allah'tan başka ilah yoktur; yine şahitlik ederim ki Muhammed O'nun kulu ve elçisidir."
+    arabic: "اَلتَّحِيَّاتُ لِلّٰهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، اَلسَّلَامُ عَلَيْكَ اَيُّهَا النَّبِيُّ وَرَحْمَةُ اللّٰهِ وَبَرَكَاتُهُ، اَلسَّلَامُ عَلَيْنَا وَعَلٰى عِبَادِ اللّٰهِ الصَّالِحِينَ، اَشْهَدُ اَنْ لَا اِلٰهَ اِلَّا اللّٰهُ وَاَشْهَدُ اَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ",
+    meal: "Bütün hürmetler, dualar ve güzel sözler Allah içindir. Ey Peygamber! Allah'ın selamı, rahmeti ve bereketi senin üzerine olsun. Selam bizim ve Allah'ın salih kullarının üzerine olsun. Şahitlik ederim ki Allah'tan başka ilah yoktur; yine şahitlik ederim ki Muhammed O'nun kulu ve elçisidir."
   },
   {
     title: "Allahümme Salli",
     text: "Allâhümme salli alâ Muhammedin ve alâ âli Muhammed. Kemâ salleyte alâ İbrâhîme ve alâ âli İbrâhîm. İnneke hamîdün mecîd.",
-    arabic: "اَللّٰهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ",
-    meal: "Allah'ım! Muhammed'e ve Muhammed'in ailesine rahmet eyle. İbrahim'e ve İbrahim'in ailesine rahmet ettiğin gibi. Şüphesiz sen övülmeye layıksın, şanı yücesin."
+    arabic: "اَللّٰهُمَّ صَلِّ عَلٰى مُحَمَّدٍ وَعَلٰى اٰلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلٰى اِبْرَاهِيمَ وَعَلٰى اٰلِ اِبْرَاهِيمَ اِنَّكَ حَمِيدٌ مَجِيدٌ",
+    meal: "Allah'ım! İbrahim'e ve ailesine rahmet ettiğin gibi Muhammed'e ve ailesine de rahmet eyle. Şüphesiz Sen övülmeye layıksın, şanı yücesin."
   },
   {
     title: "Allahümme Bârik",
     text: "Allâhümme bârik alâ Muhammedin ve alâ âli Muhammed. Kemâ bârekte alâ İbrâhîme ve alâ âli İbrâhîm. İnneke hamîdün mecîd.",
-    arabic: "اَللّٰهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ",
-    meal: "Allah'ım! Muhammed'e ve Muhammed'in ailesine bereket ihsan eyle. İbrahim'e ve İbrahim'in ailesine bereket verdiğin gibi. Şüphesiz sen övülmeye layıksın, şanı yücesin."
+    arabic: "اَللّٰهُمَّ بَارِكْ عَلٰى مُحَمَّدٍ وَعَلٰى اٰلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلٰى اِبْرَاهِيمَ وَعَلٰى اٰلِ اِبْرَاهِيمَ اِنَّكَ حَمِيدٌ مَجِيدٌ",
+    meal: "Allah'ım! İbrahim'e ve ailesine bereket verdiğin gibi Muhammed'e ve ailesine de bereket ver. Şüphesiz Sen övülmeye layıksın, şanı yücesin."
   },
   {
     title: "Rabbena Âtina ve Rabbenâğfirlî",
     text: "Rabbenâ âtinâ fid-dünyâ haseneten ve fîl-âhireti haseneten ve kınâ azâben-nâr. Rabbenâğfirlî ve li-vâlideyye ve lil-mü'minîne yevme yekûmül-hısâb.",
-    arabic: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ. رَبَّنَا اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ",
-    meal: "Rabbimiz! Bize dünyada iyilik, ahirette de iyilik ver ve bizi ateş azabından koru. Rabbimiz! Hesap gününde beni, anne babamı ve bütün müminleri bağışla."
+    arabic: "رَبَّنَا اٰتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْاٰخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ. رَبَّنَا اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ",
+    meal: "Rabbimiz! Bize dünyada da iyilik ver, ahirette de iyilik ver ve bizi ateş azabından koru. Rabbimiz! Hesap gününde beni, anne babamı ve müminleri bağışla."
   },
   {
     title: "Kunut 1",
     text: "Allâhümme innâ nesteînüke ve nesteğfirüke ve nestedîke. Ve nü'minü bike ve netûbü ileyke ve netevekkelü aleyke ve nüsnî aleykel-hayra küllehû neşkürüke ve lâ nekfürük. Ve nahle'u ve netrükü men yefcürük.",
-    arabic: "اَللّٰهُمَّ إِنَّا نَسْتَعِينُكَ وَنَسْتَغْفِرُكَ وَنَسْتَهْدِيكَ، وَنُؤْمِنُ بِكَ وَنَتُوبُ إِلَيْكَ، وَنَتَوَكَّلُ عَلَيْكَ، وَنُثْنِي عَلَيْكَ الْخَيْرَ كُلَّهُ، نَشْكُرُكَ وَلَا نَكْفُرُكَ، وَنَخْلَعُ وَنَتْرُكُ مَنْ يَفْجُرُكَ",
-    meal: "Allah'ım! Senden yardım ister, bağışlanma diler ve hidayet isteriz. Sana inanır, sana tevbe eder, sana güveniriz. Seni bütün hayırlarla överiz. Sana şükreder, nankörlük etmeyiz. Sana karşı gelenlerden uzak dururuz."
+    arabic: "اَللّٰهُمَّ اِنَّا نَسْتَعِينُكَ وَنَسْتَغْفِرُكَ وَنَسْتَهْدِيكَ وَنُؤْمِنُ بِكَ وَنَتُوبُ اِلَيْكَ وَنَتَوَكَّلُ عَلَيْكَ وَنُثْنِي عَلَيْكَ الْخَيْرَ كُلَّهُ نَشْكُرُكَ وَلَا نَكْفُرُكَ وَنَخْلَعُ وَنَتْرُكُ مَنْ يَفْجُرُكَ",
+    meal: "Allah'ım! Senden yardım isteriz, bağışlanma dileriz, hidayet isteriz. Sana iman eder, sana tevbe eder ve sana güveniriz. Bütün hayırlarla seni överiz. Sana şükreder, nankörlük etmeyiz. Sana karşı gelenlerden uzak dururuz."
   },
   {
     title: "Kunut 2",
     text: "Allâhümme iyyâke na'büdü ve leke nüsallî ve nescüdü ve ileyke nes'â ve nahfidü nercû rahmeteke ve nahşâ azâbeke inne azâbeke bil-küffâri mülhık.",
-    arabic: "اَللّٰهُمَّ إِيَّاكَ نَعْبُدُ، وَلَكَ نُصَلِّي وَنَسْجُدُ، وَإِلَيْكَ نَسْعَى وَنَحْفِدُ، نَرْجُو رَحْمَتَكَ، وَنَخْشَى عَذَابَكَ، إِنَّ عَذَابَكَ بِالْكُفَّارِ مُلْحِقٌ",
-    meal: "Allah'ım! Yalnız sana kulluk ederiz. Senin için namaz kılar ve secde ederiz. Sana yönelir, senin rızanı kazanmak için gayret ederiz. Rahmetini umar, azabından korkarız. Şüphesiz azabın inkârcılara ulaşacaktır."
+    arabic: "اَللّٰهُمَّ اِيَّاكَ نَعْبُدُ وَلَكَ نُصَلِّي وَنَسْجُدُ وَاِلَيْكَ نَسْعٰى وَنَحْفِدُ نَرْجُو رَحْمَتَكَ وَنَخْشٰى عَذَابَكَ اِنَّ عَذَابَكَ بِالْكُفَّارِ مُلْحِقٌ",
+    meal: "Allah'ım! Yalnız sana kulluk eder, senin için namaz kılar ve secde ederiz. Senin rızana koşarız. Rahmetini umar, azabından korkarız. Şüphesiz azabın inkârcılara ulaşacaktır."
   },
   {
     title: "Ayetel Kürsi",
     text: "Allâhü lâ ilâhe illâ hüvel-hayyül-kayyûm. Lâ te'huzühû sinetün ve lâ nevm. Lehû mâ fis-semâvâti ve mâ fîl-ard. Men zellezî yeşfeu ındehû illâ bi-iznih. Ya'lemü mâ beyne eydîhim ve mâ halfehüm. Ve lâ yuhîtûne bi-şey'in min ılmihî illâ bimâ şâ'. Vesia kürsiyyühüs-semâvâti vel-ard. Ve lâ yeûdühû hıfzuhümâ ve hüvel-aliyyül-azîm.",
-    arabic: "اللّٰهُ لَا إِلٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ، لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ، مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ، يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ، وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ، وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ، وَلَا يَئُودُهُ حِفْظُهُمَا، وَهُوَ الْعَلِيُّ الْعَظِيمُ",
-    meal: "Allah'tan başka ilah yoktur. O diridir, her şeyi ayakta tutandır. O'nu ne uyuklama tutar ne de uyku. Göklerde ve yerde ne varsa O'nundur. O'nun izni olmadan katında kim şefaat edebilir? O, kullarının önlerindekini ve arkalarındakini bilir. Onlar ise O'nun ilminden, dilediği kadarından başka hiçbir şeyi kavrayamazlar. O'nun kürsüsü gökleri ve yeri kuşatmıştır. Onları koruyup gözetmek O'na ağır gelmez. O yücedir, büyüktür."
+    arabic: "اَللّٰهُ لَا اِلٰهَ اِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْاَرْضِ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ اِلَّا بِاِذْنِهِ يَعْلَمُ مَا بَيْنَ اَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ اِلَّا بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْاَرْضَ وَلَا يَؤُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ",
+    meal: "Allah, O'ndan başka ilah yoktur. Diridir, her şeyi ayakta tutandır. O'nu ne uyuklama tutar ne de uyku. Göklerde ve yerde ne varsa O'nundur. İzni olmadan O'nun katında kim şefaat edebilir? O kullarının önlerinde ve arkalarında olanı bilir. Dilediği kadarından başka O'nun ilminden hiçbir şeyi kavrayamazlar. Kürsüsü gökleri ve yeri kuşatmıştır. Onları korumak O'na ağır gelmez. O yücedir, büyüktür."
   },
 ];
 
@@ -277,6 +277,105 @@ Ardından vitir namazı kılınır.`
   },
 ];
 
+const ilmihal = [
+  {
+    title: "Ergenlik Ne Zaman Başlar?",
+    text: `Kız çocuklarında ergenlik genellikle bedensel ve ruhsal değişimlerle başlar. İlk adet görmek, dini sorumlulukların başlaması açısından önemli bir işarettir.
+
+Dini açıdan ergenlik çağına ulaşan kişi artık namaz, oruç ve diğer ibadetlerden sorumlu kabul edilir.
+
+Bu süreç utanılacak bir şey değildir. Allah'ın insan bedenine koyduğu doğal bir gelişimdir.`
+  },
+  {
+    title: "Regl Döneminde Namaz ve Oruç",
+    text: `Regl döneminde namaz kılınmaz. Bu dönemde kılınmayan namazlar sonradan kaza edilmez.
+
+Ramazan orucu regl döneminde tutulmaz; tutulmayan oruçlar daha sonra kaza edilir.
+
+Bu günlerde dua etmek, zikir çekmek, salavat getirmek ve güzel ahlakla ibadet bilincini korumak mümkündür.`
+  },
+  {
+    title: "Adet Bitince Ne Yapılır?",
+    text: `Adet dönemi bitince gusül abdesti alınır. Gusülden sonra namaz kılınabilir, oruç tutulabilir ve normal ibadet hayatına dönülür.
+
+Temizlik konusunda aceleci ya da vesveseli olmamak gerekir. Emin olunca gusül alınır.`
+  },
+  {
+    title: "Namaz Abdesti",
+    text: `Abdestin farzları: yüzü yıkamak, kolları dirseklerle birlikte yıkamak, başın bir kısmını mesh etmek, ayakları topuklarla birlikte yıkamaktır.
+
+Abdest sadece beden temizliği değil, namaza hazırlık ve Allah'ın huzuruna çıkma bilincidir.`
+  },
+  {
+    title: "Gusül Abdesti",
+    text: `Guslün farzları: ağza su vermek, buruna su çekmek ve bütün bedeni kuru yer kalmayacak şekilde yıkamaktır.
+
+Gusül, büyük temizliktir. Ergenlik sonrası bazı özel durumlarda gerekir.`
+  },
+  {
+    title: "Oje Abdeste Engel mi?",
+    text: `Oje tırnağın üzerine tabaka oluşturduğu için suyun tırnağa ulaşmasına engel olur. Bu yüzden normal oje ile abdest ve gusül geçerli olmaz.
+
+Namaz kılınacaksa ojenin çıkarılması gerekir. Abdestten sonra sürülen oje abdesti bozmaz; fakat sonraki abdestte çıkarılması gerekir.`
+  },
+  {
+    title: "Ruj ve Makyaj Abdeste Engel mi?",
+    text: `Ruj veya makyaj suyun deriye ulaşmasını engelleyen kalın bir tabaka oluşturuyorsa abdestten önce temizlenmelidir.
+
+Sadece renk veren ve suyu engellemeyen ürünlerde durum farklı değerlendirilebilir. Vesveseye düşmeden, suyu engelleyip engellemediğine bakmak gerekir.`
+  },
+  {
+    title: "Takma Tırnak ve Protez Tırnak",
+    text: `Takma tırnak ve protez tırnak suyun doğal tırnağa ulaşmasını engellediği için abdest ve gusül açısından problem oluşturur.
+
+İbadet hayatını aksatacak uygulamalardan uzak durmak daha güvenli ve huzurlu bir yoldur.`
+  },
+  {
+    title: "Dövme",
+    text: `Kalıcı dövme dinen uygun görülmez. Çünkü beden Allah'ın emanetidir ve kalıcı şekilde değiştirilmesi doğru kabul edilmez.
+
+Önceden yapılmış bir dövme varsa kişi pişman olup tevbe eder; çıkarmak sağlık açısından zararlıysa zorlamaya gerek olmayabilir.`
+  },
+  {
+    title: "Tesettürün Amacı",
+    text: `Tesettür sadece kıyafet değil, Allah'ın rızasını gözeten bir duruş ve edeptir.
+
+Amaç insanın değerini dış görünüşle değil, kişiliği, ahlakı ve kulluğuyla korumasıdır.
+
+Tesettür yavaş yavaş öğrenilen, sevdirilerek yaşanan bir bilinçtir.`
+  },
+  {
+    title: "Dar Kıyafet ve Gösteriş",
+    text: `Tesettürde temel ölçü, beden hatlarını belirginleştirmeyen, dikkat çekmeyi amaçlamayan ve kişiyi koruyan bir giyim tercihidir.
+
+Burada amaç korkutmak değil, Allah'ın razı olacağı sade ve temiz bir duruş kazanmaktır.`
+  },
+  {
+    title: "Sosyal Medya ve Mahremiyet",
+    text: `Sosyal medyada paylaşılan fotoğraf, söz ve yorumlar kalıcı iz bırakabilir. Müslüman genç, dijital ortamda da edebini ve mahremiyetini korumaya çalışır.
+
+Alay etmek, küçük düşürmek, izinsiz fotoğraf paylaşmak ve gıybet etmek kul hakkına girebilir.`
+  },
+  {
+    title: "Karşı Cins Arkadaşlıkları",
+    text: `İslam, insanlarla saygılı ve ölçülü iletişimi yasaklamaz. Fakat mahremiyeti, kalbi ve ahlakı koruyan sınırlar ister.
+
+Gizli, bağımlılık yapan, aileden saklanan ve kişiyi ibadetten uzaklaştıran ilişkiler risklidir.`
+  },
+  {
+    title: "Müzik, Film ve Oyun",
+    text: `Bu konularda farklı dini yorumlar olabilir. Genel ölçü şudur: İçerik kişiyi kötülüğe, edepsizliğe, harama ve ibadetleri ihmale götürüyorsa uzak durmak gerekir.
+
+Zamanı tamamen tüketmeyen, ahlaka zarar vermeyen ve sorumlulukları aksatmayan eğlenceler daha dikkatli değerlendirilir.`
+  },
+  {
+    title: "Günümüz Dünyasında Müslüman Genç Olmak",
+    text: `Müslüman genç her şeyi bilen kusursuz biri olmak zorunda değildir. Öğrenmeye açık, hatasını fark edince dönebilen, Allah ile bağını koparmayan kişidir.
+
+Soru sormak ayıp değildir. Önemli olan doğru kaynaktan öğrenmek ve kalbi Allah'a yakın tutmaktır.`
+  },
+];
+
 const egitim = [
   { title: "Lise 1", text: "Türk Dili ve Edebiyatı, Matematik, Fizik, Kimya, Biyoloji, Tarih, Coğrafya, Din Kültürü, İngilizce." },
   { title: "Lise 2", text: "Türk Dili ve Edebiyatı, Matematik, Fizik, Kimya, Biyoloji, Tarih, Coğrafya, Din Kültürü, İngilizce." },
@@ -284,6 +383,15 @@ const egitim = [
   { title: "Lise 4 - Eşit Ağırlık", text: "TYT tekrarları, AYT Edebiyat, AYT Matematik, Tarih-1, Coğrafya-1, deneme takibi." },
   { title: "YKS - TYT", text: "Türkçe, Matematik, Geometri, Tarih, Coğrafya, Felsefe, Din Kültürü, Fizik, Kimya, Biyoloji." },
   { title: "YKS - AYT Eşit Ağırlık", text: "Edebiyat, Tarih-1, Coğrafya-1, Matematik ve Geometri." },
+];
+
+const prayerTimes = [
+  { key: "imsak", title: "İmsak", time: "03:24" },
+  { key: "gunes", title: "Güneş", time: "05:23" },
+  { key: "ogle", title: "Öğle", time: "13:10" },
+  { key: "ikindi", title: "İkindi", time: "17:09" },
+  { key: "aksam", title: "Akşam", time: "20:47" },
+  { key: "yatsi", title: "Yatsı", time: "22:37" },
 ];
 
 const menuItems = [
@@ -336,9 +444,14 @@ export default function App() {
       </aside>
 
       <main className="content">
+        <PrayerBar />
+
         {page === "home" && (
           <>
-            <Hero title="Hoş Geldin Dilara" subtitle="Bugün ne öğrenmek istiyorsun?" />
+            <div className="page-title">
+              <h1>Hoş Geldin Dilara</h1>
+              <p>Bugün ne öğrenmek istiyorsun?</p>
+            </div>
             <div className="reminder">🌷 Hatırlatma: Az ama düzenli çalışmak, çok başlayıp bırakmaktan daha güzeldir.</div>
             <div className="cards">
               <HomeCard title="İslam" icon="☪" text="Namaz, ilmihal, Kur'an, sureler ve dualar." onClick={() => changePage("islam")} />
@@ -359,27 +472,95 @@ export default function App() {
   );
 }
 
+function PrayerBar() {
+  const [now, setNow] = useState(new Date());
+  const [noticeEnabled, setNoticeEnabled] = useState(false);
+  const [sentKey, setSentKey] = useState("");
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const nextPrayer = useMemo(() => {
+    const today = new Date(now);
+    const list = prayerTimes.map((p) => {
+      const [hour, minute] = p.time.split(":").map(Number);
+      const date = new Date(today);
+      date.setHours(hour, minute, 0, 0);
+      return { ...p, date };
+    });
+
+    const upcoming = list.find((p) => p.date > now);
+    if (upcoming) return upcoming;
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const [hour, minute] = prayerTimes[0].time.split(":").map(Number);
+    tomorrow.setHours(hour, minute, 0, 0);
+    return { ...prayerTimes[0], date: tomorrow };
+  }, [now]);
+
+  const diffMs = nextPrayer.date - now;
+  const totalSeconds = Math.max(0, Math.floor(diffMs / 1000));
+  const h = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+  const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+  const s = String(totalSeconds % 60).padStart(2, "0");
+  const notificationKey = `${nextPrayer.key}-${nextPrayer.date.toDateString()}-30`;
+
+  useEffect(() => {
+    if (!noticeEnabled) return;
+    if (!("Notification" in window)) return;
+    if (Notification.permission !== "granted") return;
+
+    const remainingMinutes = Math.floor((nextPrayer.date - new Date()) / 60000);
+
+    if (remainingMinutes === 30 && sentKey !== notificationKey) {
+      new Notification(`${nextPrayer.title} namazına 30 dakika kaldı`, {
+        body: "Hazırlık için güzel bir vakit.",
+      });
+      setSentKey(notificationKey);
+    }
+  }, [noticeEnabled, nextPrayer, sentKey, notificationKey]);
+
+  async function enableNotifications() {
+    if (!("Notification" in window)) {
+      alert("Bu tarayıcı bildirimleri desteklemiyor.");
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+    setNoticeEnabled(permission === "granted");
+  }
+
+  return (
+    <section className="prayer-bar">
+      <div>
+        <strong>🕌 Sonraki Vakit: {nextPrayer.title}</strong>
+        <span>{nextPrayer.time} • Kalan: {h}:{m}:{s}</span>
+      </div>
+      <button type="button" onClick={enableNotifications}>
+        🔔 Bildirim
+      </button>
+    </section>
+  );
+}
+
 function IslamPage({ subPage, setSubPage, goHome }) {
   if (subPage === "dualar") return <SubContent title="Namaz Duaları" items={dualar} onBack={() => setSubPage("")} goHome={goHome} />;
   if (subPage === "sureler") return <SubContent title="Namaz Sureleri" items={sureler} onBack={() => setSubPage("")} goHome={goHome} />;
   if (subPage === "kilinis") return <SubContent title="Namaz Nasıl Kılınır?" items={[...namazHareketleri, ...namazlar]} onBack={() => setSubPage("")} goHome={goHome} />;
-  if (subPage === "ilmihal") return <SubContent title="İlmihal" items={[
-    { title: "Namaz Abdesti", text: "Yüzü yıkamak, kolları dirseklerle birlikte yıkamak, başın dörtte birini mesh etmek ve ayakları topuklarla birlikte yıkamak abdestin farzlarıdır." },
-    { title: "Gusül Abdesti", text: "Ağza su vermek, buruna su çekmek ve bütün bedeni kuru yer kalmayacak şekilde yıkamak guslün farzlarıdır." },
-    { title: "Kur'an Okuma Adabı", text: "Basılı Arapça mushafa abdestsiz dokunulmaz. Telefon ve tablette okumakta sakınca görülmez; yine de abdestli olmak edebe daha uygundur." },
-  ]} onBack={() => setSubPage("")} goHome={goHome} />;
+  if (subPage === "ilmihal") return <SubContent title="Genç Kızlar İçin İlmihal" items={ilmihal} onBack={() => setSubPage("")} goHome={goHome} />;
 
   return (
-    <>
-      <div className="cards">
-        <HomeCard title="Namaz Nasıl Kılınır?" icon="🕌" text="Sabah, öğle, ikindi, akşam, yatsı ve vitir." onClick={() => setSubPage("kilinis")} />
-        <HomeCard title="Namaz Sureleri" icon="✨" text="Fil'den Nâs'a kadar Türkçe okunuşlar." onClick={() => setSubPage("sureler")} />
-        <HomeCard title="Namaz Duaları" icon="🤲" text="Namazda okunan duaların Türkçe okunuşları." onClick={() => setSubPage("dualar")} />
-        <HomeCard title="İlmihal" icon="🌿" text="Abdest, gusül ve temel ibadet bilgileri." onClick={() => setSubPage("ilmihal")} />
-        <HomeCard title="Kur'an" icon="📗" text="Kur'an bölümü hazırlanıyor." onClick={() => setSubPage("kuran")} />
-        <HomeCard title="Kütüphane" icon="📚" text="Kitap ve kaynaklar daha sonra eklenecek." onClick={() => setSubPage("kutuphane")} />
-      </div>
-    </>
+    <div className="cards">
+      <HomeCard title="Namaz Nasıl Kılınır?" icon="🕌" text="Sabah, öğle, ikindi, akşam, yatsı ve vitir." onClick={() => setSubPage("kilinis")} />
+      <HomeCard title="Namaz Sureleri" icon="✨" text="Fil'den Nâs'a kadar Türkçe okunuş, Arapça ve meal." onClick={() => setSubPage("sureler")} />
+      <HomeCard title="Namaz Duaları" icon="🤲" text="Namazda okunan duaların Türkçe okunuş, Arapça ve meal hali." onClick={() => setSubPage("dualar")} />
+      <HomeCard title="Genç Kızlar İçin İlmihal" icon="🌿" text="Ergenlik, regl, abdest, tesettür, günlük sorular." onClick={() => setSubPage("ilmihal")} />
+      <HomeCard title="Kur'an" icon="📗" text="Kur'an bölümü hazırlanıyor." onClick={() => setSubPage("kuran")} />
+      <HomeCard title="Kütüphane" icon="📚" text="Kitap ve kaynaklar daha sonra eklenecek." onClick={() => setSubPage("kutuphane")} />
+    </div>
   );
 }
 
@@ -387,7 +568,10 @@ function EgitimPage({ goHome }) {
   return (
     <>
       <TopActions goHome={goHome} />
-      <Hero title="Eğitim" subtitle="Lise ve YKS için çalışma omurgası." />
+      <div className="page-title">
+        <h1>Eğitim</h1>
+        <p>Lise ve YKS için çalışma omurgası.</p>
+      </div>
       <TextList items={egitim} />
     </>
   );
@@ -397,7 +581,10 @@ function SubContent({ title, items, onBack, goHome }) {
   return (
     <>
       <TopActions onBack={onBack} goHome={goHome} />
-      <Hero title={title} subtitle="Telefonla kolay takip için sade anlatım." />
+      <div className="page-title">
+        <h1>{title}</h1>
+        <p>Telefonla kolay takip için sade anlatım.</p>
+      </div>
       <TextList items={items} />
     </>
   );
@@ -409,16 +596,6 @@ function TopActions({ onBack, goHome }) {
       {onBack && <button className="back-button" onClick={onBack}>← Geri</button>}
       <button className="back-button" onClick={goHome}>🏠 Ana Sayfa</button>
     </div>
-  );
-}
-
-function Hero({ title, subtitle }) {
-  return (
-    <header className="hero">
-      <p>Dilara Nur Hayat</p>
-      <h1>{title}</h1>
-      <span>{subtitle}</span>
-    </header>
   );
 }
 
@@ -441,46 +618,24 @@ function TextList({ items }) {
       {items.map((item) => (
         <article className="reading-card" key={item.title}>
           <h3>{item.title}</h3>
-
-          <p className="reading-text">{item.text}</p>
+          <p>{item.text}</p>
 
           <div className="reading-actions">
             {item.arabic && (
-              <button
-                type="button"
-                onClick={() =>
-                  setOpenArabic({
-                    ...openArabic,
-                    [item.title]: !openArabic[item.title],
-                  })
-                }
-              >
+              <button type="button" onClick={() => setOpenArabic({ ...openArabic, [item.title]: !openArabic[item.title] })}>
                 Arapça
               </button>
             )}
 
             {item.meal && (
-              <button
-                type="button"
-                onClick={() =>
-                  setOpenMeal({
-                    ...openMeal,
-                    [item.title]: !openMeal[item.title],
-                  })
-                }
-              >
+              <button type="button" onClick={() => setOpenMeal({ ...openMeal, [item.title]: !openMeal[item.title] })}>
                 Meal
               </button>
             )}
           </div>
 
-          {openArabic[item.title] && (
-            <div className="arabic-text">{item.arabic}</div>
-          )}
-
-          {openMeal[item.title] && (
-            <div className="meal-text">{item.meal}</div>
-          )}
+          {openArabic[item.title] && <div className="arabic-text">{item.arabic}</div>}
+          {openMeal[item.title] && <div className="meal-text">{item.meal}</div>}
         </article>
       ))}
     </div>
@@ -491,7 +646,10 @@ function SimplePage({ title, text, goHome }) {
   return (
     <>
       <TopActions goHome={goHome} />
-      <Hero title={title} subtitle={text} />
+      <div className="page-title">
+        <h1>{title}</h1>
+        <p>{text}</p>
+      </div>
       <div className="reading-card">
         <h3>Hazırlanıyor</h3>
         <p>Bu bölüm sonraki aşamada doldurulacak.</p>

@@ -455,3 +455,144 @@ section h2 {
 .reading-text {
   white-space: pre-line;
 }
+
+
+/* Yeni üst başlık: eski büyük hero yerine daha kompakt */
+.page-title {
+  text-align: center;
+  margin: 10px 0 18px;
+}
+
+.page-title h1 {
+  font-size: 34px;
+  margin-bottom: 6px;
+  color: #0f172a;
+}
+
+.page-title p {
+  color: #475569;
+  font-size: 16px;
+}
+
+/* Namaz vakti çubuğu */
+.prayer-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 18px;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+}
+
+.prayer-bar div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.prayer-bar strong {
+  color: #162033;
+  font-size: 15px;
+}
+
+.prayer-bar span {
+  color: #475569;
+  font-size: 14px;
+}
+
+.prayer-bar button {
+  border: 0;
+  background: #162033;
+  color: white;
+  border-radius: 999px;
+  padding: 9px 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.reading-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.reading-actions button {
+  border: 0;
+  background: #162033;
+  color: white;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.arabic-text {
+  margin-top: 14px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  font-size: 26px;
+  line-height: 2.2;
+  text-align: right;
+  direction: rtl;
+}
+
+.meal-text {
+  margin-top: 14px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.reading-card p {
+  white-space: pre-line;
+}
+
+/* Telefon */
+@media (max-width: 700px) {
+  .page-title {
+    margin-top: 4px;
+    margin-bottom: 14px;
+  }
+
+  .page-title h1 {
+    font-size: 26px;
+  }
+
+  .page-title p {
+    font-size: 14px;
+  }
+
+  .prayer-bar {
+    align-items: stretch;
+    padding: 10px 12px;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .prayer-bar strong {
+    font-size: 14px;
+  }
+
+  .prayer-bar span {
+    font-size: 13px;
+  }
+
+  .prayer-bar button {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .arabic-text {
+    font-size: 23px;
+    line-height: 2.1;
+  }
+}
