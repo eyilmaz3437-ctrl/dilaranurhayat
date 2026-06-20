@@ -1,6 +1,5 @@
 import "./App.css";
-import { useEffect, useRef, useState } from "react";
-import ePub from "epubjs";
+import { useState } from "react";
 
 const dualar = [
   { title: "Sübhaneke", text: "Sübhânekellâhümme ve bi hamdik ve tebârekesmük ve teâlâ ceddük ve lâ ilâhe ğayrük." },
@@ -26,6 +25,50 @@ const sureler = [
   { title: "Nâs Suresi", text: "Kul eûzü bi-rabbin-nâs. Melikin-nâs. İlâhin-nâs. Min şerril-vesvâsil-hannâs. Ellezî yüvesvisü fî sudûrin-nâs. Minel-cinneti ven-nâs." },
 ];
 
+const namazHareketleri = [
+  { title: "Rükûda", text: "Sübhâne Rabbiyel Azîm — 3 defa" },
+  { title: "Rükûdan doğrulurken", text: "Semiallahü limen hamideh" },
+  { title: "Ayakta doğrulunca", text: "Rabbenâ lekel hamd" },
+  { title: "Secdede", text: "Sübhâne Rabbiyel A'lâ — 3 defa" },
+  { title: "Selam verirken", text: "Esselâmü aleyküm ve rahmetullah" },
+];
+
+const namazlar = [
+  {
+    title: "Sabah Namazı",
+    text: "2 rekât sünnet + 2 rekât farz. Her iki rekâtlık namazda 1. rekâtta Sübhaneke, Fâtiha ve bir sure okunur. 2. rekâtta Fâtiha ve bir sure okunur. Son oturuşta Ettehiyyâtü, Salli, Bârik ve Rabbena duaları okunur, selam verilir.",
+  },
+  {
+    title: "Öğle Namazı",
+    text: "4 rekât ilk sünnet + 4 rekât farz + 2 rekât son sünnet. Dört rekâtlı sünnette 2. rekâtta Ettehiyyâtü okunup kalkılır; 3. rekâtta Sübhaneke ile devam edilir. Farzda 3. ve 4. rekâtlarda sadece Fâtiha okunur.",
+  },
+  {
+    title: "İkindi Namazı",
+    text: "4 rekât sünnet + 4 rekât farz. Sünnetin 3. rekâtında Sübhaneke ile başlanır. Farzda 3. ve 4. rekâtlarda sadece Fâtiha okunur.",
+  },
+  {
+    title: "Akşam Namazı",
+    text: "3 rekât farz + 2 rekât sünnet. Farzın 3. rekâtında sadece Fâtiha okunur. Son oturuşta dualar okunup selam verilir.",
+  },
+  {
+    title: "Yatsı Namazı",
+    text: "4 rekât ilk sünnet + 4 rekât farz + 2 rekât son sünnet + 3 rekât vitir. Farzda 3. ve 4. rekâtlarda sadece Fâtiha okunur.",
+  },
+  {
+    title: "Vitir Namazı",
+    text: "3 rekâttır. 1. ve 2. rekât normal kılınır. 3. rekâtta Fâtiha ve sureden sonra eller kaldırılıp tekbir alınır, ardından Kunut 1 ve Kunut 2 okunur. Sonra rükû ve secdelerle namaz tamamlanır.",
+  },
+];
+
+const egitim = [
+  { title: "Lise 1", text: "Türk Dili ve Edebiyatı, Matematik, Fizik, Kimya, Biyoloji, Tarih, Coğrafya, Din Kültürü, İngilizce." },
+  { title: "Lise 2", text: "Türk Dili ve Edebiyatı, Matematik, Fizik, Kimya, Biyoloji, Tarih, Coğrafya, Din Kültürü, İngilizce." },
+  { title: "Lise 3 - Eşit Ağırlık", text: "Türk Dili ve Edebiyatı, Matematik, Geometri, Tarih, Coğrafya, Din Kültürü, İngilizce." },
+  { title: "Lise 4 - Eşit Ağırlık", text: "TYT tekrarları, AYT Edebiyat, AYT Matematik, Tarih-1, Coğrafya-1, deneme takibi." },
+  { title: "YKS - TYT", text: "Türkçe, Matematik, Geometri, Tarih, Coğrafya, Felsefe, Din Kültürü, Fizik, Kimya, Biyoloji." },
+  { title: "YKS - AYT Eşit Ağırlık", text: "Edebiyat, Tarih-1, Coğrafya-1, Matematik ve Geometri." },
+];
+
 const menuItems = [
   { key: "home", title: "Ana Sayfa", icon: "🏠" },
   { key: "islam", title: "İslam", icon: "☪" },
@@ -42,23 +85,24 @@ export default function App() {
   const [subPage, setSubPage] = useState("");
 
   function changePage(key) {
-  setPage(key);
-  setSubPage("");
-
-  if (window.innerWidth < 700) {
-    setMenuOpen(false);
+    setPage(key);
+    setSubPage("");
+    if (window.innerWidth < 700) setMenuOpen(false);
   }
-}
+
+  function goHome() {
+    setPage("home");
+    setSubPage("");
+    if (window.innerWidth < 700) setMenuOpen(false);
+  }
 
   return (
     <div className="app">
-  {menuOpen && <div className="mobile-overlay" onClick={() => setMenuOpen(false)}></div>}
+      {menuOpen && <div className="mobile-overlay" onClick={() => setMenuOpen(false)}></div>}
 
-  <button className="mobile-menu-button" onClick={() => setMenuOpen(true)}>
-    ☰
-  </button>
+      <button className="mobile-menu-button" onClick={() => setMenuOpen(true)}>☰</button>
 
-  <aside className={menuOpen ? "sidebar open" : "sidebar"}>
+      <aside className={menuOpen ? "sidebar open" : "sidebar"}>
         <div className="topbar">
           <div className="brand">{menuOpen ? "🌷 Dilara Nur Hayat" : "🌷"}</div>
           <button className="toggle" onClick={() => setMenuOpen(!menuOpen)}>☰</button>
@@ -66,11 +110,7 @@ export default function App() {
 
         <nav className="main-menu">
           {menuItems.map((item) => (
-            <button
-              key={item.key}
-              className={page === item.key ? "menu-item active" : "menu-item"}
-              onClick={() => changePage(item.key)}
-            >
+            <button key={item.key} className={page === item.key ? "menu-item active" : "menu-item"} onClick={() => changePage(item.key)}>
               <span>{item.icon}</span>
               {menuOpen && <span>{item.title}</span>}
             </button>
@@ -81,62 +121,77 @@ export default function App() {
       <main className="content">
         {page === "home" && (
           <>
-            <Hero title="Hoş Geldin Dilara" subtitle="Bugün ne olacak?" />
+            <Hero title="Hoş Geldin Dilara" subtitle="Bugün ne öğrenmek istiyorsun?" />
+            <div className="reminder">🌷 Hatırlatma: Az ama düzenli çalışmak, çok başlayıp bırakmaktan daha güzeldir.</div>
             <div className="cards">
               <HomeCard title="İslam" icon="☪" text="Namaz, ilmihal, Kur'an, sureler ve dualar." onClick={() => changePage("islam")} />
-              <HomeCard title="Eğitim" icon="📚" text="Dersler, çalışma takibi ve hedefler." onClick={() => changePage("egitim")} />
+              <HomeCard title="Eğitim" icon="📚" text="Lise, TYT, AYT ve çalışma takibi." onClick={() => changePage("egitim")} />
               <HomeCard title="Günlüğüm" icon="📝" text="Notlarım ve Rabbime mektuplarım." onClick={() => changePage("gunluk")} />
             </div>
           </>
         )}
 
-        {page === "islam" && (
-          <IslamPage subPage={subPage} setSubPage={setSubPage} />
-        )}
-
-        {page === "egitim" && <SimplePage title="Eğitim" text="Dersler, çalışma takibi ve hedefler bölümü hazırlanıyor." />}
-        {page === "hedefler" && <SimplePage title="Hedeflerim" text="Kısa ve uzun vadeli hedefler burada takip edilecek." />}
-        {page === "gunluk" && <SimplePage title="Günlüğüm" text="Günlük notlar ve Rabbime mektuplarım burada yer alacak." />}
-        {page === "kutuphane" && <SimplePage title="Kütüphane" text="Kitaplar, PDF dosyaları ve kaynaklar burada toplanacak." />}
-        {page === "araclar" && <SimplePage title="Araçlar" text="Ezber takibi, namaz takibi ve çalışma araçları burada olacak." />}
+        {page === "islam" && <IslamPage subPage={subPage} setSubPage={setSubPage} goHome={goHome} />}
+        {page === "egitim" && <EgitimPage goHome={goHome} />}
+        {page === "hedefler" && <SimplePage title="Hedeflerim" text="Hedef takibi hazırlanıyor." goHome={goHome} />}
+        {page === "gunluk" && <SimplePage title="Günlüğüm" text="Günlük notlar ve Rabbime mektuplarım burada olacak." goHome={goHome} />}
+        {page === "kutuphane" && <SimplePage title="Kütüphane" text="Kitaplar, PDF dosyaları ve kaynaklar daha sonra eklenecek." goHome={goHome} />}
+        {page === "araclar" && <SimplePage title="Araçlar" text="Ezber takibi, namaz takibi ve çalışma araçları hazırlanıyor." goHome={goHome} />}
       </main>
     </div>
   );
 }
 
-function IslamPage({ subPage, setSubPage }) {
-  if (subPage === "dualar") {
-    return (
-      <>
-        <BackButton onClick={() => setSubPage("")} />
-        <Hero title="Namaz Duaları" subtitle="Türkçe okunuşlarıyla namazda okunan dualar." />
-        <TextList items={dualar} />
-      </>
-    );
-  }
-
-  if (subPage === "sureler") {
-    return (
-      <>
-        <BackButton onClick={() => setSubPage("")} />
-        <Hero title="Zamm-ı Sureler" subtitle="Fil Suresi'nden Nâs Suresi'ne kadar Türkçe okunuşlar." />
-        <TextList items={sureler} />
-      </>
-    );
-  }
+function IslamPage({ subPage, setSubPage, goHome }) {
+  if (subPage === "dualar") return <SubContent title="Namaz Duaları" items={dualar} onBack={() => setSubPage("")} goHome={goHome} />;
+  if (subPage === "sureler") return <SubContent title="Namaz Sureleri" items={sureler} onBack={() => setSubPage("")} goHome={goHome} />;
+  if (subPage === "kilinis") return <SubContent title="Namaz Nasıl Kılınır?" items={[...namazHareketleri, ...namazlar]} onBack={() => setSubPage("")} goHome={goHome} />;
+  if (subPage === "ilmihal") return <SubContent title="İlmihal" items={[
+    { title: "Namaz Abdesti", text: "Yüzü yıkamak, kolları dirseklerle birlikte yıkamak, başın dörtte birini mesh etmek ve ayakları topuklarla birlikte yıkamak abdestin farzlarıdır." },
+    { title: "Gusül Abdesti", text: "Ağza su vermek, buruna su çekmek ve bütün bedeni kuru yer kalmayacak şekilde yıkamak guslün farzlarıdır." },
+    { title: "Kur'an Okuma Adabı", text: "Basılı Arapça mushafa abdestsiz dokunulmaz. Telefon ve tablette okumakta sakınca görülmez; yine de abdestli olmak edebe daha uygundur." },
+  ]} onBack={() => setSubPage("")} goHome={goHome} />;
 
   return (
     <>
-      <Hero title="İslam" subtitle="Namaz, ilmihal, Kur'an, sureler ve dualar." />
       <div className="cards">
-        <HomeCard title="Namaz" icon="🕌" text="Vakit namazları ve tesbihat." onClick={() => setSubPage("namaz")} />
-        <HomeCard title="İlmihal" icon="🌿" text="Abdest, gusül ve temel bilgiler." onClick={() => setSubPage("ilmihal")} />
-        <HomeCard title="Kur'an" icon="📗" text="Okuma, meal ve hatim takibi." onClick={() => setSubPage("kuran")} />
-        <HomeCard title="Sureler" icon="✨" text="Zamm-ı surelerin Türkçe okunuşları." onClick={() => setSubPage("sureler")} />
-        <HomeCard title="Dualar" icon="🤲" text="Namaz dualarının Türkçe okunuşları." onClick={() => setSubPage("dualar")} />
-        <HomeCard title="Kütüphane" icon="📚" text="PDF, kitap ve kaynaklar." onClick={() => setSubPage("kutuphane")} />
+        <HomeCard title="Namaz Nasıl Kılınır?" icon="🕌" text="Sabah, öğle, ikindi, akşam, yatsı ve vitir." onClick={() => setSubPage("kilinis")} />
+        <HomeCard title="Namaz Sureleri" icon="✨" text="Fil'den Nâs'a kadar Türkçe okunuşlar." onClick={() => setSubPage("sureler")} />
+        <HomeCard title="Namaz Duaları" icon="🤲" text="Namazda okunan duaların Türkçe okunuşları." onClick={() => setSubPage("dualar")} />
+        <HomeCard title="İlmihal" icon="🌿" text="Abdest, gusül ve temel ibadet bilgileri." onClick={() => setSubPage("ilmihal")} />
+        <HomeCard title="Kur'an" icon="📗" text="Kur'an bölümü hazırlanıyor." onClick={() => setSubPage("kuran")} />
+        <HomeCard title="Kütüphane" icon="📚" text="Kitap ve kaynaklar daha sonra eklenecek." onClick={() => setSubPage("kutuphane")} />
       </div>
     </>
+  );
+}
+
+function EgitimPage({ goHome }) {
+  return (
+    <>
+      <TopActions goHome={goHome} />
+      <Hero title="Eğitim" subtitle="Lise ve YKS için çalışma omurgası." />
+      <TextList items={egitim} />
+    </>
+  );
+}
+
+function SubContent({ title, items, onBack, goHome }) {
+  return (
+    <>
+      <TopActions onBack={onBack} goHome={goHome} />
+      <Hero title={title} subtitle="Telefonla kolay takip için sade anlatım." />
+      <TextList items={items} />
+    </>
+  );
+}
+
+function TopActions({ onBack, goHome }) {
+  return (
+    <div className="top-actions">
+      {onBack && <button className="back-button" onClick={onBack}>← Geri</button>}
+      <button className="back-button" onClick={goHome}>🏠 Ana Sayfa</button>
+    </div>
   );
 }
 
@@ -173,94 +228,10 @@ function TextList({ items }) {
   );
 }
 
-function BackButton({ onClick }) {
-  return (
-    <button className="back-button" onClick={onClick}>
-      ← İslam Bölümüne Dön
-    </button>
-  );
-}
-
-  const books = [
-  {
-    title: "Kadın ve Aile İlmihali",
-    file: "/books/kadin-ve-aile-ilmihali.epub",
-    desc: "İlmihal, aile ve ibadet konuları.",
-  },
-  {
-    title: "Açıklamalı Kuran Meali",
-    file: "/books/meal-a-unal.epub",
-    desc: "Kuran Meali.",
-  },
-];
-
-function LibraryPage() {
-  const [selectedBook, setSelectedBook] = useState(null);
-  const viewerRef = useRef(null);
-  const renditionRef = useRef(null);
-
-  useEffect(() => {
-    if (!selectedBook || !viewerRef.current) return;
-
-    viewerRef.current.innerHTML = "";
-
-    const book = ePub(selectedBook.file);
-    const rendition = book.renderTo(viewerRef.current, {
-      width: "100%",
-      height: "70vh",
-    });
-
-    rendition.display(5);
-    renditionRef.current = rendition;
-
-    return () => {
-      rendition.destroy();
-    };
-  }, [selectedBook]);
-
-  if (!selectedBook) {
-    return (
-      <>
-        <Hero title="Kütüphane" subtitle="Okumak istediğin kitabı seç." />
-
-        <div className="cards">
-          {books.map((book) => (
-            <button
-              className="card"
-              key={book.file}
-              onClick={() => setSelectedBook(book)}
-            >
-              <div className="card-icon">📘</div>
-              <h3>{book.title}</h3>
-              <p>{book.desc}</p>
-            </button>
-          ))}
-        </div>
-      </>
-    );
-  }
-
+function SimplePage({ title, text, goHome }) {
   return (
     <>
-      <button className="back-button" onClick={() => setSelectedBook(null)}>
-        ← Kütüphaneye Dön
-      </button>
-
-      <Hero title={selectedBook.title} subtitle="EPUB okuyucu" />
-
-      <div className="reader-toolbar">
-        <button onClick={() => renditionRef.current?.prev()}>← Önceki</button>
-        <button onClick={() => renditionRef.current?.next()}>Sonraki →</button>
-      </div>
-
-      <div className="epub-reader" ref={viewerRef}></div>
-    </>
-  );
-}
-
-function SimplePage({ title, text }) {
-  return (
-    <>
+      <TopActions goHome={goHome} />
       <Hero title={title} subtitle={text} />
       <div className="reading-card">
         <h3>Hazırlanıyor</h3>
