@@ -596,3 +596,201 @@ section h2 {
     line-height: 2.1;
   }
 }
+
+.section-title { font-size: 28px; margin: 10px 0 18px; color: #0f172a; }
+.prayer-bar { position: sticky; top: 0; z-index: 800; display: flex; align-items: center; gap: 10px; background: rgba(248, 250, 252, 0.94); backdrop-filter: blur(8px); padding: 8px 0 12px; margin-bottom: 10px; }
+.small-menu-spacer { display: none; }
+.next-prayer { background: #162033; color: white; border-radius: 14px; padding: 8px 12px; min-width: 105px; display: flex; flex-direction: column; align-items: center; }
+.next-prayer span { font-size: 13px; }
+.prayer-times { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; flex: 1; font-size: 13px; color: #334155; }
+.prayer-times span { background: white; border: 1px solid #e2e8f0; border-radius: 999px; padding: 7px 10px; }
+.notify-btn { border: 0; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 999px; padding: 8px 12px; cursor: pointer; }
+.notice-list { display: flex; flex-direction: column; gap: 10px; }
+.notice-list div { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 14px 16px; }
+.list-menu { display: flex; flex-direction: column; gap: 10px; }
+.list-row { width: 100%; border: 1px solid #e2e8f0; background: white; border-radius: 16px; padding: 15px; display: grid; grid-template-columns: 36px 1fr 18px; align-items: center; text-align: left; cursor: pointer; box-shadow: 0 5px 18px rgba(15,23,42,.04); }
+.list-row strong { display: block; font-size: 16px; color: #0f172a; }
+.list-row em { display: block; font-style: normal; color: #64748b; margin-top: 3px; font-size: 13px; }
+.list-icon { font-size: 22px; }
+.reading-card p { white-space: pre-line; }
+@media (max-width: 700px) {
+  .prayer-bar { margin-left: 52px; padding-top: 5px; gap: 7px; }
+  .next-prayer { min-width: 82px; padding: 7px 8px; }
+  .prayer-times { font-size: 12px; }
+  .notify-btn { display: none; }
+  .section-title { font-size: 24px; margin-top: 6px; }
+  .list-row { border-radius: 14px; padding: 13px; }
+}
+
+/* v5 - ana sayfa kompakt vakit + görev sistemi */
+.compact-prayer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(248, 250, 252, 0.96);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+}
+
+.compact-prayer .next-prayer {
+  background: #162033;
+  color: white;
+  border-radius: 13px;
+  padding: 7px 10px;
+  min-width: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.compact-prayer .next-prayer strong {
+  font-size: 14px;
+}
+
+.compact-prayer .next-prayer span {
+  font-size: 12px;
+}
+
+.prayer-times.one-line {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  white-space: nowrap;
+  flex: 1;
+  font-size: 12px;
+  color: #334155;
+}
+
+.prayer-times.one-line span {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 6px 9px;
+}
+
+.notice-action {
+  border: 0;
+  background: #162033;
+  color: white;
+  border-radius: 14px;
+  padding: 13px 16px;
+  text-align: left;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.notice-list p {
+  color: #64748b;
+  margin-top: 5px;
+  line-height: 1.5;
+}
+
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 15px;
+  margin-bottom: 14px;
+}
+
+.task-form input,
+.task-form textarea {
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 15px;
+  width: 100%;
+}
+
+.task-form textarea {
+  min-height: 95px;
+  resize: vertical;
+}
+
+.task-form button {
+  border: 0;
+  background: #162033;
+  color: white;
+  border-radius: 999px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.task-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px 16px;
+}
+
+.task-card span {
+  display: inline-block;
+  color: #be185d;
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.task-card strong {
+  display: block;
+  color: #0f172a;
+  margin-bottom: 5px;
+}
+
+.task-card p {
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.task-card button {
+  border: 0;
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: 999px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+@media (max-width: 700px) {
+  .compact-prayer {
+    margin-left: 52px;
+    gap: 7px;
+    padding: 7px 8px;
+    border-radius: 14px;
+  }
+
+  .compact-prayer .next-prayer {
+    min-width: 78px;
+    padding: 6px 7px;
+  }
+
+  .compact-prayer .next-prayer strong {
+    font-size: 13px;
+  }
+
+  .compact-prayer .next-prayer span {
+    font-size: 11px;
+  }
+
+  .prayer-times.one-line {
+    font-size: 11px;
+  }
+
+  .prayer-times.one-line span {
+    padding: 5px 7px;
+  }
+}
