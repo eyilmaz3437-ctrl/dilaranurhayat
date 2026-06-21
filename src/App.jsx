@@ -1,5 +1,10 @@
 import './App.css';
 import { useEffect, useMemo, useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = 'https://prwofdineklysdtjcwmp.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByd29mZGluZWtseXNkdGpjd21wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NjkyMzYsImV4cCI6MjA5NzU0NTIzNn0.feAhSXYzqK2MAX9536J5ZhkN3x8Ya4JUJtc8jOC7Q_Y';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const prayers = [
   { key: 'imsak', title: 'İmsak', time: '03:25' },
@@ -141,17 +146,31 @@ export default function App() {
   const [page, setPage] = useState('home');
   const [subPage, setSubPage] = useState('');
   const [detailKey, setDetailKey] = useState('');
-  const [tasks, setTasks] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('dnh_tasks')) || gorevlerBaslangic;
-    } catch {
-      return gorevlerBaslangic;
+  const [tasks, setTasks] = useState([]);
+  const [tasksLoading, setTasksLoading] = useState(false);
+
+  async function loadTasks() {
+    setTasksLoading(true);
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('id, task_date, title, content, created_at')
+      .order('task_date', { ascending: true })
+      .order('created_at', { ascending: true });
+
+    if (!error && data) {
+      setTasks(data.map((task) => ({
+        id: task.id,
+        date: task.task_date,
+        title: task.title,
+        content: task.content || '',
+      })));
     }
-  });
+    setTasksLoading(false);
+  }
 
   useEffect(() => {
-    localStorage.setItem('dnh_tasks', JSON.stringify(tasks));
-  }, [tasks]);
+    loadTasks();
+  }, []);
 
   function changePage(key) {
     setPage(key);
@@ -176,10 +195,10 @@ export default function App() {
         <nav className="main-menu">{menuItems.map((item) => <button key={item.key} className={page === item.key ? 'menu-item active' : 'menu-item'} onClick={() => changePage(item.key)}><span>{item.icon}</span>{menuOpen && <span>{item.title}</span>}</button>)}</nav>
       </aside>
       <main className="content">
-        {page === 'home' && <HomePage tasks={tasks} goTasks={() => changePage('gorevler')} />}
+        {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} />}
         {page === 'islam' && <IslamPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
         {page === 'egitim' && <EgitimPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
-        {page === 'gorevler' && <TasksPage tasks={tasks} setTasks={setTasks} goHome={goHome} />}
+        {page === 'gorevler' && <TasksPage tasks={tasks} tasksLoading={tasksLoading} loadTasks={loadTasks} goHome={goHome} />}
         {page === 'hedefler' && <SimplePage title="Hedeflerim" text="Hedef takibi hazırlanıyor." goHome={goHome} />}
         {page === 'gunluk' && <SimplePage title="Günlüğüm" text="Günlük notlar ve Rabbime mektuplarım burada olacak." goHome={goHome} />}
         {page === 'kutuphane' && <SimplePage title="Kütüphane" text="Kitaplar ve kaynaklar daha sonra temiz içeriklerle eklenecek." goHome={goHome} />}
@@ -198,8 +217,8 @@ function CompactPrayerBar() {
   const next = useMemo(() => getNextPrayer(now), [now]);
   return (
     <div className="compact-prayer">
-      <div className="next-prayer"><strong>{next.title}</strong><span>{next.remaining}</span></div>
-      <div className="prayer-times one-line">{prayers.map(p => <span key={p.key}>{p.title}: {p.time}</span>)}</div>
+      <div className="prayer-times one-line">{prayers.map(p => <span key={p.key}>{p.title} {p.time}</span>)}</div>
+      <div className="countdown-line">🕌 Sıradaki vakit: <strong>{next.title}</strong> · <strong>{next.remaining}</strong> kaldı</div>
     </div>
   );
 }
@@ -223,7 +242,7 @@ function getNextPrayer(now) {
   return { title: next.title, remaining: `${h}:${m}:${s}` };
 }
 
-function HomePage({ tasks, goTasks }) {
+function HomePage({ tasks, tasksLoading, goTasks }) {
   const upcoming = [...tasks].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4);
   return (
     <>
@@ -231,6 +250,8 @@ function HomePage({ tasks, goTasks }) {
       <CompactPrayerBar />
       <div className="notice-list">
         <button className="notice-action" onClick={goTasks}>✅ Yeni görev ekle / görevleri aç</button>
+        {tasksLoading && <div>Görevler yükleniyor...</div>}
+        {!tasksLoading && upcoming.length === 0 && <div>Henüz görev yok. İlk görevi ekleyebilirsin.</div>}
         {upcoming.map(t => <div key={t.id}><strong>{formatDate(t.date)} - {t.title}</strong><p>{t.content}</p></div>)}
         <div>🌷 Az ama düzenli çalışmak, çok başlayıp bırakmaktan daha güzeldir.</div>
       </div>
@@ -258,17 +279,39 @@ function EgitimPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
   return <SimplePage title={detailKey} text="Bu dersin konu takibi, notları ve deneme kayıtları yapım aşamasında." onBack={() => setDetailKey('')} goHome={goHome} />;
 }
 
-function TasksPage({ tasks, setTasks, goHome }) {
+function TasksPage({ tasks, tasksLoading, loadTasks, goHome }) {
   const [form, setForm] = useState({ date: new Date().toISOString().slice(0, 10), title: '', content: '' });
-  function addTask(e) {
+  const [saving, setSaving] = useState(false);
+
+  async function addTask(e) {
     e.preventDefault();
     if (!form.date || !form.title.trim()) return;
-    setTasks([...tasks, { id: Date.now(), date: form.date, title: form.title.trim(), content: form.content.trim() }]);
-    setForm({ date: form.date, title: '', content: '' });
+    setSaving(true);
+    const { error } = await supabase.from('tasks').insert({
+      task_date: form.date,
+      title: form.title.trim(),
+      content: form.content.trim(),
+    });
+    setSaving(false);
+    if (!error) {
+      setForm({ date: form.date, title: '', content: '' });
+      await loadTasks();
+    } else {
+      alert('Görev kaydedilemedi: ' + error.message);
+    }
   }
-  function removeTask(id) {
-    setTasks(tasks.filter(t => t.id !== id));
+
+  async function removeTask(id) {
+    const confirmed = confirm('Bu görev silinsin mi?');
+    if (!confirmed) return;
+    const { error } = await supabase.from('tasks').delete().eq('id', id);
+    if (!error) {
+      await loadTasks();
+    } else {
+      alert('Görev silinemedi: ' + error.message);
+    }
   }
+
   return (
     <>
       <TopActions goHome={goHome} />
@@ -277,9 +320,11 @@ function TasksPage({ tasks, setTasks, goHome }) {
         <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
         <input placeholder="Ana başlık" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
         <textarea placeholder="İçerik" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })}></textarea>
-        <button type="submit">Görev Ekle</button>
+        <button type="submit" disabled={saving}>{saving ? 'Kaydediliyor...' : 'Görev Ekle'}</button>
       </form>
       <div className="task-list">
+        {tasksLoading && <article className="task-card"><strong>Görevler yükleniyor...</strong></article>}
+        {!tasksLoading && tasks.length === 0 && <article className="task-card"><strong>Henüz görev yok.</strong><p>İlk görevi buradan ekleyebilirsin.</p></article>}
         {[...tasks].sort((a, b) => a.date.localeCompare(b.date)).map(t => (
           <article className="task-card" key={t.id}>
             <span>{formatDate(t.date)}</span>
