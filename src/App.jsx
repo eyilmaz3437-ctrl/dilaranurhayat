@@ -532,6 +532,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
   const [saving, setSaving] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
   const [completeTarget, setCompleteTarget] = useState(null);
+  const [detailTask, setDetailTask] = useState(null);
 
   const activeTasks = [...tasks].filter(t => !t.completed).sort((a, b) => a.task_date.localeCompare(b.task_date));
   const completedTasks = [...tasks].filter(t => t.completed).sort((a, b) => (b.completed_at || '').localeCompare(a.completed_at || ''));
@@ -652,6 +653,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
           {completedTasks.length === 0 && <div className="home-empty">Tamamlanan görev yok.</div>}
           {completedTasks.map(t => (
             <article className="task-card compact task-completed task-completed-rich" key={t.id}>
+              <button className="completed-detail-open" onClick={() => setDetailTask(t)} title="Detay">›</button>
               <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
               <span className="compact-date">{formatShortDate(t.task_date)}</span>
               <strong>{t.title}</strong>
@@ -669,6 +671,15 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
           activeUser={activeUser}
           onCancel={() => setCompleteTarget(null)}
           onSave={submitComplete}
+        />
+      )}
+
+      {detailTask && (
+        <TaskReadModal
+          task={detailTask}
+          activeUser={activeUser}
+          reloadTasks={reloadTasks}
+          onClose={() => setDetailTask(null)}
         />
       )}
     </>

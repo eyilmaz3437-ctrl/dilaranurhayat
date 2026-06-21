@@ -1581,3 +1581,32 @@ section h2 {
   margin-bottom: 10px;
 }
 
+
+/* v17 tamamlanan görev detay penceresi */
+.task-completed-rich {
+  grid-template-columns: 24px 26px 52px minmax(90px, 0.7fr) 1fr 1fr 82px 52px !important;
+}
+
+.completed-detail-open {
+  border: 0;
+  background: #eef2ff;
+  color: #1e3a8a;
+  border-radius: 999px;
+  width: 24px;
+  height: 24px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+@media (max-width: 700px) {
+  .task-completed-rich {
+    grid-template-columns: 20px 22px 38px 58px 1fr 1fr 38px 36px !important;
+    gap: 4px;
+  }
+
+  .completed-detail-open {
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+  }
+}
