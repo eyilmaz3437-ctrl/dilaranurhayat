@@ -1476,3 +1476,57 @@ section h2 {
     grid-template-columns: 24px 22px 40px 66px 1fr;
   }
 }
+
+
+/* v13 tamamlanan görevlerde verilen görev ve yapılan iş ayrı gösterilir */
+.task-completed-rich {
+  grid-template-columns: 26px 52px minmax(90px, 0.7fr) 1fr 1fr 82px 52px !important;
+}
+
+.task-original-note,
+.task-completion-note {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.task-original-note {
+  color: #334155 !important;
+}
+
+.task-completion-note {
+  color: #64748b !important;
+}
+
+.task-original-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px;
+  margin: 12px 0;
+}
+
+.task-original-box strong {
+  color: #162033;
+}
+
+.task-original-box p {
+  margin-top: 6px;
+}
+
+@media (max-width: 700px) {
+  .task-completed-rich {
+    grid-template-columns: 22px 40px 64px 1fr 1fr 42px 38px !important;
+    gap: 5px;
+  }
+
+  .task-original-note,
+  .task-completion-note {
+    font-size: 11px;
+  }
+
+  .completed-by {
+    font-size: 10px;
+  }
+}
