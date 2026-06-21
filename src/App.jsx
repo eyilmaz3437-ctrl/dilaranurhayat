@@ -1115,7 +1115,19 @@ function ArabicFullscreen({ item, onClose }) {
 }
 
 function ArabicText({ text }) {
-  return <span>{text}</span>;
+  return <span>{normalizeQuranText(text)}</span>;
+}
+
+function normalizeQuranText(text) {
+  return String(text || '')
+    // Bazı Kur'an fontlarında görünen, tarayıcı fontlarında kareye düşebilen özel esre/işaretler
+    .replace(/\u06EA/g, '\u0650') // ۪ -> normal esre
+    .replace(/\u06ED/g, '\u0652') // ۭ -> sükun benzeri işaret
+    .replace(/\u06EB/g, '\u064E') // ۫ -> üstün benzeri işaret
+    .replace(/\u06EC/g, '\u064F') // ۬ -> ötre benzeri işaret
+    .replace(/\u200C/g, '')       // görünmez ZWNJ temizliği
+    .replace(/\u200D/g, '')       // görünmez ZWJ temizliği
+    .replace(/\uFEFF/g, '');      // görünmez BOM temizliği
 }
 
 function SimplePage({ title, text, goHome }) { return <><TopActions goHome={goHome} /><SectionTitle title={title} /><div className="reading-card"><h3>Yapım Aşamasında</h3><p>{text}</p></div></>; }
