@@ -1637,3 +1637,99 @@ section h2 {
 .list-menu .list-row em {
   font-style: normal;
 }
+
+
+/* v20 yeni öğrenenler için okunaklı Arapça + tam ekran */
+.easy-arabic,
+.arabic-fullscreen-body {
+  font-family: Arial, Tahoma, "Noto Naskh Arabic", "Geeza Pro", sans-serif;
+  font-weight: 500;
+  letter-spacing: 0;
+  word-spacing: 4px;
+}
+
+.arabic-text.easy-arabic {
+  font-size: 30px;
+  line-height: 2.35;
+  color: #111827;
+}
+
+.arabic-fullscreen-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: rgba(15, 23, 42, 0.62);
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.arabic-fullscreen {
+  width: min(980px, 100%);
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.arabic-fullscreen-head {
+  flex: 0 0 auto;
+  background: #162033;
+  color: white;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.arabic-fullscreen-head button {
+  border: 0;
+  background: transparent;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.arabic-fullscreen-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 20px 42px;
+  direction: rtl;
+  text-align: right;
+  font-size: 38px;
+  line-height: 2.55;
+  color: #111827;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Telefon yatay çevrilince: gerçek okuma ekranı */
+@media (max-width: 900px) and (orientation: landscape) {
+  .arabic-fullscreen {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .arabic-fullscreen-head {
+    padding: 7px 12px;
+  }
+
+  .arabic-fullscreen-body {
+    font-size: 34px;
+    line-height: 2.25;
+    padding: 14px 20px 34px;
+  }
+}
+
+@media (max-width: 700px) {
+  .arabic-text.easy-arabic {
+    font-size: 28px;
+    line-height: 2.25;
+  }
+
+  .arabic-fullscreen-body {
+    font-size: 34px;
+    line-height: 2.35;
+    padding: 20px 16px 40px;
+  }
+}

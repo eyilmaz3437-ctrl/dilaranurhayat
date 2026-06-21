@@ -904,7 +904,82 @@ function ListOnly({ items, onSelect }) { return <div className="list-menu">{item
 function SectionTitle({ title }) { return <h1 className="section-title">{title}</h1>; }
 function SubContent({ title, items, onBack, goHome }) { return <><TopActions onBack={onBack} goHome={goHome} /><SectionTitle title={title} /><TextList items={items} /></>; }
 function TopActions({ onBack, goHome }) { return <div className="top-actions">{onBack && <button className="back-button" onClick={onBack}>← Geri</button>}<button className="back-button" onClick={goHome}>🏠 Ana Sayfa</button></div>; }
-function TextList({ items }) { const [openArabic, setOpenArabic] = useState({}); const [openMeal, setOpenMeal] = useState({}); return <div className="text-list">{items.map((item) => <article className="reading-card" key={item.title}><h3>{item.title}</h3><p>{item.text}</p><div className="reading-actions">{item.arabic && <button type="button" onClick={() => setOpenArabic({ ...openArabic, [item.title]: !openArabic[item.title] })}>Arapça</button>}{item.meal && <button type="button" onClick={() => setOpenMeal({ ...openMeal, [item.title]: !openMeal[item.title] })}>Meal</button>}</div>{openArabic[item.title] && <div className="arabic-text">{item.arabic}</div>}{openMeal[item.title] && <div className="meal-text">{item.meal}</div>}</article>)}</div>; }
+function TextList({ items }) {
+  const [openArabic, setOpenArabic] = useState({});
+  const [openMeal, setOpenMeal] = useState({});
+  const [fullArabic, setFullArabic] = useState(null);
+
+  return (
+    <>
+      <div className="text-list">
+        {items.map((item) => (
+          <article className="reading-card" key={item.title}>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+
+            <div className="reading-actions">
+              {item.arabic && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOpenArabic({
+                      ...openArabic,
+                      [item.title]: !openArabic[item.title],
+                    })
+                  }
+                >
+                  Arapça
+                </button>
+              )}
+
+              {item.arabic && (
+                <button type="button" onClick={() => setFullArabic(item)}>
+                  Arapça Tam Ekran
+                </button>
+              )}
+
+              {item.meal && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOpenMeal({
+                      ...openMeal,
+                      [item.title]: !openMeal[item.title],
+                    })
+                  }
+                >
+                  Meal
+                </button>
+              )}
+            </div>
+
+            {openArabic[item.title] && (
+              <div className="arabic-text easy-arabic">{item.arabic}</div>
+            )}
+
+            {openMeal[item.title] && (
+              <div className="meal-text">{item.meal}</div>
+            )}
+          </article>
+        ))}
+      </div>
+
+      {fullArabic && (
+        <div className="arabic-fullscreen-backdrop" onClick={() => setFullArabic(null)}>
+          <div className="arabic-fullscreen" onClick={(e) => e.stopPropagation()}>
+            <div className="arabic-fullscreen-head">
+              <strong>{fullArabic.title}</strong>
+              <button onClick={() => setFullArabic(null)}>×</button>
+            </div>
+            <div className="arabic-fullscreen-body">
+              {fullArabic.arabic}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 function SimplePage({ title, text, goHome }) { return <><TopActions goHome={goHome} /><SectionTitle title={title} /><div className="reading-card"><h3>Yapım Aşamasında</h3><p>{text}</p></div></>; }
 
 function formatDate(date) { const [y, m, d] = date.split('-'); return `${d}.${m}.${y}`; }
