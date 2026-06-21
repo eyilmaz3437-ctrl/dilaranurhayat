@@ -508,17 +508,178 @@ function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
 }
 
 function IslamPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
-  if (!subPage) return <ListMenu title="İslam" items={islamMenu} onSelect={(x) => setSubPage(x.key)} />;
-  if (subPage === 'sureler') return <SubContent title="Namaz Sureleri" items={sureler} onBack={() => setSubPage('')} goHome={goHome} />;
-  if (subPage === 'dualar') return <SubContent title="Namaz Duaları" items={dualar} onBack={() => setSubPage('')} goHome={goHome} />;
-  if (subPage === 'kilinis') return <NestedList title="Namaz Nasıl Kılınır?" introItems={namazAdimlari} listItems={namazlar} detailKey={detailKey} setDetailKey={setDetailKey} onBack={() => setSubPage('')} goHome={goHome} />;
-  if (subPage === 'ilmihal') return <IlmihalPage detailKey={detailKey} setDetailKey={setDetailKey} onBack={() => setSubPage('')} goHome={goHome} />;
+  function openSubPage(key) {
+    setSubPage(key);
+    setDetailKey('');
+  }
+
+  if (!subPage) {
+    return <ListMenu title="İslam" items={islamMenu} onSelect={(x) => openSubPage(x.key)} />;
+  }
+
+  if (subPage === 'sureler') {
+    return (
+      <SelectableContentPage
+        title="Namaz Sureleri"
+        items={sureler}
+        detailKey={detailKey}
+        setDetailKey={setDetailKey}
+        onBack={() => setSubPage('')}
+        goHome={goHome}
+      />
+    );
+  }
+
+  if (subPage === 'dualar') {
+    return (
+      <SelectableContentPage
+        title="Namaz Duaları"
+        items={dualar}
+        detailKey={detailKey}
+        setDetailKey={setDetailKey}
+        onBack={() => setSubPage('')}
+        goHome={goHome}
+      />
+    );
+  }
+
+  if (subPage === 'kilinis') {
+    return (
+      <NamazKilinisListPage
+        detailKey={detailKey}
+        setDetailKey={setDetailKey}
+        onBack={() => setSubPage('')}
+        goHome={goHome}
+      />
+    );
+  }
+
+  if (subPage === 'ilmihal') {
+    return <IlmihalPage detailKey={detailKey} setDetailKey={setDetailKey} onBack={() => setSubPage('')} goHome={goHome} />;
+  }
+
   return <SimplePage title="Hazırlanıyor" text="Bu bölüm yakında düzenlenecek." goHome={goHome} />;
 }
 
+function SelectableContentPage({ title, items, detailKey, setDetailKey, onBack, goHome }) {
+  const selectedIndex = detailKey === '' ? -1 : Number(detailKey);
+  const selected = Number.isInteger(selectedIndex) && selectedIndex >= 0 ? items[selectedIndex] : null;
+
+  if (selected) {
+    return (
+      <SubContent
+        title={selected.title}
+        items={[selected]}
+        onBack={() => setDetailKey('')}
+        goHome={goHome}
+      />
+    );
+  }
+
+  return (
+    <>
+      <TopActions onBack={onBack} goHome={goHome} />
+      <ListMenu
+        title={title}
+        items={items.map((item, index) => ({
+          key: String(index),
+          title: item.title,
+          icon: item.arabic ? '📖' : '🤲',
+          desc: 'Açıklamayı aç',
+        }))}
+        onSelect={(x) => setDetailKey(x.key)}
+      />
+    </>
+  );
+}
+
+function NamazKilinisListPage({ detailKey, setDetailKey, onBack, goHome }) {
+  const allItems = [
+    ...namazAdimlari.map((item, index) => ({
+      key: `adim-${index}`,
+      title: item.title,
+      desc: 'Namaz adımı',
+      icon: '🕌',
+      item,
+    })),
+    ...namazlar.map((item, index) => ({
+      key: `namaz-${index}`,
+      title: item.title,
+      desc: 'Vakit namazı detayı',
+      icon: '🕋',
+      item,
+    })),
+  ];
+
+  const selected = allItems.find(x => x.key === detailKey);
+
+  if (selected) {
+    return (
+      <SubContent
+        title={selected.title}
+        items={[selected.item]}
+        onBack={() => setDetailKey('')}
+        goHome={goHome}
+      />
+    );
+  }
+
+  return (
+    <>
+      <TopActions onBack={onBack} goHome={goHome} />
+      <ListMenu title="Namaz Nasıl Kılınır?" items={allItems} onSelect={(x) => setDetailKey(x.key)} />
+    </>
+  );
+}
+
 function IlmihalPage({ detailKey, setDetailKey, onBack, goHome }) {
-  if (!detailKey) return <><TopActions onBack={onBack} goHome={goHome} /><ListMenu title="Genç Kızlar İçin İlmihal" items={ilmihalCategories} onSelect={(x) => setDetailKey(x.key)} /></>;
-  return <SubContent title={ilmihalCategories.find(x => x.key === detailKey)?.title || 'İlmihal'} items={ilmihalData[detailKey] || []} onBack={() => setDetailKey('')} goHome={goHome} />;
+  if (!detailKey) {
+    return (
+      <>
+        <TopActions onBack={onBack} goHome={goHome} />
+        <ListMenu title="Genç Kızlar İçin İlmihal" items={ilmihalCategories} onSelect={(x) => setDetailKey(`cat:${x.key}`)} />
+      </>
+    );
+  }
+
+  if (detailKey.startsWith('cat:')) {
+    const catKey = detailKey.replace('cat:', '');
+    const category = ilmihalCategories.find(x => x.key === catKey);
+    const items = ilmihalData[catKey] || [];
+
+    return (
+      <>
+        <TopActions onBack={() => setDetailKey('')} goHome={goHome} />
+        <ListMenu
+          title={category?.title || 'İlmihal'}
+          items={items.map((item, index) => ({
+            key: `item:${catKey}:${index}`,
+            title: item.title,
+            icon: '🌿',
+            desc: 'Cevabı aç',
+          }))}
+          onSelect={(x) => setDetailKey(x.key)}
+        />
+      </>
+    );
+  }
+
+  if (detailKey.startsWith('item:')) {
+    const [, catKey, indexText] = detailKey.split(':');
+    const item = (ilmihalData[catKey] || [])[Number(indexText)];
+    const category = ilmihalCategories.find(x => x.key === catKey);
+
+    return (
+      <SubContent
+        title={item?.title || 'İlmihal'}
+        items={item ? [item] : []}
+        onBack={() => setDetailKey(`cat:${catKey}`)}
+        goHome={goHome}
+      />
+    );
+  }
+
+  return <IlmihalPage detailKey="" setDetailKey={setDetailKey} onBack={onBack} goHome={goHome} />;
 }
 
 function EgitimPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {

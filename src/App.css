@@ -1631,3 +1631,9 @@ section h2 {
     gap: 4px;
   }
 }
+
+
+/* v19 İslam içerikleri son aşamaya kadar liste düzeni */
+.list-menu .list-row em {
+  font-style: normal;
+}
