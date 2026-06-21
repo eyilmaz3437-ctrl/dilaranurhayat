@@ -87,16 +87,93 @@ const dualar = [
 ];
 
 const sureler = [
-  { title: 'Fil Suresi', text: 'Elem tera keyfe fe\'ale rabbüke bi-ashâbil-fîl. Elem yec\'al keydehüm fî tadlîl. Ve ersele aleyhim tayran ebâbîl. Termîhim bi-hicâratin min siccîl. Fe-ce\'alehüm ke\'asfin me\'kûl.', arabic: 'أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَابِ الْفِيلِ ۝ أَلَمْ يَجْعَلْ كَيْدَهُمْ فِي تَضْلِيلٍ ۝ وَأَرْسَلَ عَلَيْهِمْ طَيْرًا أَبَابِيلَ ۝ تَرْمِيهِمْ بِحِجَارَةٍ مِنْ سِجِّيلٍ ۝ فَجَعَلَهُمْ كَعَصْفٍ مَأْكُولٍ', meal: 'Rabbinin fil sahiplerine ne yaptığını hatırla. Onların planlarını boşa çıkardı; üzerlerine sürüler halinde kuşlar gönderdi. Kuşlar onlara pişmiş taşlar attı ve onları yenilmiş ekin yaprakları gibi yaptı.' },
-  { title: 'Kureyş Suresi', text: 'Li-îlâfi kureyş. Îlâfihim rihleted-şitâi ves-sayf. Fel-ya\'büdû rabbe hâzel-beyt. Ellezî et\'amehüm min cû\'ın ve âmenehüm min havf.', arabic: 'لِإِيلَافِ قُرَيْشٍ ۝ إِيلَافِهِمْ رِحْلَةَ الشِّتَاءِ وَالصَّيْفِ ۝ فَلْيَعْبُدُوا رَبَّ هَٰذَا الْبَيْتِ ۝ الَّذِي أَطْعَمَهُمْ مِنْ جُوعٍ وَآمَنَهُمْ مِنْ خَوْفٍ', meal: 'Kureyş’e kolaylık sağlandığı için, onları açlıktan doyuran ve korkudan emin kılan bu evin Rabbine kulluk etsinler.' },
-  { title: 'Mâûn Suresi', text: 'Era\'eytellezî yükezzibü bid-dîn. Fe-zâlikellezî yedü\'ul-yetîm. Ve lâ yehüddü alâ taâmil-miskîn. Fe-veylün lil-müsallîn. Ellezînehüm an salâtihim sâhûn. Ellezînehüm yürâûn. Ve yemne\'ûnel-mâûn.', arabic: 'أَرَأَيْتَ الَّذِي يُكَذِّبُ بِالدِّينِ ۝ فَذَٰلِكَ الَّذِي يَدُعُّ الْيَتِيمَ ۝ وَلَا يَحُضُّ عَلَىٰ طَعَامِ الْمِسْكِينِ ۝ فَوَيْلٌ لِلْمُصَلِّينَ ۝ الَّذِينَ هُمْ عَنْ صَلَاتِهِمْ سَاهُونَ ۝ الَّذِينَ هُمْ يُرَاءُونَ ۝ وَيَمْنَعُونَ الْمَاعُونَ', meal: 'Hesap gününü yalanlayanı gördün mü? İşte o, yetimi iter; yoksulu doyurmaya teşvik etmez. Namazlarını önemsemeyen ve gösteriş yapanlara yazıklar olsun.' },
-  { title: 'Kevser Suresi', text: 'İnnâ a\'taynâkel-kevser. Fesalli li-rabbike venhar. İnne şânieke hüvel-ebter.', arabic: 'إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ ۝ فَصَلِّ لِرَبِّكَ وَانْحَرْ ۝ إِنَّ شَانِئَكَ هُوَ الْأَبْتَرُ', meal: 'Biz sana Kevser’i verdik. Öyleyse Rabbin için namaz kıl ve kurban kes. Asıl soyu kesik olan sana düşmanlık edendir.' },
-  { title: 'Kâfirûn Suresi', text: 'Kul yâ eyyühel-kâfirûn. Lâ a\'büdü mâ ta\'büdûn. Ve lâ entüm âbidûne mâ a\'büd. Ve lâ ene âbidün mâ abedtüm. Ve lâ entüm âbidûne mâ a\'büd. Leküm dînüküm ve liye dîn.', arabic: 'قُلْ يَا أَيُّهَا الْكَافِرُونَ ۝ لَا أَعْبُدُ مَا تَعْبُدُونَ ۝ وَلَا أَنْتُمْ عَابِدُونَ مَا أَعْبُدُ ۝ وَلَا أَنَا عَابِدٌ مَا عَبَدْتُمْ ۝ وَلَا أَنْتُمْ عَابِدُونَ مَا أَعْبُدُ ۝ لَكُمْ دِينُكُمْ وَلِيَ دِينِ', meal: 'De ki: Ey inkârcılar! Ben sizin taptıklarınıza tapmam; siz de benim kulluk ettiğime kulluk etmezsiniz. Sizin dininiz size, benim dinim banadır.' },
-  { title: 'Nasr Suresi', text: 'İzâ câe nasrullâhi vel-feth. Ve raeyten-nâse yedhulûne fî dînillâhi efvâcâ. Fesebbih bi-hamdi rabbike ves-tağfirh. İnnehû kâne tevvâbâ.', arabic: 'إِذَا جَاءَ نَصْرُ اللَّهِ وَالْفَتْحُ ۝ وَرَأَيْتَ النَّاسَ يَدْخُلُونَ فِي دِينِ اللَّهِ أَفْوَاجًا ۝ فَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُ ۚ إِنَّهُ كَانَ تَوَّابًا', meal: 'Allah’ın yardımı ve fetih geldiğinde, Rabbini hamd ile tesbih et ve O’ndan bağışlanma dile. O tövbeleri çok kabul edendir.' },
-  { title: 'Tebbet Suresi', text: 'Tebbet yedâ ebî lehebin ve tebb. Mâ ağnâ anhü mâlühû ve mâ keseb. Seyaslâ nâran zâte leheb. Vemraetühû hammâletel-hatab. Fî cîdihâ hablün min mesed.', arabic: 'تَبَّتْ يَدَا أَبِي لَهَبٍ وَتَبَّ ۝ مَا أَغْنَىٰ عَنْهُ مَالُهُ وَمَا كَسَبَ ۝ سَيَصْلَىٰ نَارًا ذَاتَ لَهَبٍ ۝ وَامْرَأَتُهُ حَمَّالَةَ الْحَطَبِ ۝ فِي جِيدِهَا حَبْلٌ مِنْ مَسَدٍ', meal: 'Ebû Leheb’in elleri kurusun; zaten kurudu. Malı ve kazandıkları ona fayda vermedi. O alevli ateşe girecektir.' },
-  { title: 'İhlâs Suresi', text: 'Kul hüvallâhü ehad. Allâhüs-samed. Lem yelid ve lem yûled. Ve lem yekün lehû küfüven ehad.', arabic: 'قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ', meal: 'De ki: O Allah birdir. Allah Samed’dir. Doğurmamış ve doğurulmamıştır. Hiçbir şey O’nun dengi değildir.' },
-  { title: 'Felak Suresi', text: 'Kul eûzü bi-rabbil-felak. Min şerri mâ halak. Ve min şerri ğâsikın izâ vekab. Ve min şerrin-neffâsâti fîl-ukad. Ve min şerri hâsidin izâ hased.', arabic: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ مِنْ شَرِّ مَا خَلَقَ ۝ وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ ۝ وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۝ وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ', meal: 'De ki: Yarattıklarının şerrinden, çöken karanlığın şerrinden, düğümlere üfleyenlerin şerrinden ve kıskanç kişinin şerrinden sabahın Rabbine sığınırım.' },
-  { title: 'Nâs Suresi', text: 'Kul eûzü bi-rabbin-nâs. Melikin-nâs. İlâhin-nâs. Min şerril-vesvâsil-hannâs. Ellezî yüvesvisü fî sudûrin-nâs. Minel-cinneti ven-nâs.', arabic: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۝ مَلِكِ النَّاسِ ۝ إِلَٰهِ النَّاسِ ۝ مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۝ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۝ مِنَ الْجِنَّةِ وَالنَّاسِ', meal: 'De ki: İnsanların Rabbine, insanların Melikine, insanların İlahına sığınırım. İnsanların kalplerine vesvese veren şeytanın şerrinden Allah’a sığınırım.' },
+  {
+    title: 'Fâtiha Suresi',
+    text: `Bismillâhirrahmânirrahîm. Elhamdü lillâhi rabbil âlemîn. Errahmânirrahîm. Mâliki yevmiddîn. İyyâke na‘büdü ve iyyâke nestaîn. İhdinas-sırâtal-müstekîm. Sırâtallezîne en‘amte aleyhim. Ğayril mağdûbi aleyhim ve led-dâllîn.`,
+    arabic: `‌ـ(١‌ـ) سُورَةُ الْفَاتِحَةِ
+بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ‌ـ﴿١‌ـ﴾ اَلْحَمْدُ لِلّٰهِ رَبِّ الْعَالَم۪ينَۙ‌ـ﴿٢‌ـ﴾ اَلرَّحْمٰنِ الرَّح۪يمِۙ‌ـ﴿٣‌ـ﴾ مَالِكِ يَوْمِ الدّ۪ينِۜ‌ـ﴿٤‌ـ﴾ اِيَّاكَ نَعْبُدُ وَاِيَّاكَ نَسْتَع۪ينُۜ‌ـ﴿٥‌ـ﴾ اِهْدِنَا الصِّرَاطَ الْمُسْتَق۪يمَۙ‌ـ﴿٦‌ـ﴾ صِرَاطَ الَّذ۪ينَ اَنْعَمْتَ عَلَيْهِمْۙ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَاالضَّٓالّ۪ينَ‌ـ﴿٧‌ـ﴾`,
+    meal: `Rahmân ve Rahîm olan Allah’ın adıyla. Hamd, âlemlerin Rabbi olan Allah’a mahsustur. O, Rahmân ve Rahîm’dir. Din gününün sahibidir. Ancak Sana kulluk eder ve ancak Senden yardım isteriz. Bizi dosdoğru yola ilet; kendilerine nimet verdiklerinin yoluna. Gazaba uğrayanların ve sapmışların yoluna değil.`
+  },
+  {
+    title: 'Fil Suresi',
+    text: `Elem tera keyfe fe\\'ale rabbüke bi-ashâbil-fîl. Elem yec\\'al keydehüm fî tadlîl. Ve ersele aleyhim tayran ebâbîl. Termîhim bi-hicâratin min siccîl. Fe-ce\\'alehüm ke\\'asfin me\\'kûl.`,
+    arabic: `‌ـ(١٠٥‌ـ) سُورَةُ الْف۪يلِ
+بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ
+اَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِاَصْحَابِ الْف۪يلِۜ‌ـ﴿١‌ـ﴾ اَلَمْ يَجْعَلْ كَيْدَهُمْ ف۪ى تَضْل۪يلٍۙ‌ـ﴿٢‌ـ﴾ وَاَرْسَلَ عَلَيْهِمْ طَيْرًا اَبَاب۪يلَۙ‌ـ﴿٣‌ـ﴾ تَرْم۪يهِمْ بِحِجَارَةٍ مِنْ سِجّ۪يلٍۖۙ‌ـ﴿٤‌ـ﴾ فَجَعَلَهُمْ كَعَصْفٍ مَاْكُولٍ‌ـ﴿٥‌ـ﴾`,
+    meal: `Rabbinin fil sahiplerine ne yaptığını hatırla. Onların planlarını boşa çıkardı; üzerlerine sürüler halinde kuşlar gönderdi. Kuşlar onlara pişmiş taşlar attı ve onları yenilmiş ekin yaprakları gibi yaptı.`
+  },
+  {
+    title: 'Kureyş Suresi',
+    text: `Li-îlâfi kureyş. Îlâfihim rihleted-şitâi ves-sayf. Fel-ya\\'büdû rabbe hâzel-beyt. Ellezî et\\'amehüm min cû\\'ın ve âmenehüm min havf.`,
+    arabic: `‌ـ(١٠٦‌ـ) سُورَةُ قُرَيْشٍ
+بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ
+لِا۪يلَافِ قُرَيْشٍۙ‌ـ﴿١‌ـ﴾ ا۪يلَافِهِمْ رِحْلَةَ الشِّتَٓاءِ وَالصَّيْفِۚ‌ـ﴿٢‌ـ﴾ فَلْيَعْبُدُوا رَبَّ هٰذَاالْبَيْتِۙ‌ـ﴿٣‌ـ﴾ اَلَّذ۪ٓى اَطْعَمَهُمْ مِنْ جُوعٍ وَاٰمَنَهُمْ مِنْ خَوْفٍ‌ـ﴿٤‌ـ﴾`,
+    meal: `Kureyş’e kolaylık sağlandığı için, onları açlıktan doyuran ve korkudan emin kılan bu evin Rabbine kulluk etsinler.`
+  },
+  {
+    title: 'Mâûn Suresi',
+    text: `Era\\'eytellezî yükezzibü bid-dîn. Fe-zâlikellezî yedü\\'ul-yetîm. Ve lâ yehüddü alâ taâmil-miskîn. Fe-veylün lil-müsallîn. Ellezînehüm an salâtihim sâhûn. Ellezînehüm yürâûn. Ve yemne\\'ûnel-mâûn.`,
+    arabic: `‌ـ(١٠٧‌ـ) سُورَةُ الْمَاعُونِ
+بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ
+اَرَاَيْتَ الَّذ۪ى يُكَذِّبُ بِالدّ۪ينِۜ‌ـ﴿١‌ـ﴾ فَذٰلِكَ الَّذ۪ى يَدُعُّ الْيَت۪يمَۙ‌ـ﴿٢‌ـ﴾ وَلَايَحُضُّ عَلٰى طَعَامِ الْمِسْك۪ينِۜ‌ـ﴿٣‌ـ﴾ فَوَيْلٌ لِلْمُصَلّ۪ينَۙ‌ـ﴿٤‌ـ﴾ اَلَّذ۪ينَ هُمْ عَنْ صَلَاتِهِمْ سَاهُونَۙ‌ـ﴿٥‌ـ﴾ اَلَّذ۪ينَ هُمْ يُرَٓاؤُ۫نَۙ‌ـ﴿٦‌ـ﴾ وَيَمْنَعُونَ الْمَاعُونَ‌ـ﴿٧‌ـ﴾`,
+    meal: `Hesap gününü yalanlayanı gördün mü? İşte o, yetimi iter; yoksulu doyurmaya teşvik etmez. Namazlarını önemsemeyen ve gösteriş yapanlara yazıklar olsun.`
+  },
+  {
+    title: 'Kevser Suresi',
+    text: `İnnâ a\\'taynâkel-kevser. Fesalli li-rabbike venhar. İnne şânieke hüvel-ebter.`,
+    arabic: `‌ـ(١٠٨‌ـ) سُورَةُ الْكَوْثَرِ
+بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ
+اِنَّٓا اَعْطَيْنَاكَ الْكَوْثَرَۜ‌ـ﴿١‌ـ﴾ فَصَلِّ لِرَبِّكَ وَانْحَرْۜ‌ـ﴿٢‌ـ﴾ اِنَّ شَانِئَكَ هُوَ الْاَبْتَرُ‌ـ﴿٣‌ـ﴾`,
+    meal: `Biz sana Kevser’i verdik. Öyleyse Rabbin için namaz kıl ve kurban kes. Asıl soyu kesik olan sana düşmanlık edendir.`
+  },
+  {
+    title: 'Kâfirûn Suresi',
+    text: `Kul yâ eyyühel-kâfirûn. Lâ a\\'büdü mâ ta\\'büdûn. Ve lâ entüm âbidûne mâ a\\'büd. Ve lâ ene âbidün mâ abedtüm. Ve lâ entüm âbidûne mâ a\\'büd. Leküm dînüküm ve liye dîn.`,
+    arabic: `‌ـ(١٠٩‌ـ) سُورَةُ الْكَافِرُونَ
+بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ
+قُلْ يَٓا اَيُّهَا الْكَافِرُونَۙ‌ـ﴿١‌ـ﴾ لَٓا اَعْبُدُ مَاتَعْبُدُونَۙ‌ـ﴿٢‌ـ﴾ وَلَٓا اَنْتُمْ عَابِدُونَ مَٓا اَعْبُدُۚ‌ـ﴿٣‌ـ﴾ وَلَٓا اَنَا۬ عَابِدٌ مَاعَبَدْتُمْۙ‌ـ﴿٤‌ـ﴾ وَلَٓا اَنْتُمْ عَابِدُونَ مَٓا اَعْبُدُۜ‌ـ﴿٥‌ـ﴾ لَكُمْ د۪ينُكُمْ وَلِىَ د۪ينِ‌ـ﴿٦‌ـ﴾`,
+    meal: `De ki: Ey inkârcılar! Ben sizin taptıklarınıza tapmam; siz de benim kulluk ettiğime kulluk etmezsiniz. Sizin dininiz size, benim dinim banadır.`
+  },
+  {
+    title: 'Nasr Suresi',
+    text: `İzâ câe nasrullâhi vel-feth. Ve raeyten-nâse yedhulûne fî dînillâhi efvâcâ. Fesebbih bi-hamdi rabbike ves-tağfirh. İnnehû kâne tevvâbâ.`,
+    arabic: `‌ـ(١١٠‌ـ) سُورَةُ النَّصْرِ
+بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ
+اِذَا جَٓاءَ نَصْرُ اللّٰهِ وَالْفَتْحُۙ‌ـ﴿١‌ـ﴾ وَرَاَيْتَ النَّاسَ يَدْخُلُونَ ف۪ى د۪ينِ اللّٰهِ اَفْوَاجًاۙ‌ـ﴿٢‌ـ﴾ فَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُۜ اِنَّهُ كَانَ تَوَّابًا‌ـ﴿٣‌ـ﴾`,
+    meal: `Allah’ın yardımı ve fetih geldiğinde, Rabbini hamd ile tesbih et ve O’ndan bağışlanma dile. O tövbeleri çok kabul edendir.`
+  },
+  {
+    title: 'Tebbet Suresi',
+    text: `Tebbet yedâ ebî lehebin ve tebb. Mâ ağnâ anhü mâlühû ve mâ keseb. Seyaslâ nâran zâte leheb. Vemraetühû hammâletel-hatab. Fî cîdihâ hablün min mesed.`,
+    arabic: `‌ـ(١١١‌ـ) سُورَةُ تَبَّتْ
+بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ
+تَبَّتْ يَدَٓا اَب۪ى لَهَبٍ وَتَبَّۜ‌ـ﴿١‌ـ﴾ مَٓا اَغْنٰى عَنْهُ مَالُهُ وَمَاكَسَبَۜ‌ـ﴿٢‌ـ﴾ سَيَصْلٰى نَارًا ذَاتَ لَهَبٍۚ‌ـ﴿٣‌ـ﴾ وَامْرَاَتُهُۜ حَمَّالَةَ الْحَطَبِۚ‌ـ﴿٤‌ـ﴾ ف۪ى ج۪يدِهَا حَبْلٌ مِنْ مَسَدٍ‌ـ﴿٥‌ـ﴾`,
+    meal: `Ebû Leheb’in elleri kurusun; zaten kurudu. Malı ve kazandıkları ona fayda vermedi. O alevli ateşe girecektir.`
+  },
+  {
+    title: 'İhlâs Suresi',
+    text: `Kul hüvallâhü ehad. Allâhüs-samed. Lem yelid ve lem yûled. Ve lem yekün lehû küfüven ehad.`,
+    arabic: `‌ـ(١١٢‌ـ) سُورَةُ الْاِخْلَاصِ
+بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ
+قُلْ هُوَ اللّٰهُ اَحَدٌۚ‌ـ﴿١‌ـ﴾ اَللّٰهُ الصَّمَدُۚ‌ـ﴿٢‌ـ﴾ لَمْ يَلِدْ وَلَمْ يُولَدْۙ‌ـ﴿٣‌ـ﴾ وَلَمْ يَكُنْ لَهُ كُفُوًا اَحَدٌ‌ـ﴿٤‌ـ﴾`,
+    meal: `De ki: O Allah birdir. Allah Samed’dir. Doğurmamış ve doğurulmamıştır. Hiçbir şey O’nun dengi değildir.`
+  },
+  {
+    title: 'Felak Suresi',
+    text: `Kul eûzü bi-rabbil-felak. Min şerri mâ halak. Ve min şerri ğâsikın izâ vekab. Ve min şerrin-neffâsâti fîl-ukad. Ve min şerri hâsidin izâ hased.`,
+    arabic: `‌ـ(١١٣‌ـ) سُورَةُ الْفَلَقِ
+بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ
+قُلْ اَعُوذُ بِرَبِّ الْفَلَقِۙ‌ـ﴿١‌ـ﴾ مِنْ شَرِّ مَا خَلَقَۙ‌ـ﴿٢‌ـ﴾ وَمِنْ شَرِّ غَاسِقٍ اِذَا وَقَبَۙ‌ـ﴿٣‌ـ﴾ وَمِنْ شَرِّ النَّفَّاثَاتِ فِى الْعُقَدِۙ‌ـ﴿٤‌ـ﴾ وَمِنْ شَرِّ حَاسِدٍ اِذَا حَسَدَ‌ـ﴿٥‌ـ﴾`,
+    meal: `De ki: Yarattıklarının şerrinden, çöken karanlığın şerrinden, düğümlere üfleyenlerin şerrinden ve kıskanç kişinin şerrinden sabahın Rabbine sığınırım.`
+  },
+  {
+    title: 'Nâs Suresi',
+    text: `Kul eûzü bi-rabbin-nâs. Melikin-nâs. İlâhin-nâs. Min şerril-vesvâsil-hannâs. Ellezî yüvesvisü fî sudûrin-nâs. Minel-cinneti ven-nâs.`,
+    arabic: `‌ـ(١١٤‌ـ) سُورَةُ النَّاسِ
+بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ
+قُلْ اَعُوذُ بِرَبِّ النَّاسِۙ‌ـ﴿١‌ـ﴾ مَلِكِ النَّاسِۙ‌ـ﴿٢‌ـ﴾ اِلٰهِ النَّاسِۙ‌ـ﴿٣‌ـ﴾ مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِۙ‌ـ﴿٤‌ـ﴾ اَلَّذ۪ى يُوَسْوِسُ ف۪ى صُدُورِ النَّاسِۙ‌ـ﴿٥‌ـ﴾ مِنَ الْجِنَّةِ وَالنَّاسِ‌ـ﴿٦‌ـ﴾`,
+    meal: `De ki: İnsanların Rabbine, insanların Melikine, insanların İlahına sığınırım. İnsanların kalplerine vesvese veren şeytanın şerrinden Allah’a sığınırım.`
+  }
 ];
 
 const namazAdimlari = [
@@ -948,7 +1025,6 @@ function TextList({ items }) {
   const [openArabic, setOpenArabic] = useState({});
   const [openMeal, setOpenMeal] = useState({});
   const [fullArabic, setFullArabic] = useState(null);
-  const [followArabic, setFollowArabic] = useState(null);
 
   return (
     <>
@@ -980,8 +1056,8 @@ function TextList({ items }) {
               )}
 
               {item.arabic && (
-                <button type="button" onClick={() => setFollowArabic(item)}>
-                  Takipli Oku
+                <button type="button" disabled title="Ses dosyası eklenecek">
+                  ▶ Ses
                 </button>
               )}
 
@@ -1012,106 +1088,41 @@ function TextList({ items }) {
       </div>
 
       {fullArabic && (
-        <div className="arabic-fullscreen-backdrop" onClick={() => setFullArabic(null)}>
-          <div className="arabic-fullscreen" onClick={(e) => e.stopPropagation()}>
-            <div className="arabic-fullscreen-head">
-              <strong>{fullArabic.title}</strong>
-              <button onClick={() => setFullArabic(null)}>×</button>
-            </div>
-            <div className="arabic-fullscreen-body">
-              <ArabicText text={fullArabic.arabic} />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {followArabic && (
-        <ArabicFollowModal item={followArabic} onClose={() => setFollowArabic(null)} />
+        <ArabicFullscreen item={fullArabic} onClose={() => setFullArabic(null)} />
       )}
     </>
   );
 }
-function ArabicFollowModal({ item, onClose }) {
-  const parts = splitArabicForFollow(item.arabic);
-  const [index, setIndex] = useState(0);
-  const current = parts[index] || item.arabic;
 
-  function prev() {
-    setIndex(Math.max(0, index - 1));
-  }
+function ArabicFullscreen({ item, onClose }) {
+  const [fontSize, setFontSize] = useState(() => Number(localStorage.getItem('dnh_arabic_font_size')) || 40);
 
-  function next() {
-    setIndex(Math.min(parts.length - 1, index + 1));
-  }
+  useEffect(() => {
+    localStorage.setItem('dnh_arabic_font_size', String(fontSize));
+  }, [fontSize]);
 
   return (
     <div className="arabic-fullscreen-backdrop" onClick={onClose}>
-      <div className="arabic-fullscreen follow-screen" onClick={(e) => e.stopPropagation()}>
-        <div className="arabic-fullscreen-head">
-          <strong>{item.title} • Takipli Okuma</strong>
-          <button onClick={onClose}>×</button>
-        </div>
-
-        <div className="follow-reciter-note">
-          🎧 Hafız sesi için MP3 kaynakları ayrıca bağlanacak. Şimdilik ok ile takip modu aktif.
-        </div>
-
-        <div className="follow-body">
-          <div className="follow-arrow">➜</div>
-          <div className="follow-arabic">
-            <ArabicText text={current} />
+      <div className="arabic-fullscreen quran-reader" onClick={(e) => e.stopPropagation()}>
+        <div className="arabic-fullscreen-head quran-reader-head">
+          <strong>{item.title}</strong>
+          <div className="quran-reader-tools">
+            <button onClick={() => setFontSize(Math.max(24, fontSize - 4))}>A-</button>
+            <button onClick={() => setFontSize(Math.min(72, fontSize + 4))}>A+</button>
+            <button disabled title="Ses dosyası eklenecek">▶</button>
+            <button onClick={onClose}>×</button>
           </div>
         </div>
-
-        <div className="follow-controls">
-          <button onClick={prev} disabled={index === 0}>← Önceki</button>
-          <span>{index + 1} / {parts.length}</span>
-          <button onClick={next} disabled={index === parts.length - 1}>Sonraki →</button>
-        </div>
-
-        <div className="follow-full-text">
-          {parts.map((part, i) => (
-            <button
-              key={i}
-              className={i === index ? 'active' : ''}
-              onClick={() => setIndex(i)}
-            >
-              <ArabicText text={part} />
-            </button>
-          ))}
+        <div className="arabic-fullscreen-body quran-page" style={{ fontSize: `${fontSize}px` }}>
+          <ArabicText text={item.arabic} />
         </div>
       </div>
     </div>
   );
 }
 
-function splitArabicForFollow(text) {
-  const byAyah = text
-    .split('۝')
-    .map(x => x.trim())
-    .filter(Boolean);
-
-  if (byAyah.length > 1) return byAyah;
-
-  return text
-    .split(/[،.]/)
-    .map(x => x.trim())
-    .filter(Boolean);
-}
-
 function ArabicText({ text }) {
-  const harakat = /[\u064B-\u065F\u0670]/;
-  return (
-    <>
-      {Array.from(text).map((char, index) =>
-        harakat.test(char) ? (
-          <span className="haraka" key={index}>{char}</span>
-        ) : (
-          <span key={index}>{char}</span>
-        )
-      )}
-    </>
-  );
+  return <span>{text}</span>;
 }
 
 function SimplePage({ title, text, goHome }) { return <><TopActions goHome={goHome} /><SectionTitle title={title} /><div className="reading-card"><h3>Yapım Aşamasında</h3><p>{text}</p></div></>; }

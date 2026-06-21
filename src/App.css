@@ -1933,3 +1933,112 @@ section h2 {
     padding-bottom: 24px;
   }
 }
+
+
+/* v23 Kur'an okuyucu görünümü: bütün metin, bej zemin, A+/A- */
+.haraka {
+  color: inherit !important;
+  top: auto !important;
+  display: inline !important;
+  line-height: inherit !important;
+}
+
+.arabic-text.easy-arabic,
+.arabic-fullscreen-body.quran-page {
+  background: #efe8cf !important;
+  color: #050505;
+  direction: rtl;
+  text-align: right;
+  white-space: pre-wrap;
+  word-break: normal;
+  overflow-wrap: normal;
+  unicode-bidi: plaintext;
+  font-family: "Traditional Arabic", "Scheherazade New", "Amiri", Arial, Tahoma, serif;
+}
+
+.arabic-text.easy-arabic {
+  font-size: 34px;
+  line-height: 2.2;
+  padding: 18px;
+  border-color: #d8c99d;
+}
+
+.quran-reader {
+  background: #efe8cf !important;
+}
+
+.quran-reader-head {
+  gap: 10px;
+}
+
+.quran-reader-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.quran-reader-tools button {
+  border: 1px solid rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.12);
+  color: white;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.quran-reader-tools button:disabled {
+  opacity: 0.45;
+}
+
+.arabic-fullscreen-body.quran-page {
+  line-height: 2.15;
+  padding: 26px 22px 70px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.compact-task-row {
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  overflow: hidden !important;
+}
+
+.compact-task-row strong,
+.compact-task-row span {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 700px) {
+  .arabic-text.easy-arabic {
+    font-size: 31px;
+    line-height: 2.1;
+    padding: 14px;
+  }
+
+  .arabic-fullscreen-body.quran-page {
+    line-height: 2.05;
+    padding: 18px 14px 70px;
+  }
+
+  .quran-reader-tools button {
+    padding: 5px 8px;
+    font-size: 14px;
+  }
+
+  .compact-task-row {
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .arabic-fullscreen-body.quran-page {
+    line-height: 1.95;
+    padding: 12px 18px 42px;
+  }
+}
