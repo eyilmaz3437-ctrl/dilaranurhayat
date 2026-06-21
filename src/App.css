@@ -2042,3 +2042,63 @@ section h2 {
     padding: 12px 18px 42px;
   }
 }
+
+
+/* v24 mobil Kur'an fontu ve sade okuyucu araçları */
+@import url('https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap');
+
+.arabic-text.easy-arabic,
+.arabic-fullscreen-body.quran-page {
+  font-family: "Amiri Quran", "Amiri", "Noto Naskh Arabic", "Traditional Arabic", serif !important;
+  font-feature-settings: "kern" 1, "liga" 1, "mark" 1, "mkmk" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ayet araçları sadeleşti: sadece A-, A+ ve kapat */
+.quran-reader-tools {
+  gap: 8px !important;
+}
+
+.quran-reader-tools button {
+  min-width: 42px;
+}
+
+/* Mobilde bilgisayar hattına daha yakın ve kare karakter riskini azaltan font */
+@media (max-width: 700px) {
+  .arabic-text.easy-arabic,
+  .arabic-fullscreen-body.quran-page {
+    font-family: "Amiri Quran", "Amiri", "Noto Naskh Arabic", serif !important;
+    letter-spacing: 0 !important;
+    word-spacing: 2px !important;
+  }
+
+  .arabic-text.easy-arabic {
+    font-size: 34px !important;
+    line-height: 2.25 !important;
+  }
+
+  .arabic-fullscreen-body.quran-page {
+    font-size: inherit;
+    line-height: 2.2 !important;
+  }
+
+  .quran-reader-head strong {
+    font-size: 14px;
+    max-width: 55vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Mobil yatayda sade tam ekran */
+@media (max-width: 900px) and (orientation: landscape) {
+  .quran-reader-head {
+    padding: 6px 10px !important;
+  }
+
+  .arabic-fullscreen-body.quran-page {
+    line-height: 2 !important;
+  }
+}

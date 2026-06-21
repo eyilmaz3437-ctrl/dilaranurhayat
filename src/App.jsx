@@ -1055,12 +1055,6 @@ function TextList({ items }) {
                 </button>
               )}
 
-              {item.arabic && (
-                <button type="button" disabled title="Ses dosyası eklenecek">
-                  ▶ Ses
-                </button>
-              )}
-
               {item.meal && (
                 <button
                   type="button"
@@ -1109,7 +1103,6 @@ function ArabicFullscreen({ item, onClose }) {
           <div className="quran-reader-tools">
             <button onClick={() => setFontSize(Math.max(24, fontSize - 4))}>A-</button>
             <button onClick={() => setFontSize(Math.min(72, fontSize + 4))}>A+</button>
-            <button disabled title="Ses dosyası eklenecek">▶</button>
             <button onClick={onClose}>×</button>
           </div>
         </div>
