@@ -652,15 +652,14 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
         <div className="task-list compact">
           {completedTasks.length === 0 && <div className="home-empty">Tamamlanan görev yok.</div>}
           {completedTasks.map(t => (
-            <article className="task-card compact task-completed task-completed-rich" key={t.id}>
-              <button className="completed-detail-open" onClick={() => setDetailTask(t)} title="Detay">›</button>
+            <article className="task-card compact task-completed task-completed-rich clickable-completed-row" key={t.id} onClick={() => setDetailTask(t)}>
               <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
               <span className="compact-date">{formatShortDate(t.task_date)}</span>
               <strong>{t.title}</strong>
               <p className="task-original-note">Görev: {t.content || 'Açıklama yok.'}</p>
               <p className="task-completion-note">Yaptı: {t.completed_note || 'Tamamlanma açıklaması yok.'}</p>
               <span className="completed-by" title={t.completed_at ? formatDateTime(t.completed_at) : ''}>✓ {t.completed_by || '?'} {t.completed_at ? formatShortDate(t.completed_at.slice(0, 10)) : ''}</span>
-              <button className="undo-task" onClick={() => undoComplete(t)}>Geri</button>
+              <button className="undo-task" onClick={(e) => { e.stopPropagation(); undoComplete(t); }}>Geri</button>
             </article>
           ))}
         </div>
