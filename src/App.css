@@ -1532,24 +1532,3 @@ section h2 {
 }
 
 
-/* v14 mobil görev satırında açıklamaya daha fazla yer */
-@media (max-width: 700px) {
-  .compact-task-row {
-    grid-template-columns: 24px 38px 46px 1fr 12px !important;
-    gap: 5px !important;
-  }
-
-  .compact-task-row strong {
-    min-width: 0;
-    font-size: 12px;
-  }
-
-  .compact-task-row span:last-of-type {
-    min-width: 0;
-    font-size: 12px;
-  }
-
-  .compact-task-row .row-detail-mark {
-    font-size: 16px;
-  }
-}
