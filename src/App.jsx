@@ -160,6 +160,7 @@ export default function App() {
     const { data, error } = await supabase
       .from('tasks')
       .select('*')
+      .order('completed', { ascending: true })
       .order('task_date', { ascending: true })
       .order('created_at', { ascending: true });
 
@@ -318,7 +319,7 @@ function getNextPrayer(now) {
 }
 
 function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer }) {
-  const upcoming = [...tasks].sort((a, b) => a.task_date.localeCompare(b.task_date)).slice(0, 7);
+  const upcoming = [...tasks].filter(t => !t.completed).sort((a, b) => a.task_date.localeCompare(b.task_date)).slice(0, 7);
   return (
     <>
       <CompactPrayerBar />
@@ -424,6 +425,10 @@ function EgitimPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
 function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActiveUser }) {
   const [form, setForm] = useState({ task_date: new Date().toISOString().slice(0, 10), owner: activeUser, title: '', content: '' });
   const [saving, setSaving] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(false);
+
+  const activeTasks = [...tasks].filter(t => !t.completed).sort((a, b) => a.task_date.localeCompare(b.task_date));
+  const completedTasks = [...tasks].filter(t => t.completed).sort((a, b) => (b.completed_at || '').localeCompare(a.completed_at || ''));
 
   async function addTask(e) {
     e.preventDefault();
@@ -435,6 +440,8 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
       owner: form.owner,
       title: form.title.trim(),
       content: form.content.trim(),
+      completed: false,
+      completed_at: null,
     };
 
     const { data, error } = await supabase
@@ -454,7 +461,41 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
     setForm({ task_date: form.task_date, owner: activeUser, title: '', content: '' });
   }
 
+  async function completeTask(task) {
+    const ok = confirm(`"${task.title}" tamamlandı olarak işaretlensin mi?`);
+    if (!ok) return;
+
+    const { error } = await supabase
+      .from('tasks')
+      .update({ completed: true, completed_at: new Date().toISOString(), completed_by: activeUser })
+      .eq('id', task.id);
+
+    if (error) {
+      alert('Görev tamamlanamadı: ' + error.message);
+      return;
+    }
+
+    reloadTasks();
+  }
+
+  async function undoComplete(task) {
+    const { error } = await supabase
+      .from('tasks')
+      .update({ completed: false, completed_at: null, completed_by: null })
+      .eq('id', task.id);
+
+    if (error) {
+      alert('Görev geri alınamadı: ' + error.message);
+      return;
+    }
+
+    reloadTasks();
+  }
+
   async function removeTask(id) {
+    const ok = confirm('Bu görev tamamen silinsin mi? Tamamlananlar arşivinden de kaybolur.');
+    if (!ok) return;
+
     const { error } = await supabase.from('tasks').delete().eq('id', id);
     if (error) {
       alert('Görev silinemedi: ' + error.message);
@@ -467,6 +508,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
     <>
       <TopActions goHome={goHome} />
       <SectionTitle title="Görevler" />
+
       <form className="task-form compact" onSubmit={addTask}>
         <input type="date" value={form.task_date} onChange={e => setForm({ ...form, task_date: e.target.value })} />
         <select value={form.owner} onChange={e => { setForm({ ...form, owner: e.target.value }); setActiveUser(e.target.value); }}>
@@ -478,17 +520,47 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
         <textarea placeholder="İçerik" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })}></textarea>
         <button type="submit" disabled={saving}>{saving ? 'Ekleniyor...' : 'Görev Ekle'}</button>
       </form>
-      <div className="task-list compact">
-        {[...tasks].sort((a, b) => a.task_date.localeCompare(b.task_date)).map(t => (
-          <article className="task-card compact" key={t.id}>
-            <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
-            <span>{formatShortDate(t.task_date)}</span>
-            <strong>{t.title}</strong>
-            <p>{t.content}</p>
-            <button onClick={() => removeTask(t.id)}>Sil</button>
-          </article>
-        ))}
+
+      <div className="task-tabs">
+        <button className={!showCompleted ? 'active' : ''} onClick={() => setShowCompleted(false)}>
+          Yapılacak ({activeTasks.length})
+        </button>
+        <button className={showCompleted ? 'active' : ''} onClick={() => setShowCompleted(true)}>
+          Tamamlanan ({completedTasks.length})
+        </button>
       </div>
+
+      {!showCompleted && (
+        <div className="task-list compact">
+          {activeTasks.length === 0 && <div className="home-empty">Açık görev yok.</div>}
+          {activeTasks.map(t => (
+            <article className="task-card compact task-active" key={t.id}>
+              <button className="done-check" onClick={() => completeTask(t)} title="Tamamlandı">✓</button>
+              <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
+              <span>{formatShortDate(t.task_date)}</span>
+              <strong>{t.title}</strong>
+              <p>{t.content}</p>
+              <button className="delete-task" onClick={() => removeTask(t.id)}>Sil</button>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {showCompleted && (
+        <div className="task-list compact">
+          {completedTasks.length === 0 && <div className="home-empty">Tamamlanan görev yok.</div>}
+          {completedTasks.map(t => (
+            <article className="task-card compact task-completed" key={t.id}>
+              <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
+              <span>{formatShortDate(t.task_date)}</span>
+              <strong>{t.title}</strong>
+              <p>{t.content}</p>
+              <span className="completed-by">✓ {t.completed_by || '?'}</span>
+              <button className="undo-task" onClick={() => undoComplete(t)}>Geri</button>
+            </article>
+          ))}
+        </div>
+      )}
     </>
   );
 }
