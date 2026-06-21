@@ -434,7 +434,7 @@ function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
       .update({
         completed: true,
         completed_at: new Date().toISOString(),
-        completed_by: activeUser,
+        completed_by: completedBy || activeUser,
         completed_note: note.trim(),
       })
       .eq('id', task.id);
@@ -458,10 +458,12 @@ function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
           <button onClick={onClose}>×</button>
         </div>
         <div className="task-detail-body">
-          <div className="task-detail-meta">
-            <span className={`owner-badge owner-${(task.owner || 'D').toLowerCase()}`}>{task.owner || 'D'}</span>
-            <strong>{formatDate(task.task_date)}</strong>
-            {!task.completed && <span>Tamamlayan: {activeUser}</span>}
+          <div className="task-detail-meta detail-meta-grid">
+            <span><b>Veren</b> <span className={`owner-badge owner-${(task.owner || 'D').toLowerCase()}`}>{task.owner || 'D'}</span></span>
+            <span><b>Görev Tarihi</b> {formatDate(task.task_date)}</span>
+            {task.created_at && <span><b>Kayıt</b> {formatDateTime(task.created_at)}</span>}
+            {task.completed && task.completed_at && <span><b>Tamamlandı</b> {formatDateTime(task.completed_at)}</span>}
+            {task.completed && <span><b>Tamamlayan</b> {task.completed_by || '?'}</span>}
           </div>
           <h2>{task.title}</h2>
           <p>{task.content || 'Açıklama yok.'}</p>
@@ -559,13 +561,13 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
     setCompleteTarget(task);
   }
 
-  async function submitComplete(task, note) {
+  async function submitComplete(task, note, completedBy) {
     const { error } = await supabase
       .from('tasks')
       .update({
         completed: true,
         completed_at: new Date().toISOString(),
-        completed_by: activeUser,
+        completed_by: completedBy || activeUser,
         completed_note: note,
       })
       .eq('id', task.id);
@@ -644,7 +646,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
               <strong>{t.title}</strong>
               <p className="task-original-note">Görev: {t.content || 'Açıklama yok.'}</p>
               <p className="task-completion-note">Yaptı: {t.completed_note || 'Tamamlanma açıklaması yok.'}</p>
-              <span className="completed-by">✓ {t.completed_by || '?'} {t.completed_at ? formatShortDate(t.completed_at.slice(0, 10)) : ''}</span>
+              <span className="completed-by" title={t.completed_at ? formatDateTime(t.completed_at) : ''}>✓ {t.completed_by || '?'} {t.completed_at ? formatShortDate(t.completed_at.slice(0, 10)) : ''}</span>
               <button className="undo-task" onClick={() => undoComplete(t)}>Geri</button>
             </article>
           ))}
@@ -664,6 +666,8 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
 
 function CompleteTaskModal({ task, activeUser, onCancel, onSave }) {
   const [note, setNote] = useState('');
+  const [completedBy, setCompletedBy] = useState(activeUser);
+
   return (
     <div className="modal-backdrop" onClick={onCancel}>
       <div className="task-detail-modal" onClick={(e) => e.stopPropagation()}>
@@ -672,20 +676,33 @@ function CompleteTaskModal({ task, activeUser, onCancel, onSave }) {
           <button onClick={onCancel}>×</button>
         </div>
         <div className="task-detail-body">
-          <div className="task-detail-meta">
-            <span className={`owner-badge owner-${(task.owner || 'D').toLowerCase()}`}>{task.owner || 'D'}</span>
-            <strong>{formatDate(task.task_date)}</strong>
-            <span>Tamamlayan: {activeUser}</span>
+          <div className="task-detail-meta detail-meta-grid">
+            <span><b>Veren</b> <span className={`owner-badge owner-${(task.owner || 'D').toLowerCase()}`}>{task.owner || 'D'}</span></span>
+            <span><b>Görev Tarihi</b> {formatDate(task.task_date)}</span>
+            {task.created_at && <span><b>Kayıt</b> {formatDateTime(task.created_at)}</span>}
           </div>
           <h2>{task.title}</h2>
-          <p>{task.content}</p>
+
+          <div className="task-original-box">
+            <strong>Verilen Görev</strong>
+            <p>{task.content || 'Açıklama yok.'}</p>
+          </div>
+
+          <label className="field-label">Tamamlayan</label>
+          <select className="completion-select" value={completedBy} onChange={(e) => setCompletedBy(e.target.value)}>
+            <option value="D">D - Dilara</option>
+            <option value="B">B - Baba</option>
+            <option value="A">A - Anne</option>
+          </select>
+
+          <label className="field-label">Tamamlanma Açıklaması</label>
           <textarea
             className="completion-textarea"
             placeholder="Görev nasıl tamamlandı? Kısa açıklama yaz."
             value={note}
             onChange={(e) => setNote(e.target.value)}
           />
-          <button className="complete-save-button" onClick={() => onSave(task, note.trim())}>
+          <button className="complete-save-button" onClick={() => onSave(task, note.trim(), completedBy)}>
             ✓ Tamamlandı olarak kaydet
           </button>
         </div>
@@ -709,4 +726,14 @@ function TextList({ items }) { const [openArabic, setOpenArabic] = useState({});
 function SimplePage({ title, text, goHome }) { return <><TopActions goHome={goHome} /><SectionTitle title={title} /><div className="reading-card"><h3>Yapım Aşamasında</h3><p>{text}</p></div></>; }
 
 function formatDate(date) { const [y, m, d] = date.split('-'); return `${d}.${m}.${y}`; }
+function formatDateTime(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  const d = String(date.getDate()).padStart(2, '0');
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const y = date.getFullYear();
+  const h = String(date.getHours()).padStart(2, '0');
+  const min = String(date.getMinutes()).padStart(2, '0');
+  return `${d}.${m}.${y} ${h}:${min}`;
+}
 function formatShortDate(date) { const [y, m, d] = date.split('-'); return `${d}.${m}`; }

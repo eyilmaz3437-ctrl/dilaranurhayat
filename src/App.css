@@ -1532,3 +1532,46 @@ section h2 {
 }
 
 
+/* v15 görev veren/tamamlayan ve tarih detayları */
+.detail-meta-grid {
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.detail-meta-grid span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 6px 10px;
+}
+
+.detail-meta-grid b {
+  color: #162033;
+}
+
+.field-label {
+  display: block;
+  margin: 12px 0 6px;
+  font-weight: 800;
+  color: #162033;
+}
+
+.completion-select {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  background: white;
+}
+
+@media (max-width: 700px) {
+  .detail-meta-grid span {
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+}
+
