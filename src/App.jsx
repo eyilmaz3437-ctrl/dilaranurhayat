@@ -147,8 +147,21 @@ export default function App() {
   const [activeUser, setActiveUser] = useState(() => localStorage.getItem('dnh_active_user') || 'D');
 
   useEffect(() => {
+    document.documentElement.setAttribute('translate', 'no');
+    document.documentElement.classList.add('notranslate');
+    document.body.setAttribute('translate', 'no');
+
+    const meta = document.createElement('meta');
+    meta.name = 'google';
+    meta.content = 'notranslate';
+    document.head.appendChild(meta);
+
     loadTasks();
     loadPrayerLogs();
+
+    return () => {
+      document.head.removeChild(meta);
+    };
   }, []);
 
   useEffect(() => {
@@ -237,7 +250,7 @@ export default function App() {
   }
 
   return (
-    <div className="app">
+    <div className="app notranslate" translate="no">
       {menuOpen && <div className="mobile-overlay" onClick={() => setMenuOpen(false)}></div>}
       <button className="mobile-menu-button" onClick={() => setMenuOpen(true)}>☰</button>
       <aside className={menuOpen ? 'sidebar open' : 'sidebar'}>
@@ -319,7 +332,9 @@ function getNextPrayer(now) {
 }
 
 function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer }) {
+  const [selectedTask, setSelectedTask] = useState(null);
   const upcoming = [...tasks].filter(t => !t.completed).sort((a, b) => a.task_date.localeCompare(b.task_date)).slice(0, 7);
+
   return (
     <>
       <CompactPrayerBar />
@@ -328,76 +343,51 @@ function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer })
       <div className="home-task-list">
         {tasksLoading && <div className="home-empty">Görevler yükleniyor...</div>}
         {!tasksLoading && upcoming.length === 0 && <div className="home-empty">Henüz görev yok.</div>}
-        {upcoming.map(t => <CompactTaskRow key={t.id} task={t} />)}
+        {upcoming.map(t => <CompactTaskRow key={t.id} task={t} onOpen={() => setSelectedTask(t)} />)}
         <div className="home-note">🌷 Az ama düzenli çalışmak, çok başlayıp bırakmaktan daha güzeldir.</div>
       </div>
+      {selectedTask && <TaskReadModal task={selectedTask} onClose={() => setSelectedTask(null)} />}
     </>
   );
 }
 
-function PrayerChecklist({ logs, onToggle }) {
-  const [open, setOpen] = useState(false);
-  const today = new Date().toISOString().slice(0, 10);
-  const todayLog = logs.find(x => x.log_date === today) || { log_date: today };
-  const fields = [
-    ['sabah', 'S'],
-    ['ogle', 'Ö'],
-    ['ikindi', 'İ'],
-    ['aksam', 'A'],
-    ['yatsi', 'Y'],
-  ];
-
-  return (
-    <>
-      <div className="prayer-check-row">
-        <button className="prayer-history-button" onClick={() => setOpen(true)}>📋 Namaz</button>
-        {fields.map(([field, label]) => (
-          <label key={field} className="prayer-check-item">
-            <span>{label}</span>
-            <input
-              type="checkbox"
-              checked={!!todayLog[field]}
-              onChange={(e) => onToggle(field, e.target.checked)}
-            />
-          </label>
-        ))}
-      </div>
-
-      {open && (
-        <div className="modal-backdrop" onClick={() => setOpen(false)}>
-          <div className="prayer-modal prayer-history-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-head">
-              <strong>Son 10 Gün Namaz Çetelesi</strong>
-              <button onClick={() => setOpen(false)}>×</button>
-            </div>
-            <div className="prayer-history-table">
-              <div className="history-head"><span>Tarih</span><span>S</span><span>Ö</span><span>İ</span><span>A</span><span>Y</span></div>
-              {logs.map(row => (
-                <div className="history-row" key={row.log_date}>
-                  <span>{formatShortDate(row.log_date)}</span>
-                  <span>{row.sabah ? '✅' : '□'}</span>
-                  <span>{row.ogle ? '✅' : '□'}</span>
-                  <span>{row.ikindi ? '✅' : '□'}</span>
-                  <span>{row.aksam ? '✅' : '□'}</span>
-                  <span>{row.yatsi ? '✅' : '□'}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
-function CompactTaskRow({ task }) {
+function CompactTaskRow({ task, onOpen }) {
   const who = task.owner || 'D';
   return (
-    <div className="compact-task-row">
+    <button className="compact-task-row clickable-row" onClick={onOpen}>
       <span className={`owner-badge owner-${who.toLowerCase()}`}>{who}</span>
       <span className="compact-date">{formatShortDate(task.task_date)}</span>
       <strong>{task.title}</strong>
       <span>{task.content}</span>
+      <b className="row-detail-mark">›</b>
+    </button>
+  );
+}
+
+function TaskReadModal({ task, onClose }) {
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="task-detail-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-head">
+          <strong>Görev Detayı</strong>
+          <button onClick={onClose}>×</button>
+        </div>
+        <div className="task-detail-body">
+          <div className="task-detail-meta">
+            <span className={`owner-badge owner-${(task.owner || 'D').toLowerCase()}`}>{task.owner || 'D'}</span>
+            <strong>{formatDate(task.task_date)}</strong>
+          </div>
+          <h2>{task.title}</h2>
+          <p>{task.content || 'Açıklama yok.'}</p>
+          {task.completed && (
+            <div className="completion-note-box">
+              <strong>Tamamlanma Notu</strong>
+              <p>{task.completed_note || 'Not girilmemiş.'}</p>
+              <span>✓ {task.completed_by || '?'} tarafından tamamlandı.</span>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -426,6 +416,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
   const [form, setForm] = useState({ task_date: new Date().toISOString().slice(0, 10), owner: activeUser, title: '', content: '' });
   const [saving, setSaving] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [completeTarget, setCompleteTarget] = useState(null);
 
   const activeTasks = [...tasks].filter(t => !t.completed).sort((a, b) => a.task_date.localeCompare(b.task_date));
   const completedTasks = [...tasks].filter(t => t.completed).sort((a, b) => (b.completed_at || '').localeCompare(a.completed_at || ''));
@@ -442,6 +433,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
       content: form.content.trim(),
       completed: false,
       completed_at: null,
+      completed_note: null,
     };
 
     const { data, error } = await supabase
@@ -461,13 +453,19 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
     setForm({ task_date: form.task_date, owner: activeUser, title: '', content: '' });
   }
 
-  async function completeTask(task) {
-    const ok = confirm(`"${task.title}" tamamlandı olarak işaretlensin mi?`);
-    if (!ok) return;
+  function completeTask(task) {
+    setCompleteTarget(task);
+  }
 
+  async function submitComplete(task, note) {
     const { error } = await supabase
       .from('tasks')
-      .update({ completed: true, completed_at: new Date().toISOString(), completed_by: activeUser })
+      .update({
+        completed: true,
+        completed_at: new Date().toISOString(),
+        completed_by: activeUser,
+        completed_note: note,
+      })
       .eq('id', task.id);
 
     if (error) {
@@ -475,13 +473,14 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
       return;
     }
 
+    setCompleteTarget(null);
     reloadTasks();
   }
 
   async function undoComplete(task) {
     const { error } = await supabase
       .from('tasks')
-      .update({ completed: false, completed_at: null, completed_by: null })
+      .update({ completed: false, completed_at: null, completed_by: null, completed_note: null })
       .eq('id', task.id);
 
     if (error) {
@@ -554,14 +553,54 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
               <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
               <span>{formatShortDate(t.task_date)}</span>
               <strong>{t.title}</strong>
-              <p>{t.content}</p>
+              <p>{t.completed_note || t.content}</p>
               <span className="completed-by">✓ {t.completed_by || '?'}</span>
               <button className="undo-task" onClick={() => undoComplete(t)}>Geri</button>
             </article>
           ))}
         </div>
       )}
+      {completeTarget && (
+        <CompleteTaskModal
+          task={completeTarget}
+          activeUser={activeUser}
+          onCancel={() => setCompleteTarget(null)}
+          onSave={submitComplete}
+        />
+      )}
     </>
+  );
+}
+
+function CompleteTaskModal({ task, activeUser, onCancel, onSave }) {
+  const [note, setNote] = useState('');
+  return (
+    <div className="modal-backdrop" onClick={onCancel}>
+      <div className="task-detail-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-head">
+          <strong>Tamamlandı Bilgisi</strong>
+          <button onClick={onCancel}>×</button>
+        </div>
+        <div className="task-detail-body">
+          <div className="task-detail-meta">
+            <span className={`owner-badge owner-${(task.owner || 'D').toLowerCase()}`}>{task.owner || 'D'}</span>
+            <strong>{formatDate(task.task_date)}</strong>
+            <span>Tamamlayan: {activeUser}</span>
+          </div>
+          <h2>{task.title}</h2>
+          <p>{task.content}</p>
+          <textarea
+            className="completion-textarea"
+            placeholder="Görev nasıl tamamlandı? Kısa açıklama yaz."
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+          <button className="complete-save-button" onClick={() => onSave(task, note.trim())}>
+            ✓ Tamamlandı olarak kaydet
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
