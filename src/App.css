@@ -1575,3 +1575,9 @@ section h2 {
   }
 }
 
+
+/* v16 ana sayfa görev detayında tamamlayan seçimi düzeltildi */
+.detail-complete-area .completion-select {
+  margin-bottom: 10px;
+}
+

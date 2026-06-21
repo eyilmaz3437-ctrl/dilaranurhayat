@@ -422,6 +422,7 @@ function CompactTaskRow({ task, onOpen }) {
 
 function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
   const [note, setNote] = useState('');
+  const [completedBy, setCompletedBy] = useState(activeUser);
   const [saving, setSaving] = useState(false);
 
   async function completeFromDetail() {
@@ -429,25 +430,28 @@ function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
     if (!ok) return;
 
     setSaving(true);
-    const { error } = await supabase
-      .from('tasks')
-      .update({
-        completed: true,
-        completed_at: new Date().toISOString(),
-        completed_by: completedBy || activeUser,
-        completed_note: note.trim(),
-      })
-      .eq('id', task.id);
 
-    setSaving(false);
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({
+          completed: true,
+          completed_at: new Date().toISOString(),
+          completed_by: completedBy || activeUser,
+          completed_note: note.trim(),
+        })
+        .eq('id', task.id);
 
-    if (error) {
-      alert('Görev tamamlanamadı: ' + error.message);
-      return;
+      if (error) {
+        alert('Görev tamamlanamadı: ' + error.message);
+        return;
+      }
+
+      await reloadTasks();
+      onClose();
+    } finally {
+      setSaving(false);
     }
-
-    await reloadTasks();
-    onClose();
   }
 
   return (
@@ -470,7 +474,14 @@ function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
 
           {!task.completed && (
             <div className="detail-complete-area">
-              <label>Tamamlanma açıklaması</label>
+              <label className="field-label">Tamamlayan</label>
+              <select className="completion-select" value={completedBy} onChange={(e) => setCompletedBy(e.target.value)}>
+                <option value="D">D - Dilara</option>
+                <option value="B">B - Baba</option>
+                <option value="A">A - Anne</option>
+              </select>
+
+              <label className="field-label">Tamamlanma açıklaması</label>
               <textarea
                 className="completion-textarea"
                 placeholder="Görev nasıl tamamlandı? Mesela: 20 soru çözdüm, 3 yanlış çıktı."
