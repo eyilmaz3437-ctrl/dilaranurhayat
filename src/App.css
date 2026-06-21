@@ -1750,3 +1750,36 @@ body {
 .arabic-fullscreen-body.quran-page {
   word-spacing: 0.16em !important;
 }
+
+
+/* v28 Kur'an tam ekranda sade ses düğmeleri */
+.quran-reader-head {
+  justify-content: center !important;
+}
+
+.quran-reader-head > strong {
+  display: none !important;
+}
+
+.quran-reader-tools {
+  width: 100%;
+  justify-content: center;
+  gap: 8px !important;
+}
+
+.quran-reader-tools button {
+  min-width: 44px;
+  height: 36px;
+  border: 1px solid rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.12);
+  color: white;
+  border-radius: 999px;
+  font-size: 17px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.quran-reader-tools button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

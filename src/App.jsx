@@ -1,5 +1,5 @@
 import './App.css';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://prwofdineklysdtjcwmp.supabase.co';
@@ -1088,24 +1088,98 @@ function TextList({ items }) {
   );
 }
 
+const quranAudioMap = {
+  'Fâtiha Suresi': ['/audio/Kt001-1.m4a'],
+  'Fil Suresi': ['/audio/Kt602-1.m4a'],
+  'Kureyş Suresi': ['/audio/Kt602-2.m4a'],
+  'Mâûn Suresi': ['/audio/Kt602-3.m4a'],
+  'Kevser Suresi': ['/audio/Kt603-1.m4a'],
+  'Kâfirûn Suresi': ['/audio/Kt603-2.m4a'],
+  'Nasr Suresi': ['/audio/Kt603-3.m4a'],
+  'Tebbet Suresi': ['/audio/Kt604-1.m4a'],
+  'İhlâs Suresi': ['/audio/Kt604-2.m4a'],
+  'Felak Suresi': ['/audio/Kt604-3.m4a'],
+  'Nâs Suresi': ['/audio/Kt604-3.m4a'],
+};
+
 function ArabicFullscreen({ item, onClose }) {
   const [fontSize, setFontSize] = useState(() => Number(localStorage.getItem('dnh_arabic_font_size')) || 40);
+  const [playing, setPlaying] = useState(false);
+  const [audioIndex, setAudioIndex] = useState(0);
+  const audioRef = useRef(null);
+  const audioFiles = quranAudioMap[item.title] || [];
 
   useEffect(() => {
     localStorage.setItem('dnh_arabic_font_size', String(fontSize));
   }, [fontSize]);
 
+  useEffect(() => {
+    setPlaying(false);
+    setAudioIndex(0);
+  }, [item.title]);
+
+  function toggleAudio() {
+    const audio = audioRef.current;
+    if (!audio || audioFiles.length === 0) return;
+
+    if (playing) {
+      audio.pause();
+      setPlaying(false);
+      return;
+    }
+
+    audio.play()
+      .then(() => setPlaying(true))
+      .catch(() => alert('Ses başlatılamadı. Dosya yolu veya tarayıcı izni kontrol edilmeli.'));
+  }
+
+  function restartAudio() {
+    const audio = audioRef.current;
+    if (!audio || audioFiles.length === 0) return;
+    audio.currentTime = 0;
+    audio.play()
+      .then(() => setPlaying(true))
+      .catch(() => alert('Ses başlatılamadı.'));
+  }
+
+  function handleAudioEnded() {
+    if (audioIndex < audioFiles.length - 1) {
+      setAudioIndex(audioIndex + 1);
+      setTimeout(() => {
+        audioRef.current?.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+      }, 80);
+    } else {
+      setPlaying(false);
+      setAudioIndex(0);
+    }
+  }
+
   return (
     <div className="arabic-fullscreen-backdrop" onClick={onClose}>
       <div className="arabic-fullscreen quran-reader" onClick={(e) => e.stopPropagation()}>
         <div className="arabic-fullscreen-head quran-reader-head">
-          <strong>{item.title}</strong>
           <div className="quran-reader-tools">
             <button onClick={() => setFontSize(Math.max(24, fontSize - 4))}>A-</button>
             <button onClick={() => setFontSize(Math.min(72, fontSize + 4))}>A+</button>
+            <button onClick={toggleAudio} disabled={audioFiles.length === 0}>
+              {playing ? '⏸' : '▶'}
+            </button>
+            <button onClick={restartAudio} disabled={audioFiles.length === 0}>↺</button>
             <button onClick={onClose}>×</button>
           </div>
         </div>
+
+        {audioFiles.length > 0 && (
+          <audio
+            ref={audioRef}
+            src={audioFiles[audioIndex]}
+            onEnded={handleAudioEnded}
+            onPause={() => setPlaying(false)}
+            onPlay={() => setPlaying(true)}
+            preload="metadata"
+          />
+        )}
+
         <div className="arabic-fullscreen-body quran-page" style={{ fontSize: `${fontSize}px` }}>
           <ArabicText text={item.arabic} />
         </div>
