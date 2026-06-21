@@ -136,11 +136,6 @@ const egitimDersleri = {
   ayt: ['Edebiyat', 'Tarih-1', 'Coğrafya-1', 'Matematik', 'Geometri'],
 };
 
-const gorevlerBaslangic = [
-  { id: 1, date: '2026-06-21', title: 'Namaz tekrar', content: 'Sabah ve akşam namazının kılınışını siteden tekrar et.' },
-  { id: 2, date: '2026-06-22', title: 'Sure ezberi', content: 'Kevser ve İhlâs sûrelerini tekrar et.' },
-];
-
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(window.innerWidth > 700);
   const [page, setPage] = useState('home');
@@ -149,28 +144,27 @@ export default function App() {
   const [tasks, setTasks] = useState([]);
   const [tasksLoading, setTasksLoading] = useState(false);
 
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
   async function loadTasks() {
     setTasksLoading(true);
     const { data, error } = await supabase
       .from('tasks')
-      .select('id, task_date, title, content, created_at')
+      .select('*')
       .order('task_date', { ascending: true })
       .order('created_at', { ascending: true });
 
-    if (!error && data) {
-      setTasks(data.map((task) => ({
-        id: task.id,
-        date: task.task_date,
-        title: task.title,
-        content: task.content || '',
-      })));
-    }
     setTasksLoading(false);
-  }
 
-  useEffect(() => {
-    loadTasks();
-  }, []);
+    if (error) {
+      console.error('Görevler yüklenemedi:', error);
+      return;
+    }
+
+    setTasks(data || []);
+  }
 
   function changePage(key) {
     setPage(key);
@@ -198,7 +192,7 @@ export default function App() {
         {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} />}
         {page === 'islam' && <IslamPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
         {page === 'egitim' && <EgitimPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
-        {page === 'gorevler' && <TasksPage tasks={tasks} tasksLoading={tasksLoading} loadTasks={loadTasks} goHome={goHome} />}
+        {page === 'gorevler' && <TasksPage tasks={tasks} setTasks={setTasks} reloadTasks={loadTasks} goHome={goHome} />}
         {page === 'hedefler' && <SimplePage title="Hedeflerim" text="Hedef takibi hazırlanıyor." goHome={goHome} />}
         {page === 'gunluk' && <SimplePage title="Günlüğüm" text="Günlük notlar ve Rabbime mektuplarım burada olacak." goHome={goHome} />}
         {page === 'kutuphane' && <SimplePage title="Kütüphane" text="Kitaplar ve kaynaklar daha sonra temiz içeriklerle eklenecek." goHome={goHome} />}
@@ -210,16 +204,42 @@ export default function App() {
 
 function CompactPrayerBar() {
   const [now, setNow] = useState(new Date());
+  const [open, setOpen] = useState(false);
+
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
+
   const next = useMemo(() => getNextPrayer(now), [now]);
+
   return (
-    <div className="compact-prayer">
-      <div className="prayer-times one-line">{prayers.map(p => <span key={p.key}>{p.title} {p.time}</span>)}</div>
-      <div className="countdown-line">🕌 Sıradaki vakit: <strong>{next.title}</strong> · <strong>{next.remaining}</strong> kaldı</div>
-    </div>
+    <>
+      <div className="top-countdown-row">
+        <button className="mini-prayer-countdown" onClick={() => setOpen(true)}>
+          🕌 {next.title} • {next.remaining} kaldı
+        </button>
+      </div>
+
+      {open && (
+        <div className="modal-backdrop" onClick={() => setOpen(false)}>
+          <div className="prayer-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-head">
+              <strong>Namaz Vakitleri</strong>
+              <button onClick={() => setOpen(false)}>×</button>
+            </div>
+            <div className="modal-prayer-list">
+              {prayers.map(p => (
+                <div key={p.key}>
+                  <span>{p.title}</span>
+                  <strong>{p.time}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -243,29 +263,40 @@ function getNextPrayer(now) {
 }
 
 function HomePage({ tasks, tasksLoading, goTasks }) {
-  const upcoming = [...tasks].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4);
+  const upcoming = [...tasks].sort((a, b) => a.task_date.localeCompare(b.task_date)).slice(0, 7);
   return (
     <>
-      <SectionTitle title="Ana Sayfa" />
       <CompactPrayerBar />
-      <div className="notice-list">
-        <button className="notice-action" onClick={goTasks}>✅ Yeni görev ekle / görevleri aç</button>
-        {tasksLoading && <div>Görevler yükleniyor...</div>}
-        {!tasksLoading && upcoming.length === 0 && <div>Henüz görev yok. İlk görevi ekleyebilirsin.</div>}
-        {upcoming.map(t => <div key={t.id}><strong>{formatDate(t.date)} - {t.title}</strong><p>{t.content}</p></div>)}
-        <div>🌷 Az ama düzenli çalışmak, çok başlayıp bırakmaktan daha güzeldir.</div>
+      <button className="task-open-button" onClick={goTasks}>✅ Yeni görev ekle / görevleri aç</button>
+      <div className="home-task-list">
+        {tasksLoading && <div className="home-empty">Görevler yükleniyor...</div>}
+        {!tasksLoading && upcoming.length === 0 && <div className="home-empty">Henüz görev yok.</div>}
+        {upcoming.map(t => <CompactTaskRow key={t.id} task={t} />)}
+        <div className="home-note">🌷 Az ama düzenli çalışmak, çok başlayıp bırakmaktan daha güzeldir.</div>
       </div>
     </>
   );
 }
 
+function CompactTaskRow({ task }) {
+  const who = task.owner || 'D';
+  return (
+    <div className="compact-task-row">
+      <span className={`owner-badge owner-${who.toLowerCase()}`}>{who}</span>
+      <span className="compact-date">{formatShortDate(task.task_date)}</span>
+      <strong>{task.title}</strong>
+      <span>{task.content}</span>
+    </div>
+  );
+}
+
 function IslamPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
-  if (!subPage) return <><TopActions goHome={goHome} /><ListMenu title="İslam" items={islamMenu} onSelect={(x) => setSubPage(x.key)} /></>;
+  if (!subPage) return <ListMenu title="İslam" items={islamMenu} onSelect={(x) => setSubPage(x.key)} />;
   if (subPage === 'sureler') return <SubContent title="Namaz Sureleri" items={sureler} onBack={() => setSubPage('')} goHome={goHome} />;
   if (subPage === 'dualar') return <SubContent title="Namaz Duaları" items={dualar} onBack={() => setSubPage('')} goHome={goHome} />;
   if (subPage === 'kilinis') return <NestedList title="Namaz Nasıl Kılınır?" introItems={namazAdimlari} listItems={namazlar} detailKey={detailKey} setDetailKey={setDetailKey} onBack={() => setSubPage('')} goHome={goHome} />;
   if (subPage === 'ilmihal') return <IlmihalPage detailKey={detailKey} setDetailKey={setDetailKey} onBack={() => setSubPage('')} goHome={goHome} />;
-  return <SimplePage title="Hazırlanıyor" text="Bu bölüm yakında düzenlenecek." onBack={() => setSubPage('')} goHome={goHome} />;
+  return <SimplePage title="Hazırlanıyor" text="Bu bölüm yakında düzenlenecek." goHome={goHome} />;
 }
 
 function IlmihalPage({ detailKey, setDetailKey, onBack, goHome }) {
@@ -276,58 +307,71 @@ function IlmihalPage({ detailKey, setDetailKey, onBack, goHome }) {
 function EgitimPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
   if (!subPage) return <><TopActions goHome={goHome} /><ListMenu title="Eğitim" items={egitimLevels.map(x => ({ ...x, icon: '📚', desc: 'Ders listesi' }))} onSelect={(x) => setSubPage(x.key)} /></>;
   if (!detailKey) return <><TopActions onBack={() => setSubPage('')} goHome={goHome} /><ListMenu title={egitimLevels.find(x => x.key === subPage)?.title || 'Dersler'} items={(egitimDersleri[subPage] || []).map(x => ({ key: x, title: x, icon: '📘', desc: 'Yapım aşamasında' }))} onSelect={(x) => setDetailKey(x.key)} /></>;
-  return <SimplePage title={detailKey} text="Bu dersin konu takibi, notları ve deneme kayıtları yapım aşamasında." onBack={() => setDetailKey('')} goHome={goHome} />;
+  return <SimplePage title={detailKey} text="Bu dersin konu takibi, notları ve deneme kayıtları yapım aşamasında." goHome={goHome} />;
 }
 
-function TasksPage({ tasks, tasksLoading, loadTasks, goHome }) {
-  const [form, setForm] = useState({ date: new Date().toISOString().slice(0, 10), title: '', content: '' });
+function TasksPage({ tasks, setTasks, reloadTasks, goHome }) {
+  const [form, setForm] = useState({ task_date: new Date().toISOString().slice(0, 10), owner: 'D', title: '', content: '' });
   const [saving, setSaving] = useState(false);
 
   async function addTask(e) {
     e.preventDefault();
-    if (!form.date || !form.title.trim()) return;
+    if (!form.task_date || !form.title.trim()) return;
     setSaving(true);
-    const { error } = await supabase.from('tasks').insert({
-      task_date: form.date,
+
+    const payload = {
+      task_date: form.task_date,
+      owner: form.owner,
       title: form.title.trim(),
       content: form.content.trim(),
-    });
+    };
+
+    const { data, error } = await supabase
+      .from('tasks')
+      .insert(payload)
+      .select()
+      .single();
+
     setSaving(false);
-    if (!error) {
-      setForm({ date: form.date, title: '', content: '' });
-      await loadTasks();
-    } else {
-      alert('Görev kaydedilemedi: ' + error.message);
+
+    if (error) {
+      alert('Görev eklenemedi: ' + error.message);
+      return;
     }
+
+    setTasks([...tasks, data]);
+    setForm({ task_date: form.task_date, owner: form.owner, title: '', content: '' });
   }
 
   async function removeTask(id) {
-    const confirmed = confirm('Bu görev silinsin mi?');
-    if (!confirmed) return;
     const { error } = await supabase.from('tasks').delete().eq('id', id);
-    if (!error) {
-      await loadTasks();
-    } else {
+    if (error) {
       alert('Görev silinemedi: ' + error.message);
+      return;
     }
+    reloadTasks();
   }
 
   return (
     <>
       <TopActions goHome={goHome} />
       <SectionTitle title="Görevler" />
-      <form className="task-form" onSubmit={addTask}>
-        <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} />
+      <form className="task-form compact" onSubmit={addTask}>
+        <input type="date" value={form.task_date} onChange={e => setForm({ ...form, task_date: e.target.value })} />
+        <select value={form.owner} onChange={e => setForm({ ...form, owner: e.target.value })}>
+          <option value="D">D - Dilara</option>
+          <option value="B">B - Baba</option>
+          <option value="A">A - Anne</option>
+        </select>
         <input placeholder="Ana başlık" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
         <textarea placeholder="İçerik" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })}></textarea>
-        <button type="submit" disabled={saving}>{saving ? 'Kaydediliyor...' : 'Görev Ekle'}</button>
+        <button type="submit" disabled={saving}>{saving ? 'Ekleniyor...' : 'Görev Ekle'}</button>
       </form>
-      <div className="task-list">
-        {tasksLoading && <article className="task-card"><strong>Görevler yükleniyor...</strong></article>}
-        {!tasksLoading && tasks.length === 0 && <article className="task-card"><strong>Henüz görev yok.</strong><p>İlk görevi buradan ekleyebilirsin.</p></article>}
-        {[...tasks].sort((a, b) => a.date.localeCompare(b.date)).map(t => (
-          <article className="task-card" key={t.id}>
-            <span>{formatDate(t.date)}</span>
+      <div className="task-list compact">
+        {[...tasks].sort((a, b) => a.task_date.localeCompare(b.task_date)).map(t => (
+          <article className="task-card compact" key={t.id}>
+            <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
+            <span>{formatShortDate(t.task_date)}</span>
             <strong>{t.title}</strong>
             <p>{t.content}</p>
             <button onClick={() => removeTask(t.id)}>Sil</button>
@@ -350,5 +394,7 @@ function SectionTitle({ title }) { return <h1 className="section-title">{title}<
 function SubContent({ title, items, onBack, goHome }) { return <><TopActions onBack={onBack} goHome={goHome} /><SectionTitle title={title} /><TextList items={items} /></>; }
 function TopActions({ onBack, goHome }) { return <div className="top-actions">{onBack && <button className="back-button" onClick={onBack}>← Geri</button>}<button className="back-button" onClick={goHome}>🏠 Ana Sayfa</button></div>; }
 function TextList({ items }) { const [openArabic, setOpenArabic] = useState({}); const [openMeal, setOpenMeal] = useState({}); return <div className="text-list">{items.map((item) => <article className="reading-card" key={item.title}><h3>{item.title}</h3><p>{item.text}</p><div className="reading-actions">{item.arabic && <button type="button" onClick={() => setOpenArabic({ ...openArabic, [item.title]: !openArabic[item.title] })}>Arapça</button>}{item.meal && <button type="button" onClick={() => setOpenMeal({ ...openMeal, [item.title]: !openMeal[item.title] })}>Meal</button>}</div>{openArabic[item.title] && <div className="arabic-text">{item.arabic}</div>}{openMeal[item.title] && <div className="meal-text">{item.meal}</div>}</article>)}</div>; }
-function SimplePage({ title, text, onBack, goHome }) { return <><TopActions onBack={onBack} goHome={goHome} /><SectionTitle title={title} /><div className="reading-card"><h3>Yapım Aşamasında</h3><p>{text}</p></div></>; }
+function SimplePage({ title, text, goHome }) { return <><TopActions goHome={goHome} /><SectionTitle title={title} /><div className="reading-card"><h3>Yapım Aşamasında</h3><p>{text}</p></div></>; }
+
 function formatDate(date) { const [y, m, d] = date.split('-'); return `${d}.${m}.${y}`; }
+function formatShortDate(date) { const [y, m, d] = date.split('-'); return `${d}.${m}`; }

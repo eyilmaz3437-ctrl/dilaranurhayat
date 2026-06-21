@@ -875,3 +875,294 @@ section h2 {
     margin-top: 6px;
   }
 }
+
+
+/* v7 mobil ana sayfa ve kompakt namaz/görev düzeni */
+.top-countdown-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 34px;
+  margin: 0 0 8px;
+}
+
+.mini-prayer-countdown {
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #162033;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+  white-space: nowrap;
+}
+
+.task-open-button {
+  width: 100%;
+  border: 0;
+  background: #162033;
+  color: white;
+  border-radius: 18px;
+  padding: 14px 16px;
+  font-weight: 800;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.home-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compact-task-row,
+.home-note,
+.home-empty {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 26px 48px minmax(80px, 0.8fr) 1.2fr;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+  min-height: 44px;
+}
+
+.compact-task-row strong {
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compact-task-row span:last-child {
+  color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compact-date {
+  color: #64748b;
+  font-weight: 700;
+}
+
+.owner-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  background: #162033;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.owner-d { background: #be185d; }
+.owner-b { background: #1d4ed8; }
+.owner-a { background: #047857; }
+
+.home-note,
+.home-empty {
+  display: block;
+  text-align: center;
+  color: #172033;
+  font-size: 15px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.38);
+  z-index: 2000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 80px 18px 18px;
+}
+
+.prayer-modal {
+  width: min(420px, 100%);
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.28);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #162033;
+  color: white;
+  padding: 12px 16px;
+}
+
+.modal-head button {
+  border: 0;
+  background: transparent;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.modal-prayer-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.modal-prayer-list div {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  gap: 12px;
+}
+
+.task-form.compact {
+  display: grid;
+  grid-template-columns: 160px 110px 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.task-form.compact input,
+.task-form.compact select,
+.task-form.compact textarea {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.task-form.compact textarea {
+  grid-column: 1 / -1;
+  min-height: 76px;
+  resize: vertical;
+}
+
+.task-form.compact button {
+  grid-column: 1 / -1;
+  border: 0;
+  background: #162033;
+  color: white;
+  border-radius: 14px;
+  padding: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.task-list.compact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-card.compact {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 26px 52px minmax(90px, 0.8fr) 1.2fr 48px;
+  gap: 8px;
+  align-items: center;
+}
+
+.task-card.compact p,
+.task-card.compact strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-card.compact button {
+  border: 0;
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: 999px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+@media (max-width: 700px) {
+  .content {
+    padding-top: 86px !important;
+  }
+
+  .top-countdown-row {
+    position: fixed;
+    top: 16px;
+    right: 12px;
+    left: 76px;
+    z-index: 890;
+    margin: 0;
+    min-height: 44px;
+    justify-content: flex-end;
+    pointer-events: none;
+  }
+
+  .mini-prayer-countdown {
+    max-width: 100%;
+    font-size: 12px;
+    padding: 8px 9px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: auto;
+  }
+
+  .section-title {
+    display: none;
+  }
+
+  .task-open-button {
+    border-radius: 16px;
+    padding: 13px 14px;
+    font-size: 15px;
+  }
+
+  .compact-task-row {
+    grid-template-columns: 24px 42px 72px 1fr;
+    gap: 6px;
+    font-size: 12px;
+    padding: 9px 10px;
+  }
+
+  .compact-task-row span:last-child {
+    font-size: 12px;
+  }
+
+  .home-note {
+    font-size: 14px;
+    padding: 12px;
+  }
+
+  .task-form.compact {
+    grid-template-columns: 1fr 88px;
+  }
+
+  .task-form.compact input[placeholder="Ana başlık"] {
+    grid-column: 1 / -1;
+  }
+
+  .task-card.compact {
+    grid-template-columns: 24px 42px 70px 1fr 42px;
+    gap: 6px;
+    font-size: 12px;
+    padding: 9px 10px;
+  }
+
+  .modal-backdrop {
+    padding-top: 92px;
+  }
+}
