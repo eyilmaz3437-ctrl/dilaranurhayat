@@ -351,6 +351,62 @@ function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer })
   );
 }
 
+
+function PrayerChecklist({ logs, onToggle }) {
+  const [open, setOpen] = useState(false);
+  const today = new Date().toISOString().slice(0, 10);
+  const todayLog = logs.find(x => x.log_date === today) || { log_date: today };
+  const fields = [
+    ['sabah', 'S'],
+    ['ogle', 'Ö'],
+    ['ikindi', 'İ'],
+    ['aksam', 'A'],
+    ['yatsi', 'Y'],
+  ];
+
+  return (
+    <>
+      <div className="prayer-check-row">
+        <button className="prayer-history-button" onClick={() => setOpen(true)}>📋 Namaz</button>
+        {fields.map(([field, label]) => (
+          <label key={field} className="prayer-check-item">
+            <span>{label}</span>
+            <input
+              type="checkbox"
+              checked={!!todayLog[field]}
+              onChange={(e) => onToggle(field, e.target.checked)}
+            />
+          </label>
+        ))}
+      </div>
+
+      {open && (
+        <div className="modal-backdrop" onClick={() => setOpen(false)}>
+          <div className="prayer-modal prayer-history-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-head">
+              <strong>Son 10 Gün Namaz Çetelesi</strong>
+              <button onClick={() => setOpen(false)}>×</button>
+            </div>
+            <div className="prayer-history-table">
+              <div className="history-head"><span>Tarih</span><span>S</span><span>Ö</span><span>İ</span><span>A</span><span>Y</span></div>
+              {logs.map(row => (
+                <div className="history-row" key={row.log_date}>
+                  <span>{formatShortDate(row.log_date)}</span>
+                  <span>{row.sabah ? '✅' : '□'}</span>
+                  <span>{row.ogle ? '✅' : '□'}</span>
+                  <span>{row.ikindi ? '✅' : '□'}</span>
+                  <span>{row.aksam ? '✅' : '□'}</span>
+                  <span>{row.yatsi ? '✅' : '□'}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 function CompactTaskRow({ task, onOpen }) {
   const who = task.owner || 'D';
   return (
