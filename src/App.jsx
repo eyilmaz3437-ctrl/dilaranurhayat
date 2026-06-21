@@ -948,6 +948,7 @@ function TextList({ items }) {
   const [openArabic, setOpenArabic] = useState({});
   const [openMeal, setOpenMeal] = useState({});
   const [fullArabic, setFullArabic] = useState(null);
+  const [followArabic, setFollowArabic] = useState(null);
 
   return (
     <>
@@ -975,6 +976,12 @@ function TextList({ items }) {
               {item.arabic && (
                 <button type="button" onClick={() => setFullArabic(item)}>
                   Arapça Tam Ekran
+                </button>
+              )}
+
+              {item.arabic && (
+                <button type="button" onClick={() => setFollowArabic(item)}>
+                  Takipli Oku
                 </button>
               )}
 
@@ -1017,9 +1024,81 @@ function TextList({ items }) {
           </div>
         </div>
       )}
+
+      {followArabic && (
+        <ArabicFollowModal item={followArabic} onClose={() => setFollowArabic(null)} />
+      )}
     </>
   );
 }
+function ArabicFollowModal({ item, onClose }) {
+  const parts = splitArabicForFollow(item.arabic);
+  const [index, setIndex] = useState(0);
+  const current = parts[index] || item.arabic;
+
+  function prev() {
+    setIndex(Math.max(0, index - 1));
+  }
+
+  function next() {
+    setIndex(Math.min(parts.length - 1, index + 1));
+  }
+
+  return (
+    <div className="arabic-fullscreen-backdrop" onClick={onClose}>
+      <div className="arabic-fullscreen follow-screen" onClick={(e) => e.stopPropagation()}>
+        <div className="arabic-fullscreen-head">
+          <strong>{item.title} • Takipli Okuma</strong>
+          <button onClick={onClose}>×</button>
+        </div>
+
+        <div className="follow-reciter-note">
+          🎧 Hafız sesi için MP3 kaynakları ayrıca bağlanacak. Şimdilik ok ile takip modu aktif.
+        </div>
+
+        <div className="follow-body">
+          <div className="follow-arrow">➜</div>
+          <div className="follow-arabic">
+            <ArabicText text={current} />
+          </div>
+        </div>
+
+        <div className="follow-controls">
+          <button onClick={prev} disabled={index === 0}>← Önceki</button>
+          <span>{index + 1} / {parts.length}</span>
+          <button onClick={next} disabled={index === parts.length - 1}>Sonraki →</button>
+        </div>
+
+        <div className="follow-full-text">
+          {parts.map((part, i) => (
+            <button
+              key={i}
+              className={i === index ? 'active' : ''}
+              onClick={() => setIndex(i)}
+            >
+              <ArabicText text={part} />
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function splitArabicForFollow(text) {
+  const byAyah = text
+    .split('۝')
+    .map(x => x.trim())
+    .filter(Boolean);
+
+  if (byAyah.length > 1) return byAyah;
+
+  return text
+    .split(/[،.]/)
+    .map(x => x.trim())
+    .filter(Boolean);
+}
+
 function ArabicText({ text }) {
   const harakat = /[\u064B-\u065F\u0670]/;
   return (
