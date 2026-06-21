@@ -143,10 +143,17 @@ export default function App() {
   const [detailKey, setDetailKey] = useState('');
   const [tasks, setTasks] = useState([]);
   const [tasksLoading, setTasksLoading] = useState(false);
+  const [prayerLogs, setPrayerLogs] = useState([]);
+  const [activeUser, setActiveUser] = useState(() => localStorage.getItem('dnh_active_user') || 'D');
 
   useEffect(() => {
     loadTasks();
+    loadPrayerLogs();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('dnh_active_user', activeUser);
+  }, [activeUser]);
 
   async function loadTasks() {
     setTasksLoading(true);
@@ -164,6 +171,54 @@ export default function App() {
     }
 
     setTasks(data || []);
+  }
+
+  async function loadPrayerLogs() {
+    const { data, error } = await supabase
+      .from('prayer_logs')
+      .select('*')
+      .order('log_date', { ascending: false })
+      .limit(10);
+
+    if (error) {
+      console.error('Namaz çetelesi yüklenemedi:', error);
+      return;
+    }
+
+    setPrayerLogs(data || []);
+  }
+
+  async function saveTodayPrayer(field, value) {
+    const today = new Date().toISOString().slice(0, 10);
+    const existing = prayerLogs.find(x => x.log_date === today);
+
+    const payload = {
+      log_date: today,
+      [field]: value,
+    };
+
+    let result;
+    if (existing) {
+      result = await supabase
+        .from('prayer_logs')
+        .update(payload)
+        .eq('log_date', today)
+        .select()
+        .single();
+    } else {
+      result = await supabase
+        .from('prayer_logs')
+        .insert(payload)
+        .select()
+        .single();
+    }
+
+    if (result.error) {
+      alert('Namaz çetelesi kaydedilemedi: ' + result.error.message);
+      return;
+    }
+
+    await loadPrayerLogs();
   }
 
   function changePage(key) {
@@ -189,10 +244,10 @@ export default function App() {
         <nav className="main-menu">{menuItems.map((item) => <button key={item.key} className={page === item.key ? 'menu-item active' : 'menu-item'} onClick={() => changePage(item.key)}><span>{item.icon}</span>{menuOpen && <span>{item.title}</span>}</button>)}</nav>
       </aside>
       <main className="content">
-        {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} />}
+        {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} />}
         {page === 'islam' && <IslamPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
         {page === 'egitim' && <EgitimPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
-        {page === 'gorevler' && <TasksPage tasks={tasks} setTasks={setTasks} reloadTasks={loadTasks} goHome={goHome} />}
+        {page === 'gorevler' && <TasksPage tasks={tasks} setTasks={setTasks} reloadTasks={loadTasks} goHome={goHome} activeUser={activeUser} setActiveUser={setActiveUser} />}
         {page === 'hedefler' && <SimplePage title="Hedeflerim" text="Hedef takibi hazırlanıyor." goHome={goHome} />}
         {page === 'gunluk' && <SimplePage title="Günlüğüm" text="Günlük notlar ve Rabbime mektuplarım burada olacak." goHome={goHome} />}
         {page === 'kutuphane' && <SimplePage title="Kütüphane" text="Kitaplar ve kaynaklar daha sonra temiz içeriklerle eklenecek." goHome={goHome} />}
@@ -262,11 +317,12 @@ function getNextPrayer(now) {
   return { title: next.title, remaining: `${h}:${m}:${s}` };
 }
 
-function HomePage({ tasks, tasksLoading, goTasks }) {
+function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer }) {
   const upcoming = [...tasks].sort((a, b) => a.task_date.localeCompare(b.task_date)).slice(0, 7);
   return (
     <>
       <CompactPrayerBar />
+      <PrayerChecklist logs={prayerLogs} onToggle={saveTodayPrayer} />
       <button className="task-open-button" onClick={goTasks}>✅ Yeni görev ekle / görevleri aç</button>
       <div className="home-task-list">
         {tasksLoading && <div className="home-empty">Görevler yükleniyor...</div>}
@@ -274,6 +330,61 @@ function HomePage({ tasks, tasksLoading, goTasks }) {
         {upcoming.map(t => <CompactTaskRow key={t.id} task={t} />)}
         <div className="home-note">🌷 Az ama düzenli çalışmak, çok başlayıp bırakmaktan daha güzeldir.</div>
       </div>
+    </>
+  );
+}
+
+function PrayerChecklist({ logs, onToggle }) {
+  const [open, setOpen] = useState(false);
+  const today = new Date().toISOString().slice(0, 10);
+  const todayLog = logs.find(x => x.log_date === today) || { log_date: today };
+  const fields = [
+    ['sabah', 'S'],
+    ['ogle', 'Ö'],
+    ['ikindi', 'İ'],
+    ['aksam', 'A'],
+    ['yatsi', 'Y'],
+  ];
+
+  return (
+    <>
+      <div className="prayer-check-row">
+        <button className="prayer-history-button" onClick={() => setOpen(true)}>📋 Namaz</button>
+        {fields.map(([field, label]) => (
+          <label key={field} className="prayer-check-item">
+            <span>{label}</span>
+            <input
+              type="checkbox"
+              checked={!!todayLog[field]}
+              onChange={(e) => onToggle(field, e.target.checked)}
+            />
+          </label>
+        ))}
+      </div>
+
+      {open && (
+        <div className="modal-backdrop" onClick={() => setOpen(false)}>
+          <div className="prayer-modal prayer-history-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-head">
+              <strong>Son 10 Gün Namaz Çetelesi</strong>
+              <button onClick={() => setOpen(false)}>×</button>
+            </div>
+            <div className="prayer-history-table">
+              <div className="history-head"><span>Tarih</span><span>S</span><span>Ö</span><span>İ</span><span>A</span><span>Y</span></div>
+              {logs.map(row => (
+                <div className="history-row" key={row.log_date}>
+                  <span>{formatShortDate(row.log_date)}</span>
+                  <span>{row.sabah ? '✅' : '□'}</span>
+                  <span>{row.ogle ? '✅' : '□'}</span>
+                  <span>{row.ikindi ? '✅' : '□'}</span>
+                  <span>{row.aksam ? '✅' : '□'}</span>
+                  <span>{row.yatsi ? '✅' : '□'}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
@@ -310,8 +421,8 @@ function EgitimPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
   return <SimplePage title={detailKey} text="Bu dersin konu takibi, notları ve deneme kayıtları yapım aşamasında." goHome={goHome} />;
 }
 
-function TasksPage({ tasks, setTasks, reloadTasks, goHome }) {
-  const [form, setForm] = useState({ task_date: new Date().toISOString().slice(0, 10), owner: 'D', title: '', content: '' });
+function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActiveUser }) {
+  const [form, setForm] = useState({ task_date: new Date().toISOString().slice(0, 10), owner: activeUser, title: '', content: '' });
   const [saving, setSaving] = useState(false);
 
   async function addTask(e) {
@@ -340,7 +451,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome }) {
     }
 
     setTasks([...tasks, data]);
-    setForm({ task_date: form.task_date, owner: form.owner, title: '', content: '' });
+    setForm({ task_date: form.task_date, owner: activeUser, title: '', content: '' });
   }
 
   async function removeTask(id) {
@@ -358,7 +469,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome }) {
       <SectionTitle title="Görevler" />
       <form className="task-form compact" onSubmit={addTask}>
         <input type="date" value={form.task_date} onChange={e => setForm({ ...form, task_date: e.target.value })} />
-        <select value={form.owner} onChange={e => setForm({ ...form, owner: e.target.value })}>
+        <select value={form.owner} onChange={e => { setForm({ ...form, owner: e.target.value }); setActiveUser(e.target.value); }}>
           <option value="D">D - Dilara</option>
           <option value="B">B - Baba</option>
           <option value="A">A - Anne</option>

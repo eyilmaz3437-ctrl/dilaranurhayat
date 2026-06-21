@@ -1166,3 +1166,98 @@ section h2 {
     padding-top: 92px;
   }
 }
+
+
+/* v8 namaz çetelesi ve kişi seçimi */
+.prayer-check-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 76px repeat(5, 1fr);
+  gap: 8px;
+  align-items: center;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}
+
+.prayer-history-button {
+  border: 0;
+  background: #162033;
+  color: white;
+  border-radius: 999px;
+  padding: 8px 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.prayer-check-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 800;
+  color: #162033;
+}
+
+.prayer-check-item input {
+  width: 18px;
+  height: 18px;
+  accent-color: #16a34a;
+}
+
+.prayer-history-table {
+  padding: 10px;
+}
+
+.history-head,
+.history-row {
+  display: grid;
+  grid-template-columns: 1.2fr repeat(5, 1fr);
+  gap: 6px;
+  align-items: center;
+  text-align: center;
+  padding: 8px 6px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.history-head {
+  font-weight: 800;
+  color: #162033;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+.history-row span:first-child,
+.history-head span:first-child {
+  text-align: left;
+}
+
+@media (max-width: 700px) {
+  .prayer-check-row {
+    grid-template-columns: 62px repeat(5, 1fr);
+    gap: 4px;
+    padding: 7px 7px;
+    margin-bottom: 9px;
+  }
+
+  .prayer-history-button {
+    padding: 7px 8px;
+    font-size: 12px;
+  }
+
+  .prayer-check-item {
+    gap: 3px;
+    font-size: 12px;
+  }
+
+  .prayer-check-item input {
+    width: 16px;
+    height: 16px;
+  }
+
+  .prayer-history-modal {
+    width: min(360px, 100%);
+  }
+}
