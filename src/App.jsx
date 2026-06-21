@@ -258,7 +258,7 @@ export default function App() {
         <nav className="main-menu">{menuItems.map((item) => <button key={item.key} className={page === item.key ? 'menu-item active' : 'menu-item'} onClick={() => changePage(item.key)}><span>{item.icon}</span>{menuOpen && <span>{item.title}</span>}</button>)}</nav>
       </aside>
       <main className="content">
-        {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} />}
+        {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} />}
         {page === 'islam' && <IslamPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
         {page === 'egitim' && <EgitimPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
         {page === 'gorevler' && <TasksPage tasks={tasks} setTasks={setTasks} reloadTasks={loadTasks} goHome={goHome} activeUser={activeUser} setActiveUser={setActiveUser} />}
@@ -331,7 +331,7 @@ function getNextPrayer(now) {
   return { title: next.title, remaining: `${h}:${m}:${s}` };
 }
 
-function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer }) {
+function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer, activeUser, reloadTasks }) {
   const [selectedTask, setSelectedTask] = useState(null);
   const upcoming = [...tasks].filter(t => !t.completed).sort((a, b) => a.task_date.localeCompare(b.task_date)).slice(0, 7);
 
@@ -346,7 +346,7 @@ function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer })
         {upcoming.map(t => <CompactTaskRow key={t.id} task={t} onOpen={() => setSelectedTask(t)} />)}
         <div className="home-note">🌷 Az ama düzenli çalışmak, çok başlayıp bırakmaktan daha güzeldir.</div>
       </div>
-      {selectedTask && <TaskReadModal task={selectedTask} onClose={() => setSelectedTask(null)} />}
+      {selectedTask && <TaskReadModal task={selectedTask} activeUser={activeUser} reloadTasks={reloadTasks} onClose={() => setSelectedTask(null)} />}
     </>
   );
 }
@@ -420,7 +420,36 @@ function CompactTaskRow({ task, onOpen }) {
   );
 }
 
-function TaskReadModal({ task, onClose }) {
+function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
+  const [note, setNote] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  async function completeFromDetail() {
+    const ok = confirm(`"${task.title}" tamamlandı olarak işaretlensin mi?`);
+    if (!ok) return;
+
+    setSaving(true);
+    const { error } = await supabase
+      .from('tasks')
+      .update({
+        completed: true,
+        completed_at: new Date().toISOString(),
+        completed_by: activeUser,
+        completed_note: note.trim(),
+      })
+      .eq('id', task.id);
+
+    setSaving(false);
+
+    if (error) {
+      alert('Görev tamamlanamadı: ' + error.message);
+      return;
+    }
+
+    await reloadTasks();
+    onClose();
+  }
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="task-detail-modal" onClick={(e) => e.stopPropagation()}>
@@ -432,9 +461,26 @@ function TaskReadModal({ task, onClose }) {
           <div className="task-detail-meta">
             <span className={`owner-badge owner-${(task.owner || 'D').toLowerCase()}`}>{task.owner || 'D'}</span>
             <strong>{formatDate(task.task_date)}</strong>
+            {!task.completed && <span>Tamamlayan: {activeUser}</span>}
           </div>
           <h2>{task.title}</h2>
           <p>{task.content || 'Açıklama yok.'}</p>
+
+          {!task.completed && (
+            <div className="detail-complete-area">
+              <label>Tamamlanma açıklaması</label>
+              <textarea
+                className="completion-textarea"
+                placeholder="Görev nasıl tamamlandı? Mesela: 20 soru çözdüm, 3 yanlış çıktı."
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+              />
+              <button className="complete-save-button" onClick={completeFromDetail} disabled={saving}>
+                {saving ? 'Kaydediliyor...' : '✓ Tamamlandı olarak kaydet'}
+              </button>
+            </div>
+          )}
+
           {task.completed && (
             <div className="completion-note-box">
               <strong>Tamamlanma Notu</strong>
@@ -547,18 +593,6 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
     reloadTasks();
   }
 
-  async function removeTask(id) {
-    const ok = confirm('Bu görev tamamen silinsin mi? Tamamlananlar arşivinden de kaybolur.');
-    if (!ok) return;
-
-    const { error } = await supabase.from('tasks').delete().eq('id', id);
-    if (error) {
-      alert('Görev silinemedi: ' + error.message);
-      return;
-    }
-    reloadTasks();
-  }
-
   return (
     <>
       <TopActions goHome={goHome} />
@@ -595,7 +629,6 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
               <span>{formatShortDate(t.task_date)}</span>
               <strong>{t.title}</strong>
               <p>{t.content}</p>
-              <button className="delete-task" onClick={() => removeTask(t.id)}>Sil</button>
             </article>
           ))}
         </div>
