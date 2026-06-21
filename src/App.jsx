@@ -1115,19 +1115,67 @@ function ArabicFullscreen({ item, onClose }) {
 }
 
 function ArabicText({ text }) {
-  return <span>{normalizeQuranText(text)}</span>;
+  const normalized = normalizeQuranText(text);
+  const parts = splitAyahMarks(normalized);
+
+  return (
+    <span>
+      {parts.map((part, index) =>
+        part.type === 'ayah' ? (
+          <span className="ayah-mark" key={index}>({part.value})</span>
+        ) : (
+          <span key={index}>{part.value}</span>
+        )
+      )}
+    </span>
+  );
+}
+
+function splitAyahMarks(text) {
+  const parts = [];
+  const regex = /ـ?﴿\s*([٠-٩۰-۹0-9]+)\s*ـ?﴾/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push({ type: 'text', value: text.slice(lastIndex, match.index) });
+    }
+
+    parts.push({ type: 'ayah', value: arabicDigitsToLatin(match[1]) });
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push({ type: 'text', value: text.slice(lastIndex) });
+  }
+
+  return parts;
+}
+
+function arabicDigitsToLatin(value) {
+  const map = {
+    '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+    '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9',
+    '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4',
+    '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9',
+  };
+
+  return String(value).replace(/[٠-٩۰-۹]/g, d => map[d] || d);
 }
 
 function normalizeQuranText(text) {
   return String(text || '')
-    // Bazı Kur'an fontlarında görünen, tarayıcı fontlarında kareye düşebilen özel esre/işaretler
+    // Kareye düşebilen özel Kur'an işaretlerini sadeleştiriyoruz
     .replace(/\u06EA/g, '\u0650') // ۪ -> normal esre
     .replace(/\u06ED/g, '\u0652') // ۭ -> sükun benzeri işaret
     .replace(/\u06EB/g, '\u064E') // ۫ -> üstün benzeri işaret
     .replace(/\u06EC/g, '\u064F') // ۬ -> ötre benzeri işaret
     .replace(/\u200C/g, '')       // görünmez ZWNJ temizliği
     .replace(/\u200D/g, '')       // görünmez ZWJ temizliği
-    .replace(/\uFEFF/g, '');      // görünmez BOM temizliği
+    .replace(/\uFEFF/g, '')       // görünmez BOM temizliği
+    .replace(/‌ـ/g, '')            // kopyadan gelen süs ayıracı
+    .replace(/ـ/g, '');           // kopyadan gelen tatweel/ayraç
 }
 
 function SimplePage({ title, text, goHome }) { return <><TopActions goHome={goHome} /><SectionTitle title={title} /><div className="reading-card"><h3>Yapım Aşamasında</h3><p>{text}</p></div></>; }
