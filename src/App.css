@@ -1733,3 +1733,28 @@ section h2 {
     padding: 20px 16px 40px;
   }
 }
+
+
+/* v21 dualar Arapça tamamlandı + bej okuma zemini + kırmızı hareke */
+.arabic-text.easy-arabic,
+.arabic-fullscreen-body {
+  background: #fbf3df !important;
+  color: #111827;
+}
+
+.arabic-fullscreen {
+  background: #fbf3df !important;
+}
+
+.haraka {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.arabic-text.easy-arabic {
+  border-color: #ead7ad;
+}
+
+.arabic-fullscreen-body {
+  border-top: 1px solid #ead7ad;
+}

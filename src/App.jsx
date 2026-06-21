@@ -36,14 +36,54 @@ const islamMenu = [
 ];
 
 const dualar = [
-  { title: 'Sübhaneke', text: 'Sübhânekellâhümme ve bi hamdik ve tebârekesmük ve teâlâ ceddük ve lâ ilâhe ğayrük.', arabic: 'سُبْحَانَكَ اللّٰهُمَّ وَبِحَمْدِكَ وَتَبَارَكَ اسْمُكَ وَتَعَالَى جَدُّكَ وَلَا إِلٰهَ غَيْرُكَ', meal: 'Allah’ım! Seni her türlü noksanlıktan tenzih ederim. Hamd Sana mahsustur. İsmin mübarektir, şanın yücedir. Senden başka ilah yoktur.' },
-  { title: 'Ettehiyyâtü', text: 'Ettehıyyâtü lillâhi vessalevâtü vettayyıbât. Esselâmü aleyke eyyühen-nebiyyü ve rahmetullâhi ve berakâtüh. Esselâmü aleynâ ve alâ ıbâdillâhis-sâlihîn. Eşhedü en lâ ilâhe illallâh ve eşhedü enne Muhammeden abdühû ve rasûlüh.', arabic: 'اَلتَّحِيَّاتُ لِلّٰهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، اَلسَّلَامُ عَلَيْكَ اَيُّهَا النَّبِيُّ وَرَحْمَةُ اللّٰهِ وَبَرَكَاتُهُ، اَلسَّلَامُ عَلَيْنَا وَعَلٰى عِبَادِ اللّٰهِ الصَّالِحِينَ، اَشْهَدُ اَنْ لَا اِلٰهَ اِلَّا اللّٰهُ وَاَشْهَدُ اَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ', meal: 'Bütün saygılar, ibadetler ve güzel sözler Allah içindir. Ey Peygamber! Allah’ın selamı, rahmeti ve bereketi senin üzerine olsun. Selam bizim ve Allah’ın salih kullarının üzerine olsun. Şahitlik ederim ki Allah’tan başka ilah yoktur; Muhammed O’nun kulu ve elçisidir.' },
-  { title: 'Allahümme Salli', text: 'Allâhümme salli alâ Muhammedin ve alâ âli Muhammed. Kemâ salleyte alâ İbrâhîme ve alâ âli İbrâhîm. İnneke hamîdün mecîd.' },
-  { title: 'Allahümme Bârik', text: 'Allâhümme bârik alâ Muhammedin ve alâ âli Muhammed. Kemâ bârekte alâ İbrâhîme ve alâ âli İbrâhîm. İnneke hamîdün mecîd.' },
-  { title: 'Rabbena Âtina ve Rabbenâğfirlî', text: 'Rabbenâ âtinâ fid-dünyâ haseneten ve fîl-âhireti haseneten ve kınâ azâben-nâr. Rabbenâğfirlî ve li-vâlideyye ve lil-mü\'minîne yevme yekûmül-hısâb.' },
-  { title: 'Kunut 1', text: 'Allâhümme innâ nesteînüke ve nesteğfirüke ve nestedîke. Ve nü\'minü bike ve netûbü ileyke ve netevekkelü aleyke ve nüsnî aleykel-hayra küllehû neşkürüke ve lâ nekfürük. Ve nahle\'u ve netrükü men yefcürük.' },
-  { title: 'Kunut 2', text: 'Allâhümme iyyâke na\'büdü ve leke nüsallî ve nescüdü ve ileyke nes\'â ve nahfidü nercû rahmeteke ve nahşâ azâbeke inne azâbeke bil-küffâri mülhık.' },
-  { title: 'Ayetel Kürsi', text: 'Allâhü lâ ilâhe illâ hüvel-hayyül-kayyûm. Lâ te\'huzühû sinetün ve lâ nevm. Lehû mâ fis-semâvâti ve mâ fîl-ard. Men zellezî yeşfeu ındehû illâ bi-iznih. Ya\'lemü mâ beyne eydîhim ve mâ halfehüm. Ve lâ yuhîtûne bi-şey\'in min ılmihî illâ bimâ şâ\'. Vesia kürsiyyühüs-semâvâti vel-ard. Ve lâ yeûdühû hıfzuhümâ ve hüvel-aliyyül-azîm.' },
+  {
+    title: 'Sübhaneke',
+    text: 'Sübhânekellâhümme ve bi hamdik ve tebârekesmük ve teâlâ ceddük ve lâ ilâhe ğayrük.',
+    arabic: 'سُبْحَانَكَ اللّٰهُمَّ وَبِحَمْدِكَ وَتَبَارَكَ اسْمُكَ وَتَعَالَى جَدُّكَ وَلَا إِلٰهَ غَيْرُكَ',
+    meal: 'Allah’ım! Seni her türlü noksanlıktan tenzih ederim. Hamd Sana mahsustur. İsmin mübarektir, şanın yücedir. Senden başka ilah yoktur.'
+  },
+  {
+    title: 'Ettehiyyâtü',
+    text: 'Ettehıyyâtü lillâhi vessalevâtü vettayyıbât. Esselâmü aleyke eyyühen-nebiyyü ve rahmetullâhi ve berakâtüh. Esselâmü aleynâ ve alâ ıbâdillâhis-sâlihîn. Eşhedü en lâ ilâhe illallâh ve eşhedü enne Muhammeden abdühû ve rasûlüh.',
+    arabic: 'اَلتَّحِيَّاتُ لِلّٰهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، اَلسَّلَامُ عَلَيْكَ اَيُّهَا النَّبِيُّ وَرَحْمَةُ اللّٰهِ وَبَرَكَاتُهُ، اَلسَّلَامُ عَلَيْنَا وَعَلٰى عِبَادِ اللّٰهِ الصَّالِحِينَ، اَشْهَدُ اَنْ لَا اِلٰهَ اِلَّا اللّٰهُ وَاَشْهَدُ اَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ',
+    meal: 'Bütün saygılar, ibadetler ve güzel sözler Allah içindir. Ey Peygamber! Allah’ın selamı, rahmeti ve bereketi senin üzerine olsun. Selam bizim ve Allah’ın salih kullarının üzerine olsun. Şahitlik ederim ki Allah’tan başka ilah yoktur; Muhammed O’nun kulu ve elçisidir.'
+  },
+  {
+    title: 'Allahümme Salli',
+    text: 'Allâhümme salli alâ Muhammedin ve alâ âli Muhammed. Kemâ salleyte alâ İbrâhîme ve alâ âli İbrâhîm. İnneke hamîdün mecîd.',
+    arabic: 'اَللّٰهُمَّ صَلِّ عَلٰى مُحَمَّدٍ وَعَلٰى اٰلِ مُحَمَّدٍ، كَمَا صَلَّيْتَ عَلٰى اِبْرَاهِيمَ وَعَلٰى اٰلِ اِبْرَاهِيمَ، اِنَّكَ حَمِيدٌ مَجِيدٌ',
+    meal: 'Allah’ım! Muhammed’e ve Muhammed’in âline rahmet eyle. İbrahim’e ve İbrahim’in âline rahmet ettiğin gibi. Şüphesiz Sen hamde layık ve yücesin.'
+  },
+  {
+    title: 'Allahümme Bârik',
+    text: 'Allâhümme bârik alâ Muhammedin ve alâ âli Muhammed. Kemâ bârekte alâ İbrâhîme ve alâ âli İbrâhîm. İnneke hamîdün mecîd.',
+    arabic: 'اَللّٰهُمَّ بَارِكْ عَلٰى مُحَمَّدٍ وَعَلٰى اٰلِ مُحَمَّدٍ، كَمَا بَارَكْتَ عَلٰى اِبْرَاهِيمَ وَعَلٰى اٰلِ اِبْرَاهِيمَ، اِنَّكَ حَمِيدٌ مَجِيدٌ',
+    meal: 'Allah’ım! Muhammed’e ve Muhammed’in âline bereket ihsan eyle. İbrahim’e ve İbrahim’in âline bereket ihsan ettiğin gibi. Şüphesiz Sen hamde layık ve yücesin.'
+  },
+  {
+    title: 'Rabbena Âtina ve Rabbenâğfirlî',
+    text: 'Rabbenâ âtinâ fid-dünyâ haseneten ve fîl-âhireti haseneten ve kınâ azâben-nâr. Rabbenâğfirlî ve li-vâlideyye ve lil-mü\'minîne yevme yekûmül-hısâb.',
+    arabic: 'رَبَّنَا اٰتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْاٰخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ. رَبَّنَا اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ',
+    meal: 'Rabbimiz! Bize dünyada da iyilik ver, ahirette de iyilik ver ve bizi ateş azabından koru. Rabbimiz! Hesap gününde beni, anne babamı ve müminleri bağışla.'
+  },
+  {
+    title: 'Kunut 1',
+    text: 'Allâhümme innâ nesteînüke ve nesteğfirüke ve nestedîke. Ve nü\'minü bike ve netûbü ileyke ve netevekkelü aleyke ve nüsnî aleykel-hayra küllehû neşkürüke ve lâ nekfürük. Ve nahle\'u ve netrükü men yefcürük.',
+    arabic: 'اَللّٰهُمَّ اِنَّا نَسْتَعِينُكَ وَنَسْتَغْفِرُكَ وَنَسْتَهْدِيكَ، وَنُؤْمِنُ بِكَ وَنَتُوبُ اِلَيْكَ وَنَتَوَكَّلُ عَلَيْكَ، وَنُثْنِي عَلَيْكَ الْخَيْرَ كُلَّهُ، نَشْكُرُكَ وَلَا نَكْفُرُكَ، وَنَخْلَعُ وَنَتْرُكُ مَنْ يَفْجُرُكَ',
+    meal: 'Allah’ım! Senden yardım ister, bağışlanma diler ve hidayet isteriz. Sana iman eder, Sana tövbe eder, Sana dayanırız. Sana bütün hayırlarla övgüde bulunuruz. Sana şükreder, nankörlük etmeyiz. Sana isyan edeni terk ederiz.'
+  },
+  {
+    title: 'Kunut 2',
+    text: 'Allâhümme iyyâke na\'büdü ve leke nüsallî ve nescüdü ve ileyke nes\'â ve nahfidü nercû rahmeteke ve nahşâ azâbeke inne azâbeke bil-küffâri mülhık.',
+    arabic: 'اَللّٰهُمَّ اِيَّاكَ نَعْبُدُ وَلَكَ نُصَلِّي وَنَسْجُدُ، وَاِلَيْكَ نَسْعٰى وَنَحْفِدُ، نَرْجُو رَحْمَتَكَ وَنَخْشٰى عَذَابَكَ، اِنَّ عَذَابَكَ بِالْكُفَّارِ مُلْحِقٌ',
+    meal: 'Allah’ım! Ancak Sana kulluk ederiz, Senin için namaz kılar ve secde ederiz. Sana yönelir ve Sana koşarız. Rahmetini umar, azabından korkarız. Şüphesiz Senin azabın inkârcılara ulaşacaktır.'
+  },
+  {
+    title: 'Ayetel Kürsi',
+    text: 'Allâhü lâ ilâhe illâ hüvel-hayyül-kayyûm. Lâ te\'huzühû sinetün ve lâ nevm. Lehû mâ fis-semâvâti ve mâ fîl-ard. Men zellezî yeşfeu ındehû illâ bi-iznih. Ya\'lemü mâ beyne eydîhim ve mâ halfehüm. Ve lâ yuhîtûne bi-şey\'in min ılmihî illâ bimâ şâ\'. Vesia kürsiyyühüs-semâvâti vel-ard. Ve lâ yeûdühû hıfzuhümâ ve hüvel-aliyyül-azîm.',
+    arabic: 'اَللّٰهُ لَا اِلٰهَ اِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ، لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْاَرْضِ، مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ اِلَّا بِاِذْنِهِ، يَعْلَمُ مَا بَيْنَ اَيْدِيهِمْ وَمَا خَلْفَهُمْ، وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ اِلَّا بِمَا شَاءَ، وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْاَرْضَ، وَلَا يَؤُودُهُ حِفْظُهُمَا، وَهُوَ الْعَلِيُّ الْعَظِيمُ',
+    meal: 'Allah, kendisinden başka ilah olmayandır; diridir, her şeyi ayakta tutandır. O’nu ne uyuklama tutar ne de uyku. Göklerde ve yerde ne varsa O’nundur. İzni olmadan O’nun katında kim şefaat edebilir? O, kullarının önlerindekini ve arkalarındakini bilir. Onlar ise O’nun ilminden, dilediği kadarından başka hiçbir şeyi kavrayamazlar. Kürsüsü gökleri ve yeri kaplamıştır. Onları koruyup gözetmek O’na ağır gelmez. O yücedir, büyüktür.'
+  },
 ];
 
 const sureler = [
@@ -954,7 +994,7 @@ function TextList({ items }) {
             </div>
 
             {openArabic[item.title] && (
-              <div className="arabic-text easy-arabic">{item.arabic}</div>
+              <div className="arabic-text easy-arabic"><ArabicText text={item.arabic} /></div>
             )}
 
             {openMeal[item.title] && (
@@ -972,7 +1012,7 @@ function TextList({ items }) {
               <button onClick={() => setFullArabic(null)}>×</button>
             </div>
             <div className="arabic-fullscreen-body">
-              {fullArabic.arabic}
+              <ArabicText text={fullArabic.arabic} />
             </div>
           </div>
         </div>
@@ -980,6 +1020,21 @@ function TextList({ items }) {
     </>
   );
 }
+function ArabicText({ text }) {
+  const harakat = /[\u064B-\u065F\u0670]/;
+  return (
+    <>
+      {Array.from(text).map((char, index) =>
+        harakat.test(char) ? (
+          <span className="haraka" key={index}>{char}</span>
+        ) : (
+          <span key={index}>{char}</span>
+        )
+      )}
+    </>
+  );
+}
+
 function SimplePage({ title, text, goHome }) { return <><TopActions goHome={goHome} /><SectionTitle title={title} /><div className="reading-card"><h3>Yapım Aşamasında</h3><p>{text}</p></div></>; }
 
 function formatDate(date) { const [y, m, d] = date.split('-'); return `${d}.${m}.${y}`; }
