@@ -527,6 +527,7 @@ export default function App() {
   const [prayerLogs, setPrayerLogs] = useState([]);
   const [activeUser, setActiveUser] = useState(() => localStorage.getItem('dnh_active_user') || 'D');
   const [memorization, setMemorization] = useState([]);
+  const [returnToEzber, setReturnToEzber] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('translate', 'no');
@@ -679,9 +680,9 @@ export default function App() {
       </aside>
       <main className="content">
         {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} memorization={memorization} goEzber={() => changePage('ezber')} />}
-        {page === 'islam' && <IslamPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
+        {page === 'islam' && <IslamPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} returnToEzber={returnToEzber} goEzber={() => { setPage('ezber'); setSubPage(''); setDetailKey(''); setReturnToEzber(false); }} />}
         {page === 'egitim' && <EgitimPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
-        {page === 'ezber' && <MemorizationPage memorization={memorization} saveMemorization={saveMemorization} goHome={goHome} setPage={setPage} setSubPage={setSubPage} setDetailKey={setDetailKey} />}
+        {page === 'ezber' && <MemorizationPage memorization={memorization} saveMemorization={saveMemorization} goHome={goHome} setPage={setPage} setSubPage={setSubPage} setDetailKey={setDetailKey} setReturnToEzber={setReturnToEzber} activeUser={activeUser} />}
         {page === 'gorevler' && <TasksPage tasks={tasks} setTasks={setTasks} reloadTasks={loadTasks} goHome={goHome} activeUser={activeUser} setActiveUser={setActiveUser} />}
         {page === 'hedefler' && <SimplePage title="Hedeflerim" text="Hedef takibi hazırlanıyor." goHome={goHome} />}
         {page === 'gunluk' && <SimplePage title="Günlüğüm" text="Günlük notlar ve Rabbime mektuplarım burada olacak." goHome={goHome} />}
@@ -946,7 +947,7 @@ function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
   );
 }
 
-function IslamPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
+function IslamPage({ subPage, setSubPage, detailKey, setDetailKey, goHome, returnToEzber, goEzber }) {
   function openSubPage(key) {
     setSubPage(key);
     setDetailKey('');
@@ -965,6 +966,8 @@ function IslamPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
         setDetailKey={setDetailKey}
         onBack={() => setSubPage('')}
         goHome={goHome}
+        returnToEzber={returnToEzber}
+        goEzber={goEzber}
       />
     );
   }
@@ -978,6 +981,8 @@ function IslamPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
         setDetailKey={setDetailKey}
         onBack={() => setSubPage('')}
         goHome={goHome}
+        returnToEzber={returnToEzber}
+        goEzber={goEzber}
       />
     );
   }
@@ -991,6 +996,8 @@ function IslamPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
         setDetailKey={setDetailKey}
         onBack={() => setSubPage('')}
         goHome={goHome}
+        returnToEzber={returnToEzber}
+        goEzber={goEzber}
       />
     );
   }
@@ -1004,6 +1011,8 @@ function IslamPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
         setDetailKey={setDetailKey}
         onBack={() => setSubPage('')}
         goHome={goHome}
+        returnToEzber={returnToEzber}
+        goEzber={goEzber}
       />
     );
   }
@@ -1015,6 +1024,8 @@ function IslamPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
         setDetailKey={setDetailKey}
         onBack={() => setSubPage('')}
         goHome={goHome}
+        returnToEzber={returnToEzber}
+        goEzber={goEzber}
       />
     );
   }
@@ -1026,7 +1037,7 @@ function IslamPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
   return <SimplePage title="Hazırlanıyor" text="Bu bölüm yakında düzenlenecek." goHome={goHome} />;
 }
 
-function SelectableContentPage({ title, items, detailKey, setDetailKey, onBack, goHome }) {
+function SelectableContentPage({ title, items, detailKey, setDetailKey, onBack, goHome, returnToEzber, goEzber }) {
   const selectedIndex = detailKey === '' ? -1 : Number(detailKey);
   const selected = Number.isInteger(selectedIndex) && selectedIndex >= 0 ? items[selectedIndex] : null;
 
@@ -1035,7 +1046,7 @@ function SelectableContentPage({ title, items, detailKey, setDetailKey, onBack, 
       <SubContent
         title={selected.title}
         items={[selected]}
-        onBack={() => setDetailKey('')}
+        onBack={() => returnToEzber ? goEzber() : setDetailKey('')}
         goHome={goHome}
       />
     );
@@ -1153,7 +1164,7 @@ function EgitimPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
   return <SimplePage title={detailKey} text="Bu dersin konu takibi, notları ve deneme kayıtları yapım aşamasında." goHome={goHome} />;
 }
 
-function MemorizationPage({ memorization, saveMemorization, goHome, setPage, setSubPage, setDetailKey }) {
+function MemorizationPage({ memorization, saveMemorization, goHome, setPage, setSubPage, setDetailKey, setReturnToEzber, activeUser }) {
   const groups = [...new Set(memorizationItems.map(item => item.group))];
 
   function rowFor(key) {
@@ -1170,6 +1181,7 @@ function MemorizationPage({ memorization, saveMemorization, goHome, setPage, set
   }
 
   function openMemorizationItem(item) {
+    setReturnToEzber(true);
     const sureIndex = sureler.findIndex(x => x.title === item.title);
     if (sureIndex >= 0) {
       setPage('islam');
@@ -1230,19 +1242,21 @@ function MemorizationPage({ memorization, saveMemorization, goHome, setPage, set
                     D
                   </label>
 
-                  <label className="mem-check">
+                  <label className={`mem-check ${activeUser === 'D' ? 'locked' : ''}`} title={activeUser === 'D' ? 'Baba/anne onayını Dilara veremez.' : 'Baba onayı'}>
                     <input
                       type="checkbox"
                       checked={!!row.baba_approved}
+                      disabled={activeUser === 'D'}
                       onChange={(e) => saveMemorization(item.key, { baba_approved: e.target.checked })}
                     />
                     B
                   </label>
 
-                  <label className="mem-check">
+                  <label className={`mem-check ${activeUser === 'D' ? 'locked' : ''}`} title={activeUser === 'D' ? 'Baba/anne onayını Dilara veremez.' : 'Anne onayı'}>
                     <input
                       type="checkbox"
                       checked={!!row.anne_approved}
+                      disabled={activeUser === 'D'}
                       onChange={(e) => saveMemorization(item.key, { anne_approved: e.target.checked })}
                     />
                     A
