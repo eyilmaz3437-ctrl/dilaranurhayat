@@ -499,6 +499,82 @@ const ilmihalData = {
   ],
 };
 
+
+const matematikMenu = [
+  { key: 'mat-notlar', title: '📝 Matematik Notlarım', desc: 'Tüm konu notları burada toplu görünecek.' },
+  { key: 'mat-kitap1', title: '📘 1. Kitap', desc: 'Sayılar, Nicelikler ve Değişimler, Geometrik Şekiller' },
+  { key: 'mat-kitap2', title: '📗 2. Kitap', desc: 'Eşlik ve Benzerlik, Algoritma, İstatistik, Olasılık' },
+];
+
+const matematikKitap1 = [
+  { title: '1. Kitap', text: '9. Sınıf Matematik 1. Kitap konu ağacı. Konuların içine ders notları ve çalışma materyalleri eklenecek.' },
+  { title: '1. Tema - Sayılar', text: '1. Kitap / 1. Tema: Sayılar. Bu tema altında gerçek sayılar, üslü-köklü gösterimler, aralıklar, kümeler ve işlem özellikleri çalışılacak.' },
+  { title: '1.1 Gerçek Sayıların Üslü ve Köklü Gösterimleri ile Yapılan İşlemler', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nMEB etkileşimli içerik ve çalışma sayfaları daha sonra bağlanacak.' },
+  { title: '1.2 Gerçek Sayı Aralıklarının Gösteriminde ve Aralıklarla İlgili İşlemlerde Küme Sembol ve İşlemleri', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nAralık gösterimi, birleşim, kesişim, fark ve tümleme notları eklenecek.' },
+  { title: '1.3 Sayı Kümelerinin Özellikleri', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nN, Z, Q, irrasyonel ve R kümeleri için özet ve örnekler eklenecek.' },
+  { title: '1.4 Gerçek Sayıların İşlem Özellikleri', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nDeğişme, birleşme, dağılma, etkisiz ve ters eleman özellikleri eklenecek.' },
+
+  { title: '2. Tema - Nicelikler ve Değişimler', text: '1. Kitap / 2. Tema: Nicelikler ve Değişimler. Fonksiyonlar, mutlak değer ve doğrusal problemler çalışılacak.' },
+  { title: '2.1 Gerçek Sayılarda Tanımlı Doğrusal Fonksiyonlar ve Nitel Özellikleri', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nDoğrusal fonksiyon, eğim, grafik ve yorumlama notları eklenecek.' },
+  { title: '2.2 Gerçek Sayılarda Tanımlı Mutlak Değer Fonksiyonları ve Nitel Özellikleri', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nMutlak değer, grafik ve parça parça yorumlama notları eklenecek.' },
+  { title: '2.3 Doğrusal Fonksiyonlarla İfade Edilebilen Denklem ve Eşitsizlikler İçeren Problemler', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nProblem kurma, denklem/eşitsizlik ve çözüm stratejileri eklenecek.' },
+
+  { title: '3. Tema - Geometrik Şekiller', text: '1. Kitap / 3. Tema: Geometrik Şekiller.' },
+  { title: '3.1 Üçgende Açı ve Kenarlarla İlgili Özellikler', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nÜçgende açı, kenar ilişkileri ve temel geometri notları eklenecek.' },
+];
+
+const matematikKitap2 = [
+  { title: '2. Kitap', text: '9. Sınıf Matematik 2. Kitap konu ağacı. Konuların içine ders notları ve çalışma materyalleri eklenecek.' },
+  { title: '4. Tema - Eşlik ve Benzerlik', text: '2. Kitap / 4. Tema: Eşlik ve Benzerlik.' },
+  { title: '4.1 Geometrik Dönüşümler', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nÖteleme, yansıma ve dönme dönüşümü notları eklenecek.' },
+  { title: '4.2 İki Üçgenin Eş veya Benzer Olması İçin Gerekli Olan Asgari Koşullar', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nEşlik ve benzerlik şartları eklenecek.' },
+  { title: '4.3 Bir Üçgenden Hareketle Ona Benzer Üçgenler Oluşturma', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nBenzer üçgen oluşturma ve oran ilişkileri eklenecek.' },
+  { title: '4.4 Tales, Öklid ve Pisagor Teoremleri', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nTales, Öklid ve Pisagor özetleri eklenecek.' },
+  { title: '4.5 Eşlik ve Benzerlikle İlgili Problemler', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nProblem çözüm adımları eklenecek.' },
+
+  { title: '5. Tema - Algoritma ve Bilişim', text: '2. Kitap / 5. Tema: Algoritma ve Bilişim.' },
+  { title: '5.1 Algoritma Temelli Yaklaşımlarla Problem Çözme', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nAlgoritmik düşünme ve problem çözme örnekleri eklenecek.' },
+  { title: '5.2 Algoritmik Yapılar İçerisindeki Mantık Bağlaçları ve Niceleyiciler', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nVe, veya, ise, ancak ve ancak, bazı, her gibi kavramlar eklenecek.' },
+  { title: '5.3 Algoritmalarda ve Matematiksel İspatlarda Mantık Bağlaçları ve Niceleyiciler', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nİspat mantığı ve algoritmada mantık notları eklenecek.' },
+
+  { title: '6. Tema - İstatistiksel Araştırma Süreci', text: '2. Kitap / 6. Tema: İstatistiksel Araştırma Süreci.' },
+  { title: '6.1 Tek Nicel Değişkenli Veri Dağılımları ile Çalışma ve Veriye Dayalı Karar Verme', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nVeri, tablo, grafik ve yorumlama notları eklenecek.' },
+  { title: '6.2 Başkaları Tarafından Oluşturulan Tek Nicel Değişkenli Veri Dağılımlarına Dayalı Sonuç veya Yorumları Tartışabilme', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nVeri yorumlama ve eleştirel değerlendirme notları eklenecek.' },
+
+  { title: '7. Tema - Veriden Olasılığa', text: '2. Kitap / 7. Tema: Veriden Olasılığa.' },
+  { title: '7.1 Olayların Olasılığını Gözleme Dayalı Tahmin Etme', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nDeneysel olasılık ve tahmin notları eklenecek.' },
+  { title: '7.2 Olayların Olasılığına İlişkin Tümevarımsal Akıl Yürütme', text: 'Ders Notları\n\nHenüz not eklenmedi.\n\nÇalışma Materyalleri\n\nTümevarım ve olasılık ilişkisi eklenecek.' },
+];
+
+const matematikNotlari = [
+  {
+    title: 'Matematik Notlarım - Toplu Sayfa',
+    text: `Bu sayfa ileride konu notlarını otomatik toplayacak.
+
+Şimdilik kullanım planı:
+1. Her konunun içine ders notu yazılacak.
+2. Konu notları burada sıralı biçimde toplanacak.
+3. Gerektiğinde çıktı/PDF mantığına çevrilecek.
+
+Başlık sırası:
+1. Kitap
+1. Tema - Sayılar
+1.1 Gerçek Sayıların Üslü ve Köklü Gösterimleri ile Yapılan İşlemler
+1.2 Gerçek Sayı Aralıkları ve Kümeler
+1.3 Sayı Kümelerinin Özellikleri
+1.4 Gerçek Sayıların İşlem Özellikleri
+2. Tema - Nicelikler ve Değişimler
+3. Tema - Geometrik Şekiller
+
+2. Kitap
+4. Tema - Eşlik ve Benzerlik
+5. Tema - Algoritma ve Bilişim
+6. Tema - İstatistiksel Araştırma Süreci
+7. Tema - Veriden Olasılığa`
+  }
+];
+
+
 const egitimLevels = [
   { key: 'lise9', title: 'Lise 1 / 9. Sınıf' },
   { key: 'lise10', title: 'Lise 2 / 10. Sınıf' },
@@ -1162,9 +1238,137 @@ function IlmihalPage({ detailKey, setDetailKey, onBack, goHome }) {
 }
 
 function EgitimPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
-  if (!subPage) return <><TopActions goHome={goHome} /><ListMenu title="Eğitim" items={egitimLevels.map(x => ({ ...x, icon: '📚', desc: 'Ders listesi' }))} onSelect={(x) => setSubPage(x.key)} /></>;
-  if (!detailKey) return <><TopActions onBack={() => setSubPage('')} goHome={goHome} /><ListMenu title={egitimLevels.find(x => x.key === subPage)?.title || 'Dersler'} items={(egitimDersleri[subPage] || []).map(x => ({ key: x, title: x, icon: '📘', desc: 'Yapım aşamasında' }))} onSelect={(x) => setDetailKey(x.key)} /></>;
+  if (subPage === 'lise9' && (detailKey === 'Matematik' || detailKey.startsWith('mat-'))) {
+    return <MatematikPage detailKey={detailKey} setDetailKey={setDetailKey} onBack={() => setDetailKey('')} goHome={goHome} />;
+  }
+
+  if (!subPage) {
+    return (
+      <>
+        <TopActions goHome={goHome} />
+        <ListMenu
+          title="Eğitim"
+          items={egitimLevels.map(x => ({ ...x, icon: '📚', desc: 'Ders listesi' }))}
+          onSelect={(x) => {
+            setSubPage(x.key);
+            setDetailKey('');
+          }}
+        />
+      </>
+    );
+  }
+
+  if (!detailKey) {
+    return (
+      <>
+        <TopActions onBack={() => setSubPage('')} goHome={goHome} />
+        <ListMenu
+          title={egitimLevels.find(x => x.key === subPage)?.title || 'Dersler'}
+          items={(egitimDersleri[subPage] || []).map(x => ({ key: x, title: x, icon: x === 'Matematik' ? '📐' : '📘', desc: x === 'Matematik' && subPage === 'lise9' ? '9. sınıf kitap ve konu notları' : 'Yapım aşamasında' }))}
+          onSelect={(x) => setDetailKey(x.key)}
+        />
+      </>
+    );
+  }
+
   return <SimplePage title={detailKey} text="Bu dersin konu takibi, notları ve deneme kayıtları yapım aşamasında." goHome={goHome} />;
+}
+
+function MatematikPage({ detailKey, setDetailKey, onBack, goHome }) {
+  const current = detailKey || 'Matematik';
+
+  if (current === 'Matematik') {
+    return (
+      <>
+        <TopActions onBack={onBack} goHome={goHome} />
+        <ListMenu
+          title="Matematik"
+          items={matematikMenu}
+          onSelect={(x) => setDetailKey(x.key)}
+        />
+      </>
+    );
+  }
+
+  if (current === 'mat-kitap1') {
+    return (
+      <SelectableContentPage
+        title="Matematik - 1. Kitap"
+        items={matematikKitap1}
+        detailKey=""
+        setDetailKey={(key) => setDetailKey(`mat-kitap1:${key}`)}
+        onBack={() => setDetailKey('Matematik')}
+        goHome={goHome}
+      />
+    );
+  }
+
+  if (current.startsWith('mat-kitap1:')) {
+    const index = Number(current.split(':')[1]);
+    const selected = matematikKitap1[index];
+    return (
+      <SubContent
+        title={selected?.title || '1. Kitap'}
+        items={selected ? [selected] : []}
+        onBack={() => setDetailKey('mat-kitap1')}
+        goHome={goHome}
+      />
+    );
+  }
+
+  if (current === 'mat-kitap2') {
+    return (
+      <SelectableContentPage
+        title="Matematik - 2. Kitap"
+        items={matematikKitap2}
+        detailKey=""
+        setDetailKey={(key) => setDetailKey(`mat-kitap2:${key}`)}
+        onBack={() => setDetailKey('Matematik')}
+        goHome={goHome}
+      />
+    );
+  }
+
+  if (current.startsWith('mat-kitap2:')) {
+    const index = Number(current.split(':')[1]);
+    const selected = matematikKitap2[index];
+    return (
+      <SubContent
+        title={selected?.title || '2. Kitap'}
+        items={selected ? [selected] : []}
+        onBack={() => setDetailKey('mat-kitap2')}
+        goHome={goHome}
+      />
+    );
+  }
+
+  if (current === 'mat-notlar') {
+    return (
+      <SelectableContentPage
+        title="Matematik Notlarım"
+        items={matematikNotlari}
+        detailKey=""
+        setDetailKey={(key) => setDetailKey(`mat-notlar:${key}`)}
+        onBack={() => setDetailKey('Matematik')}
+        goHome={goHome}
+      />
+    );
+  }
+
+  if (current.startsWith('mat-notlar:')) {
+    const index = Number(current.split(':')[1]);
+    const selected = matematikNotlari[index];
+    return (
+      <SubContent
+        title={selected?.title || 'Matematik Notlarım'}
+        items={selected ? [selected] : []}
+        onBack={() => setDetailKey('mat-notlar')}
+        goHome={goHome}
+      />
+    );
+  }
+
+  return <SimplePage title="Matematik" text="Bu matematik bölümü hazırlanıyor." goHome={goHome} />;
 }
 
 function MemorizationPage({ memorization, saveMemorization, goHome, setPage, setSubPage, setDetailKey, setReturnToEzber, activeUser }) {
@@ -1225,12 +1429,7 @@ function MemorizationPage({ memorization, saveMemorization, goHome, setPage, set
       return;
     }
 
-    const note = prompt(
-  'Kısa tekrar notu / zorlandığı yer:',
-  row.baba_note || ''
-);
-
-const finalNote = note ?? (row.baba_note || '');
+    const note = prompt('Kısa tekrar notu / zorlandığı yer:', row.baba_note || '') ?? (row.baba_note || '');
 
     saveMemorization(item.key, {
       baba_score: score,
