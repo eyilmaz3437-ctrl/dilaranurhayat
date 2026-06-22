@@ -19,6 +19,7 @@ const menuItems = [
   { key: 'home', title: 'Ana Sayfa', icon: '🏠' },
   { key: 'islam', title: 'İslam', icon: '☪' },
   { key: 'egitim', title: 'Eğitim', icon: '📚' },
+  { key: 'ezber', title: 'Ezber Takibi', icon: '🧠' },
   { key: 'gorevler', title: 'Görevler', icon: '✅' },
   { key: 'hedefler', title: 'Hedeflerim', icon: '🎯' },
   { key: 'gunluk', title: 'Günlüğüm', icon: '📝' },
@@ -238,6 +239,31 @@ Günlük hedef:
 10 dakika Elif-Ba + 5 dakika dinleme + 5 dakika tekrar.`
   },
 ];
+
+const memorizationItems = [
+  { key: 'subhaneke', group: 'Namaz Duaları', title: 'Sübhaneke' },
+  { key: 'ettehiyyatu', group: 'Namaz Duaları', title: 'Ettehiyyâtü' },
+  { key: 'salli', group: 'Namaz Duaları', title: 'Allahümme Salli' },
+  { key: 'barik', group: 'Namaz Duaları', title: 'Allahümme Bârik' },
+  { key: 'rabbena', group: 'Namaz Duaları', title: 'Rabbena Âtina ve Rabbenâğfirlî' },
+  { key: 'kunut1', group: 'Namaz Duaları', title: 'Kunut 1' },
+  { key: 'kunut2', group: 'Namaz Duaları', title: 'Kunut 2' },
+  { key: 'ezan', group: 'Namaz Duaları', title: 'Ezan Duası' },
+
+  { key: 'fatiha', group: 'Sureler', title: 'Fâtiha Suresi' },
+  { key: 'fil', group: 'Sureler', title: 'Fil Suresi' },
+  { key: 'kureys', group: 'Sureler', title: 'Kureyş Suresi' },
+  { key: 'maun', group: 'Sureler', title: 'Mâûn Suresi' },
+  { key: 'kevser', group: 'Sureler', title: 'Kevser Suresi' },
+  { key: 'kafirun', group: 'Sureler', title: 'Kâfirûn Suresi' },
+  { key: 'nasr', group: 'Sureler', title: 'Nasr Suresi' },
+  { key: 'tebbet', group: 'Sureler', title: 'Tebbet Suresi' },
+  { key: 'ihlas', group: 'Sureler', title: 'İhlâs Suresi' },
+  { key: 'felak', group: 'Sureler', title: 'Felak Suresi' },
+  { key: 'nas', group: 'Sureler', title: 'Nâs Suresi' },
+  { key: 'ayetel_kursi', group: 'Tesbihat', title: 'Ayetel Kürsi' },
+];
+
 
 const islamMenu = [
   { key: 'kilinis', title: 'Namaz Nasıl Kılınır?', icon: '🕌', desc: 'Vakit namazları adım adım.' },
@@ -500,7 +526,7 @@ export default function App() {
   const [tasksLoading, setTasksLoading] = useState(false);
   const [prayerLogs, setPrayerLogs] = useState([]);
   const [activeUser, setActiveUser] = useState(() => localStorage.getItem('dnh_active_user') || 'D');
-  const [lastLocation, setLastLocation] = useState(null);
+  const [memorization, setMemorization] = useState([]);
 
   useEffect(() => {
     document.documentElement.setAttribute('translate', 'no');
@@ -514,7 +540,7 @@ export default function App() {
 
     loadTasks();
     loadPrayerLogs();
-    loadLastLocation();
+    loadMemorization();
 
     return () => {
       document.head.removeChild(meta);
@@ -592,63 +618,41 @@ export default function App() {
     await loadPrayerLogs();
   }
 
-  async function loadLastLocation() {
+  async function loadMemorization() {
     const { data, error } = await supabase
-      .from('locations')
-      .select('*')
-      .eq('user_code', 'D')
-      .maybeSingle();
+      .from('memorization')
+      .select('*');
 
     if (error) {
-      console.error('Konum yüklenemedi:', error);
+      console.error('Ezber takibi yüklenemedi:', error);
       return;
     }
 
-    setLastLocation(data || null);
+    setMemorization(data || []);
   }
 
-  async function saveCurrentLocation() {
-    if (activeUser !== 'D') {
-      alert('Konum kaydı sadece Dilara profili açıkken yapılır. Dilara’nın telefonunda Görevler bölümünden kullanıcıyı D - Dilara seçip tekrar deneyin.');
+  async function saveMemorization(itemKey, patch) {
+    const current = memorization.find(x => x.item_key === itemKey);
+    const payload = {
+      item_key: itemKey,
+      status: current?.status || 0,
+      dilara_done: current?.dilara_done || false,
+      baba_approved: current?.baba_approved || false,
+      anne_approved: current?.anne_approved || false,
+      updated_at: new Date().toISOString(),
+      ...patch,
+    };
+
+    const { error } = await supabase
+      .from('memorization')
+      .upsert(payload, { onConflict: 'item_key' });
+
+    if (error) {
+      alert('Ezber kaydedilemedi: ' + error.message);
       return;
     }
 
-    if (!navigator.geolocation) {
-      alert('Bu cihaz konum bilgisini desteklemiyor.');
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const payload = {
-          user_code: 'D',
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          accuracy: Math.round(pos.coords.accuracy || 0),
-          updated_at: new Date().toISOString(),
-        };
-
-        const { error } = await supabase
-          .from('locations')
-          .upsert(payload, { onConflict: 'user_code' });
-
-        if (error) {
-          alert('Konum kaydedilemedi: ' + error.message);
-          return;
-        }
-
-        await loadLastLocation();
-      },
-      (err) => {
-        const msg = err.code === 1
-          ? 'Konum izni reddedildi. Chrome/Samsung Internet site izinlerinden konuma izin verilmeli.'
-          : err.code === 2
-            ? 'Konum alınamadı. Telefonda konum servisi kapalı olabilir.'
-            : 'Konum alınamadı: ' + err.message;
-        alert(msg);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
-    );
+    await loadMemorization();
   }
 
   function changePage(key) {
@@ -674,9 +678,10 @@ export default function App() {
         <nav className="main-menu">{menuItems.map((item) => <button key={item.key} className={page === item.key ? 'menu-item active' : 'menu-item'} onClick={() => changePage(item.key)}><span>{item.icon}</span>{menuOpen && <span>{item.title}</span>}</button>)}</nav>
       </aside>
       <main className="content">
-        {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} lastLocation={lastLocation} saveCurrentLocation={saveCurrentLocation} />}
+        {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} memorization={memorization} goEzber={() => changePage('ezber')} />}
         {page === 'islam' && <IslamPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
         {page === 'egitim' && <EgitimPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
+        {page === 'ezber' && <MemorizationPage memorization={memorization} saveMemorization={saveMemorization} goHome={goHome} />}
         {page === 'gorevler' && <TasksPage tasks={tasks} setTasks={setTasks} reloadTasks={loadTasks} goHome={goHome} activeUser={activeUser} setActiveUser={setActiveUser} />}
         {page === 'hedefler' && <SimplePage title="Hedeflerim" text="Hedef takibi hazırlanıyor." goHome={goHome} />}
         {page === 'gunluk' && <SimplePage title="Günlüğüm" text="Günlük notlar ve Rabbime mektuplarım burada olacak." goHome={goHome} />}
@@ -747,14 +752,14 @@ function getNextPrayer(now) {
   return { title: next.title, remaining: `${h}:${m}:${s}` };
 }
 
-function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer, activeUser, reloadTasks, lastLocation, saveCurrentLocation }) {
+function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer, activeUser, reloadTasks, memorization, goEzber }) {
   const [selectedTask, setSelectedTask] = useState(null);
   const upcoming = [...tasks].filter(t => !t.completed).sort((a, b) => a.task_date.localeCompare(b.task_date)).slice(0, 7);
 
   return (
     <>
       <CompactPrayerBar />
-      <LocationStrip location={lastLocation} onUpdate={saveCurrentLocation} />
+      <MemorizationSummary memorization={memorization} goEzber={goEzber} />
       <PrayerChecklist logs={prayerLogs} onToggle={saveTodayPrayer} />
       <button className="task-open-button" onClick={goTasks}>✅ Yeni görev ekle / görevleri aç</button>
       <div className="home-task-list">
@@ -768,24 +773,21 @@ function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer, a
   );
 }
 
+function MemorizationSummary({ memorization, goEzber }) {
+  const approved = memorizationItems.filter(item => {
+    const row = memorization.find(x => x.item_key === item.key);
+    return row?.dilara_done && (row?.baba_approved || row?.anne_approved);
+  }).length;
 
-
-function LocationStrip({ location, onUpdate }) {
-  const updated = location?.updated_at ? formatDateTime(location.updated_at) : '';
-  const mapsUrl = location ? `https://www.google.com/maps?q=${location.lat},${location.lng}` : '';
+  const total = memorizationItems.length;
+  const percent = total ? Math.round((approved / total) * 100) : 0;
 
   return (
-    <div className="location-strip">
-      <span>📍 Buradayım:</span>
-      {location ? (
-        <a href={mapsUrl} target="_blank" rel="noreferrer">
-          Haritada aç • {updated}
-        </a>
-      ) : (
-        <span>Henüz Dilara konumu yok</span>
-      )}
-      <button onClick={onUpdate}>Dilara konumunu güncelle</button>
-    </div>
+    <button className="memorization-summary" onClick={goEzber}>
+      <span>🧠 Ezber Takibi</span>
+      <strong>{approved}/{total}</strong>
+      <div className="memorization-bar"><i style={{ width: `${percent}%` }}></i></div>
+    </button>
   );
 }
 
@@ -1149,6 +1151,85 @@ function EgitimPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
   if (!subPage) return <><TopActions goHome={goHome} /><ListMenu title="Eğitim" items={egitimLevels.map(x => ({ ...x, icon: '📚', desc: 'Ders listesi' }))} onSelect={(x) => setSubPage(x.key)} /></>;
   if (!detailKey) return <><TopActions onBack={() => setSubPage('')} goHome={goHome} /><ListMenu title={egitimLevels.find(x => x.key === subPage)?.title || 'Dersler'} items={(egitimDersleri[subPage] || []).map(x => ({ key: x, title: x, icon: '📘', desc: 'Yapım aşamasında' }))} onSelect={(x) => setDetailKey(x.key)} /></>;
   return <SimplePage title={detailKey} text="Bu dersin konu takibi, notları ve deneme kayıtları yapım aşamasında." goHome={goHome} />;
+}
+
+function MemorizationPage({ memorization, saveMemorization, goHome }) {
+  const groups = [...new Set(memorizationItems.map(item => item.group))];
+
+  function rowFor(key) {
+    return memorization.find(x => x.item_key === key) || {};
+  }
+
+  function cycleStatus(item) {
+    const row = rowFor(item.key);
+    const next = ((row.status || 0) + 1) % 3;
+    saveMemorization(item.key, {
+      status: next,
+      dilara_done: next === 2 ? true : row.dilara_done || false,
+    });
+  }
+
+  return (
+    <>
+      <TopActions goHome={goHome} />
+      <SectionTitle title="Ezber Takibi" />
+
+      <div className="memorization-help">
+        <strong>Durum:</strong> Başlamadı → Çalışıyor → Ezberledim. Dilara “ezberledim” diyebilir; anne/baba ayrıca onaylar.
+      </div>
+
+      {groups.map(group => (
+        <section className="memorization-group" key={group}>
+          <h2>{group}</h2>
+          <div className="memorization-list">
+            {memorizationItems.filter(item => item.group === group).map(item => {
+              const row = rowFor(item.key);
+              const status = row.status || 0;
+              return (
+                <article className="memorization-row" key={item.key}>
+                  <button className={`mem-status mem-status-${status}`} onClick={() => cycleStatus(item)}>
+                    {status === 0 ? '○' : status === 1 ? '◐' : '●'}
+                  </button>
+
+                  <div className="mem-title">
+                    <strong>{item.title}</strong>
+                    <span>{status === 0 ? 'Başlamadı' : status === 1 ? 'Çalışıyor' : 'Ezberledim'}</span>
+                  </div>
+
+                  <label className="mem-check">
+                    <input
+                      type="checkbox"
+                      checked={!!row.dilara_done}
+                      onChange={(e) => saveMemorization(item.key, { dilara_done: e.target.checked, status: e.target.checked ? Math.max(status, 2) : status })}
+                    />
+                    D
+                  </label>
+
+                  <label className="mem-check">
+                    <input
+                      type="checkbox"
+                      checked={!!row.baba_approved}
+                      onChange={(e) => saveMemorization(item.key, { baba_approved: e.target.checked })}
+                    />
+                    B
+                  </label>
+
+                  <label className="mem-check">
+                    <input
+                      type="checkbox"
+                      checked={!!row.anne_approved}
+                      onChange={(e) => saveMemorization(item.key, { anne_approved: e.target.checked })}
+                    />
+                    A
+                  </label>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+    </>
+  );
 }
 
 function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActiveUser }) {

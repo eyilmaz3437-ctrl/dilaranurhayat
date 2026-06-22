@@ -1909,3 +1909,137 @@ body {
     align-items: center;
   }
 }
+
+/* v34 konum kaldırıldı, ezber takibi eklendi */
+.memorization-summary {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #162033;
+  border-radius: 14px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+  text-align: left;
+  cursor: pointer;
+}
+
+.memorization-summary span,
+.memorization-summary strong {
+  font-weight: 900;
+}
+
+.memorization-bar {
+  grid-column: 1 / -1;
+  height: 8px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.memorization-bar i {
+  display: block;
+  height: 100%;
+  background: #16a34a;
+  border-radius: inherit;
+}
+
+.memorization-help {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #7c2d12;
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.memorization-group {
+  margin-bottom: 18px;
+}
+
+.memorization-group h2 {
+  font-size: 18px;
+  color: #162033;
+  margin-bottom: 8px;
+}
+
+.memorization-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.memorization-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 46px 46px 46px;
+  gap: 8px;
+  align-items: center;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 9px 10px;
+}
+
+.mem-status {
+  border: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.mem-status-0 { background: #f1f5f9; color: #64748b; }
+.mem-status-1 { background: #fef3c7; color: #92400e; }
+.mem-status-2 { background: #dcfce7; color: #166534; }
+
+.mem-title {
+  min-width: 0;
+}
+
+.mem-title strong,
+.mem-title span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mem-title span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.mem-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-weight: 900;
+  color: #162033;
+}
+
+.mem-check input {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 700px) {
+  .memorization-row {
+    grid-template-columns: 32px 1fr 38px 38px 38px;
+    gap: 5px;
+    padding: 8px;
+  }
+
+  .mem-check {
+    font-size: 12px;
+  }
+
+  .memorization-group h2 {
+    font-size: 16px;
+  }
+}
