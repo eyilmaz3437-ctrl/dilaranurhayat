@@ -2043,3 +2043,32 @@ body {
     font-size: 16px;
   }
 }
+
+.mem-title{
+  cursor:pointer;
+}
+
+.mem-title:hover strong{
+  color:#2563eb;
+}
+
+/* v35 Ezber listesinden içeriğe geçiş */
+.mem-link {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+
+.mem-link:hover strong {
+  color: #2563eb;
+}
+
+.mem-link strong,
+.mem-link span {
+  display: block;
+}

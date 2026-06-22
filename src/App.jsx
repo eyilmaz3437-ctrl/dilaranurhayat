@@ -681,7 +681,7 @@ export default function App() {
         {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} memorization={memorization} goEzber={() => changePage('ezber')} />}
         {page === 'islam' && <IslamPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
         {page === 'egitim' && <EgitimPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
-        {page === 'ezber' && <MemorizationPage memorization={memorization} saveMemorization={saveMemorization} goHome={goHome} />}
+        {page === 'ezber' && <MemorizationPage memorization={memorization} saveMemorization={saveMemorization} goHome={goHome} setPage={setPage} setSubPage={setSubPage} setDetailKey={setDetailKey} />}
         {page === 'gorevler' && <TasksPage tasks={tasks} setTasks={setTasks} reloadTasks={loadTasks} goHome={goHome} activeUser={activeUser} setActiveUser={setActiveUser} />}
         {page === 'hedefler' && <SimplePage title="Hedeflerim" text="Hedef takibi hazırlanıyor." goHome={goHome} />}
         {page === 'gunluk' && <SimplePage title="Günlüğüm" text="Günlük notlar ve Rabbime mektuplarım burada olacak." goHome={goHome} />}
@@ -1153,7 +1153,7 @@ function EgitimPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
   return <SimplePage title={detailKey} text="Bu dersin konu takibi, notları ve deneme kayıtları yapım aşamasında." goHome={goHome} />;
 }
 
-function MemorizationPage({ memorization, saveMemorization, goHome }) {
+function MemorizationPage({ memorization, saveMemorization, goHome, setPage, setSubPage, setDetailKey }) {
   const groups = [...new Set(memorizationItems.map(item => item.group))];
 
   function rowFor(key) {
@@ -1167,6 +1167,31 @@ function MemorizationPage({ memorization, saveMemorization, goHome }) {
       status: next,
       dilara_done: next === 2 ? true : row.dilara_done || false,
     });
+  }
+
+  function openMemorizationItem(item) {
+    const sureIndex = sureler.findIndex(x => x.title === item.title);
+    if (sureIndex >= 0) {
+      setPage('islam');
+      setSubPage('sureler');
+      setDetailKey(String(sureIndex));
+      return;
+    }
+
+    const duaIndex = dualar.findIndex(x => x.title === item.title);
+    if (duaIndex >= 0) {
+      setPage('islam');
+      setSubPage('dualar');
+      setDetailKey(String(duaIndex));
+      return;
+    }
+
+    const tesbihatIndex = tesbihatItems.findIndex(x => x.title === item.title);
+    if (tesbihatIndex >= 0) {
+      setPage('islam');
+      setSubPage('tesbihat');
+      setDetailKey(String(tesbihatIndex));
+    }
   }
 
   return (
@@ -1191,10 +1216,10 @@ function MemorizationPage({ memorization, saveMemorization, goHome }) {
                     {status === 0 ? '○' : status === 1 ? '◐' : '●'}
                   </button>
 
-                  <div className="mem-title">
+                  <button className="mem-title mem-link" onClick={() => openMemorizationItem(item)} title="İçeriği aç">
                     <strong>{item.title}</strong>
                     <span>{status === 0 ? 'Başlamadı' : status === 1 ? 'Çalışıyor' : 'Ezberledim'}</span>
-                  </div>
+                  </button>
 
                   <label className="mem-check">
                     <input
