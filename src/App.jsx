@@ -32,7 +32,7 @@ const islamMenu = [
   { key: 'dualar', title: 'Namaz Duaları', icon: '🤲', desc: 'Namazda okunan dualar.' },
   { key: 'ilmihal', title: 'Genç Kızlar İçin İlmihal', icon: '🌿', desc: 'Ergenlik, abdest, regl, tesettür ve günlük sorular.' },
   { key: 'kuran', title: 'Kur’an', icon: '📗', desc: 'Hazırlanıyor.' },
-  { key: 'tesbihat', title: 'Namaz Tesbihatı', icon: '📿', desc: 'Hazırlanıyor.' },
+  { key: 'tesbihat', title: 'Tesbihat ve Zikirler', icon: '📿', desc: 'Ayetel Kürsî ve zikirler.' },
 ];
 
 const dualar = [
@@ -82,6 +82,16 @@ const dualar = [
     title: 'Ayetel Kürsi',
     text: 'Allâhü lâ ilâhe illâ hüvel-hayyül-kayyûm. Lâ te\'huzühû sinetün ve lâ nevm. Lehû mâ fis-semâvâti ve mâ fîl-ard. Men zellezî yeşfeu ındehû illâ bi-iznih. Ya\'lemü mâ beyne eydîhim ve mâ halfehüm. Ve lâ yuhîtûne bi-şey\'in min ılmihî illâ bimâ şâ\'. Vesia kürsiyyühüs-semâvâti vel-ard. Ve lâ yeûdühû hıfzuhümâ ve hüvel-aliyyül-azîm.',
     arabic: 'اَللّٰهُ لَا اِلٰهَ اِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ، لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْاَرْضِ، مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ اِلَّا بِاِذْنِهِ، يَعْلَمُ مَا بَيْنَ اَيْدِيهِمْ وَمَا خَلْفَهُمْ، وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ اِلَّا بِمَا شَاءَ، وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْاَرْضَ، وَلَا يَؤُودُهُ حِفْظُهُمَا، وَهُوَ الْعَلِيُّ الْعَظِيمُ',
+    meal: 'Allah, kendisinden başka ilah olmayandır; diridir, her şeyi ayakta tutandır. O’nu ne uyuklama tutar ne de uyku. Göklerde ve yerde ne varsa O’nundur. İzni olmadan O’nun katında kim şefaat edebilir? O, kullarının önlerindekini ve arkalarındakini bilir. Onlar ise O’nun ilminden, dilediği kadarından başka hiçbir şeyi kavrayamazlar. Kürsüsü gökleri ve yeri kaplamıştır. Onları koruyup gözetmek O’na ağır gelmez. O yücedir, büyüktür.'
+  },
+];
+
+
+const tesbihatItems = [
+  {
+    title: 'Ayetel Kürsi',
+    text: 'Allâhü lâ ilâhe illâ hüvel-hayyül-kayyûm. Lâ te\'huzühû sinetün ve lâ nevm. Lehû mâ fis-semâvâti ve mâ fîl-ard. Men zellezî yeşfeu ındehû illâ bi-iznih. Ya\'lemü mâ beyne eydîhim ve mâ halfehüm. Ve lâ yuhîtûne bi-şey\'in min ılmihî illâ bimâ şâ\'. Vesia kürsiyyühüs-semâvâti vel-ard. Ve lâ yeûdühû hıfzuhümâ ve hüvel-aliyyül-azîm.',
+    arabic: 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّح۪يمِ\n\nاَللّٰهُ لَا اِلٰهَ اِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ، لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْاَرْضِ، مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ اِلَّا بِاِذْنِهِ، يَعْلَمُ مَا بَيْنَ اَيْدِيهِمْ وَمَا خَلْفَهُمْ، وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ اِلَّا بِمَا شَاءَ، وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْاَرْضَ، وَلَا يَؤُودُهُ حِفْظُهُمَا، وَهُوَ الْعَلِيُّ الْعَظِيمُ',
     meal: 'Allah, kendisinden başka ilah olmayandır; diridir, her şeyi ayakta tutandır. O’nu ne uyuklama tutar ne de uyku. Göklerde ve yerde ne varsa O’nundur. İzni olmadan O’nun katında kim şefaat edebilir? O, kullarının önlerindekini ve arkalarındakini bilir. Onlar ise O’nun ilminden, dilediği kadarından başka hiçbir şeyi kavrayamazlar. Kürsüsü gökleri ve yeri kaplamıştır. Onları koruyup gözetmek O’na ağır gelmez. O yücedir, büyüktür.'
   },
 ];
@@ -660,6 +670,19 @@ function IslamPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
     );
   }
 
+  if (subPage === 'tesbihat') {
+    return (
+      <SelectableContentPage
+        title="Tesbihat ve Zikirler"
+        items={tesbihatItems}
+        detailKey={detailKey}
+        setDetailKey={setDetailKey}
+        onBack={() => setSubPage('')}
+        goHome={goHome}
+      />
+    );
+  }
+
   if (subPage === 'kilinis') {
     return (
       <NamazKilinisListPage
@@ -1090,15 +1113,16 @@ function TextList({ items }) {
 
 const quranAudioMap = {
   'Fâtiha Suresi': ['/audio/Kt001-1.m4a'],
-  'Fil Suresi': ['/audio/Kt602-1.m4a'],
-  'Kureyş Suresi': ['/audio/Kt602-2.m4a'],
-  'Mâûn Suresi': ['/audio/Kt602-3.m4a'],
-  'Kevser Suresi': ['/audio/Kt603-1.m4a'],
-  'Kâfirûn Suresi': ['/audio/Kt603-2.m4a'],
-  'Nasr Suresi': ['/audio/Kt603-3.m4a'],
-  'Tebbet Suresi': ['/audio/Kt604-1.m4a'],
-  'İhlâs Suresi': ['/audio/Kt604-2.m4a'],
-  'Felak Suresi': ['/audio/Kt604-3.m4a'],
+
+  'Fil Suresi': ['/audio/Kt601-3.m4a'],
+  'Kureyş Suresi': ['/audio/Kt602-1.m4a'],
+  'Mâûn Suresi': ['/audio/Kt602-2.m4a'],
+  'Kevser Suresi': ['/audio/Kt602-3.m4a'],
+  'Kâfirûn Suresi': ['/audio/Kt603-1.m4a'],
+  'Nasr Suresi': ['/audio/Kt603-2.m4a'],
+  'Tebbet Suresi': ['/audio/Kt603-3.m4a'],
+  'İhlâs Suresi': ['/audio/Kt604-1.m4a'],
+  'Felak Suresi': ['/audio/Kt604-2.m4a'],
   'Nâs Suresi': ['/audio/Kt604-3.m4a'],
 };
 
@@ -1240,6 +1264,10 @@ function arabicDigitsToLatin(value) {
 
 function normalizeQuranText(text) {
   return String(text || '')
+    // Sûre başlığı satırlarını kaldırıyoruz: ekranda doğrudan Besmele ile başlasın
+    .split('\n')
+    .filter(line => !/سُورَةُ/.test(line))
+    .join('\n')
     // Kareye düşebilen özel Kur'an işaretlerini sadeleştiriyoruz
     .replace(/\u06EA/g, '\u0650') // ۪ -> normal esre
     .replace(/\u06ED/g, '\u0652') // ۭ -> sükun benzeri işaret
@@ -1249,9 +1277,10 @@ function normalizeQuranText(text) {
     .replace(/\u200D/g, '')       // görünmez ZWJ temizliği
     .replace(/\uFEFF/g, '')       // görünmez BOM temizliği
     .replace(/‌ـ/g, '')            // kopyadan gelen süs ayıracı
-    .replace(/ـ/g, '');           // kopyadan gelen tatweel/ayraç
+    .replace(/ـ/g, '')            // kopyadan gelen tatweel/ayraç
+    .replace(/^\s*\([^)]+\)\s*/gm, '') // başta kalan numara süsleri
+    .trim();
 }
-
 function SimplePage({ title, text, goHome }) { return <><TopActions goHome={goHome} /><SectionTitle title={title} /><div className="reading-card"><h3>Yapım Aşamasında</h3><p>{text}</p></div></>; }
 
 function formatDate(date) { const [y, m, d] = date.split('-'); return `${d}.${m}.${y}`; }
