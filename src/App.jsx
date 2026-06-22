@@ -1122,8 +1122,8 @@ function TextList({ items }) {
 
 const quranAudioMap = {
   'Fâtiha Suresi': ['/audio/Kt001-1.m4a'],
-  'Ayetel Kürsi': ['/audio/Kt042-2.m4a'],
-  'Yâsîn Suresi': ['/audio/Kt440-1.m4a', '/audio/Kt441-1.m4a', '/audio/Kt442-1.m4a', '/audio/Kt443-1.m4a', '/audio/Kt444-1.m4a', '/audio/Kt445-1.m4a'],
+  'Ayetel Kürsi': ['/audio/Kt041-1.m4a', '/audio/Kt042-1.m4a', '/audio/Kt043-1.m4a'],
+  'Yâsîn Suresi': ['/audio/Kt439-2.m4a', '/audio/Kt440-1.m4a', '/audio/Kt441-1.m4a', '/audio/Kt442-1.m4a', '/audio/Kt443-1.m4a', '/audio/Kt444-1.m4a', '/audio/Kt445-1.m4a'],
 
   'Fil Suresi': ['/audio/Kt601-3.m4a'],
   'Kureyş Suresi': ['/audio/Kt602-1.m4a'],
