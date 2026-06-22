@@ -640,6 +640,9 @@ export default function App() {
       dilara_done: current?.dilara_done || false,
       baba_approved: current?.baba_approved || false,
       anne_approved: current?.anne_approved || false,
+      baba_score: current?.baba_score || null,
+      baba_note: current?.baba_note || '',
+      baba_reviewed_at: current?.baba_reviewed_at || null,
       updated_at: new Date().toISOString(),
       ...patch,
     };
@@ -1206,6 +1209,31 @@ function MemorizationPage({ memorization, saveMemorization, goHome, setPage, set
     }
   }
 
+  function gradeMemorization(item, row) {
+    if (activeUser !== 'B') {
+      alert('Ezber notunu sadece Baba profili verebilir.');
+      return;
+    }
+
+    const currentScore = row.baba_score ? String(row.baba_score) : '';
+    const scoreInput = prompt('Ezber notu verin: 1 zayıf, 5 çok iyi', currentScore);
+    if (scoreInput === null) return;
+
+    const score = Number(scoreInput);
+    if (!Number.isInteger(score) || score < 1 || score > 5) {
+      alert('Not 1 ile 5 arasında tam sayı olmalı.');
+      return;
+    }
+
+    const note = prompt('Kısa tekrar notu / zorlandığı yer:', row.baba_note || '') ?? row.baba_note || '';
+
+    saveMemorization(item.key, {
+      baba_score: score,
+      baba_note: note.trim(),
+      baba_reviewed_at: new Date().toISOString(),
+    });
+  }
+
   return (
     <>
       <TopActions goHome={goHome} />
@@ -1231,6 +1259,7 @@ function MemorizationPage({ memorization, saveMemorization, goHome, setPage, set
                   <button className="mem-title mem-link" onClick={() => openMemorizationItem(item)} title="İçeriği aç">
                     <strong>{item.title}</strong>
                     <span>{status === 0 ? 'Başlamadı' : status === 1 ? 'Çalışıyor' : 'Ezberledim'}</span>
+                    {row.baba_note && <em>{row.baba_note}</em>}
                   </button>
 
                   <label className="mem-check">
@@ -1261,6 +1290,14 @@ function MemorizationPage({ memorization, saveMemorization, goHome, setPage, set
                     />
                     A
                   </label>
+
+                  <button
+                    className={`mem-grade ${row.baba_score ? 'has-grade' : ''}`}
+                    onClick={() => gradeMemorization(item, row)}
+                    title={row.baba_score ? `Baba notu: ${row.baba_score}/5` : 'Baba ezber notu ver'}
+                  >
+                    {row.baba_score ? `★${row.baba_score}` : '☆'}
+                  </button>
                 </article>
               );
             })}
