@@ -135,7 +135,66 @@ Dikkat:
 Uzatmalar kısa okunursa Kur’an tilaveti zayıflar. Diloş burada acele etmesin.`
   },
   {
-    title: '6. Mahreç Başlangıcı',
+    title: '6. Karışık Kelimeler',
+    text: `Önce Diloş kendi okusun. Sonra dinle/kontrol et sistemi için kelime seslerini ayrıca ekleyeceğiz.
+
+Çalışma yöntemi:
+1. Kelimeye bak.
+2. Hece hece oku.
+3. Bütün oku.
+4. Ses varsa dinle.
+5. Mahreçleri tekrar et.
+
+Kolay kelimeler:
+بِسْمِ
+رَبِّ
+هُوَ
+اَحَدٌ
+صَمَدٌ
+لَمْ
+مِنْ
+عَنْ
+قُلْ
+كُنْ
+فِي
+لَا
+مَا
+نَا
+هُمْ
+كُمْ
+
+Orta kelimeler:
+اَللّٰهِ
+الرَّحْمٰنِ
+الرَّحِيمِ
+مُحَمَّدٌ
+اِبْرَاهِيمَ
+صَالِحِينَ
+عَالَمِينَ
+مُسْتَقِيمَ
+نَسْتَعِينُ
+اَلْمُرْسَلِينَ
+
+Mahreç çalışması:
+سَ  صَ
+تَ  طَ
+دَ  ضَ
+هَ  حَ
+اَ  عَ
+كَ  قَ
+
+Karışık alıştırma:
+قُلْ هُوَ اللّٰهُ اَحَدٌ
+اَللّٰهُ الصَّمَدُ
+اِيَّاكَ نَعْبُدُ
+اِيَّاكَ نَسْتَعِينُ
+اِهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ
+
+Not:
+Fatih Çollak hocadan uygun ve kullanılabilir kelime/ders kayıtları bulursak bu derse parça parça bağlarız. Şimdilik metin çalışması hazır.`
+  },
+  {
+    title: '7. Mahreç Başlangıcı',
     text: `Mahreç, harfin ağızdan çıktığı yerdir.
 
 Başlangıç için en önemli ayrımlar:
@@ -158,7 +217,7 @@ Not:
 Mahreç işini yavaş yavaş düzeltmek gerekir. İlk hedef doğru hecelemek, ikinci hedef güzel okumaktır.`
   },
   {
-    title: '7. Kur’an’a Geçiş Alıştırması',
+    title: '8. Kur’an’a Geçiş Alıştırması',
     text: `Kısa ve tanıdık kelimelerle başlanır:
 
 بِسْمِ
@@ -179,7 +238,6 @@ Günlük hedef:
 10 dakika Elif-Ba + 5 dakika dinleme + 5 dakika tekrar.`
   },
 ];
-
 
 const islamMenu = [
   { key: 'kilinis', title: 'Namaz Nasıl Kılınır?', icon: '🕌', desc: 'Vakit namazları adım adım.' },
@@ -550,6 +608,11 @@ export default function App() {
   }
 
   async function saveCurrentLocation() {
+    if (activeUser !== 'D') {
+      alert('Konum kaydı sadece Dilara profili açıkken yapılır. Dilara’nın telefonunda Görevler bölümünden kullanıcıyı D - Dilara seçip tekrar deneyin.');
+      return;
+    }
+
     if (!navigator.geolocation) {
       alert('Bu cihaz konum bilgisini desteklemiyor.');
       return;
@@ -558,7 +621,7 @@ export default function App() {
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const payload = {
-          user_code: activeUser,
+          user_code: 'D',
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
           accuracy: Math.round(pos.coords.accuracy || 0),
@@ -577,9 +640,14 @@ export default function App() {
         await loadLastLocation();
       },
       (err) => {
-        alert('Konum izni alınamadı: ' + err.message);
+        const msg = err.code === 1
+          ? 'Konum izni reddedildi. Chrome/Samsung Internet site izinlerinden konuma izin verilmeli.'
+          : err.code === 2
+            ? 'Konum alınamadı. Telefonda konum servisi kapalı olabilir.'
+            : 'Konum alınamadı: ' + err.message;
+        alert(msg);
       },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
     );
   }
 
@@ -714,9 +782,9 @@ function LocationStrip({ location, onUpdate }) {
           Haritada aç • {updated}
         </a>
       ) : (
-        <span>Henüz konum yok</span>
+        <span>Henüz Dilara konumu yok</span>
       )}
-      <button onClick={onUpdate}>Konumumu güncelle</button>
+      <button onClick={onUpdate}>Dilara konumunu güncelle</button>
     </div>
   );
 }

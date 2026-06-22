@@ -1894,3 +1894,18 @@ body {
     font-size: 11px;
   }
 }
+
+/* v33 Elif-Ba kelime dersi ve Dilara-only konum */
+.location-strip button {
+  background: #1d4ed8;
+}
+
+.location-strip a::after {
+  content: "";
+}
+
+@media (max-width: 700px) {
+  .location-strip {
+    align-items: center;
+  }
+}
