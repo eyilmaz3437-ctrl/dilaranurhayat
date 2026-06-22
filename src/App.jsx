@@ -26,12 +26,167 @@ const menuItems = [
   { key: 'araclar', title: 'Araçlar', icon: '🧰' },
 ];
 
+const elifbaLessons = [
+  {
+    title: '1. Harfleri Tanıyalım',
+    text: `ا ب ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن و ه ي
+
+Amaç: Harfleri ezberlemek değil, gözün harf şekillerine alışmasıdır.
+
+Çalışma:
+• Her harfi tek tek göster.
+• Harfin ismini söyle.
+• Harfi karıştırdığı benzerleriyle karşılaştır.
+
+Benzerler:
+• ب ت ث aynı gövde, nokta yerleri farklı.
+• ج ح خ aynı gövde, nokta farkı var.
+• د ذ aynı şekil, nokta farkı var.
+• ر ز aynı şekil, nokta farkı var.
+• س ش aynı şekil, nokta farkı var.
+• ص ض aynı şekil, nokta farkı var.
+• ط ظ aynı şekil, nokta farkı var.
+• ع غ aynı şekil, nokta farkı var.`
+  },
+  {
+    title: '2. Harekeler',
+    text: `Üstün: ـَ  kısa “e/a” sesi verir.
+Esre: ـِ  kısa “i” sesi verir.
+Ötre: ـُ  kısa “u/ü” sesi verir.
+
+Örnek:
+بَ  be/ba
+بِ  bi
+بُ  bu
+
+Çalışma:
+• بَ بِ بُ
+• تَ تِ تُ
+• مَ مِ مُ
+• نَ نِ نُ
+
+Kural:
+Hareke harfin nasıl okunacağını gösterir. Harf tek başına değil, harekesiyle okunur.`
+  },
+  {
+    title: '3. Cezim',
+    text: `Cezim: ـْ
+
+Cezimli harf, kendinden önceki harfe bağlanarak okunur.
+
+Örnek:
+اَبْ = eb
+اَمْ = em
+اَنْ = en
+
+Çalışma:
+• اَبْ اَتْ اَمْ اَنْ
+• بِسْ مِ
+• مِنْ
+• عَنْ
+
+Dikkat:
+Cezimli harfte ayrı bir ses uzatması yapılmaz. Önceki sesle birlikte kapatılır.`
+  },
+  {
+    title: '4. Şedde',
+    text: `Şedde: ـّ
+
+Şedde harfi iki kere okutuyor gibi düşünülür:
+1. Önce durur gibi tutulur.
+2. Sonra harekesiyle okunur.
+
+Örnek:
+رَبَّ = rab-be
+اِنَّ = in-ne
+ثُمَّ = süm-me
+
+Çalışma:
+• رَبَّ
+• اِنَّ
+• اَللّٰهُ
+• مُحَمَّدٌ
+
+Dikkat:
+Şeddeli harf atlanırsa kelime bozulur.`
+  },
+  {
+    title: '5. Med / Uzatma',
+    text: `Uzatma harfleri:
+ا  و  ي
+
+Üstünden sonra ا gelirse uzar:
+قَا = kaa
+
+Ötreden sonra و gelirse uzar:
+قُو = kuu
+
+Esreden sonra ي gelirse uzar:
+قِي = kii
+
+Çalışma:
+• قَالَ
+• يَقُولُ
+• قِيلَ
+• رَحِيم
+• عَلِيم
+
+Dikkat:
+Uzatmalar kısa okunursa Kur’an tilaveti zayıflar. Diloş burada acele etmesin.`
+  },
+  {
+    title: '6. Mahreç Başlangıcı',
+    text: `Mahreç, harfin ağızdan çıktığı yerdir.
+
+Başlangıç için en önemli ayrımlar:
+• ح boğazdan gelir, ه gibi hafif değildir.
+• ع boğazdan gelir, normal a sesi değildir.
+• ق kalın ve geriden gelir.
+• ك daha önden gelir.
+• ص ض ط ظ kalın harflerdir.
+• س ت د ince okunur.
+
+Çalışma:
+• س ص
+• ت ط
+• د ض
+• ه ح
+• ا ع
+• ك ق
+
+Not:
+Mahreç işini yavaş yavaş düzeltmek gerekir. İlk hedef doğru hecelemek, ikinci hedef güzel okumaktır.`
+  },
+  {
+    title: '7. Kur’an’a Geçiş Alıştırması',
+    text: `Kısa ve tanıdık kelimelerle başlanır:
+
+بِسْمِ
+اَللّٰهِ
+رَبِّ
+قُلْ
+هُوَ
+اَحَدٌ
+اَلصَّمَدُ
+
+Çalışma düzeni:
+• Önce harfleri göster.
+• Sonra harekeleri söyle.
+• Sonra hece hece oku.
+• En son kelimeyi bütün oku.
+
+Günlük hedef:
+10 dakika Elif-Ba + 5 dakika dinleme + 5 dakika tekrar.`
+  },
+];
+
+
 const islamMenu = [
   { key: 'kilinis', title: 'Namaz Nasıl Kılınır?', icon: '🕌', desc: 'Vakit namazları adım adım.' },
   { key: 'sureler', title: 'Namaz Sureleri', icon: '✨', desc: 'Türkçe okunuş, Arapça ve meal.' },
   { key: 'dualar', title: 'Namaz Duaları', icon: '🤲', desc: 'Namazda okunan dualar.' },
   { key: 'ilmihal', title: 'Genç Kızlar İçin İlmihal', icon: '🌿', desc: 'Ergenlik, abdest, regl, tesettür ve günlük sorular.' },
-  { key: 'kuran', title: 'Kur’an', icon: '📗', desc: 'Hazırlanıyor.' },
+  { key: 'kuran', title: 'Kur’an', icon: '📗', desc: 'Elif-Ba ve Kur’an okuma çalışmaları.' },
   { key: 'tesbihat', title: 'Tesbihat ve Zikirler', icon: '📿', desc: 'Ayetel Kürsî ve zikirler.' },
 ];
 
@@ -83,6 +238,12 @@ const dualar = [
     text: 'Allâhü lâ ilâhe illâ hüvel-hayyül-kayyûm. Lâ te\'huzühû sinetün ve lâ nevm. Lehû mâ fis-semâvâti ve mâ fîl-ard. Men zellezî yeşfeu ındehû illâ bi-iznih. Ya\'lemü mâ beyne eydîhim ve mâ halfehüm. Ve lâ yuhîtûne bi-şey\'in min ılmihî illâ bimâ şâ\'. Vesia kürsiyyühüs-semâvâti vel-ard. Ve lâ yeûdühû hıfzuhümâ ve hüvel-aliyyül-azîm.',
     arabic: 'اَللّٰهُ لَا اِلٰهَ اِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ، لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْاَرْضِ، مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ اِلَّا بِاِذْنِهِ، يَعْلَمُ مَا بَيْنَ اَيْدِيهِمْ وَمَا خَلْفَهُمْ، وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ اِلَّا بِمَا شَاءَ، وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْاَرْضَ، وَلَا يَؤُودُهُ حِفْظُهُمَا، وَهُوَ الْعَلِيُّ الْعَظِيمُ',
     meal: 'Allah, kendisinden başka ilah olmayandır; diridir, her şeyi ayakta tutandır. O’nu ne uyuklama tutar ne de uyku. Göklerde ve yerde ne varsa O’nundur. İzni olmadan O’nun katında kim şefaat edebilir? O, kullarının önlerindekini ve arkalarındakini bilir. Onlar ise O’nun ilminden, dilediği kadarından başka hiçbir şeyi kavrayamazlar. Kürsüsü gökleri ve yeri kaplamıştır. Onları koruyup gözetmek O’na ağır gelmez. O yücedir, büyüktür.'
+  },
+  {
+    title: 'Ezan Duası',
+    text: 'Allâhümme rabbe hâzihid-da‘vetit-tâmmeti vessalâtil-kâimeti. Âti Muhammedenil-vesîlete vel-fadîlete ved-dereceter-rafîate. Veb‘ashü makâmen mahmûdenillezî veadteh.',
+    arabic: 'اَللّٰهُمَّ رَبَّ هٰذِهِ الدَّعْوَةِ التَّامَّةِ وَالصَّلَاةِ الْقَائِمَةِ، اٰتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ وَالدَّرَجَةَ الرَّفِيعَةَ، وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ',
+    meal: 'Allah’ım! Bu tam davetin ve kılınacak namazın Rabbi! Muhammed’e vesileyi, fazileti ve yüce dereceyi ver. Onu vadettiğin Makam-ı Mahmud’a ulaştır.'
   },
 ];
 
@@ -281,6 +442,7 @@ export default function App() {
   const [tasksLoading, setTasksLoading] = useState(false);
   const [prayerLogs, setPrayerLogs] = useState([]);
   const [activeUser, setActiveUser] = useState(() => localStorage.getItem('dnh_active_user') || 'D');
+  const [lastLocation, setLastLocation] = useState(null);
 
   useEffect(() => {
     document.documentElement.setAttribute('translate', 'no');
@@ -294,6 +456,7 @@ export default function App() {
 
     loadTasks();
     loadPrayerLogs();
+    loadLastLocation();
 
     return () => {
       document.head.removeChild(meta);
@@ -371,6 +534,55 @@ export default function App() {
     await loadPrayerLogs();
   }
 
+  async function loadLastLocation() {
+    const { data, error } = await supabase
+      .from('locations')
+      .select('*')
+      .eq('user_code', 'D')
+      .maybeSingle();
+
+    if (error) {
+      console.error('Konum yüklenemedi:', error);
+      return;
+    }
+
+    setLastLocation(data || null);
+  }
+
+  async function saveCurrentLocation() {
+    if (!navigator.geolocation) {
+      alert('Bu cihaz konum bilgisini desteklemiyor.');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const payload = {
+          user_code: activeUser,
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: Math.round(pos.coords.accuracy || 0),
+          updated_at: new Date().toISOString(),
+        };
+
+        const { error } = await supabase
+          .from('locations')
+          .upsert(payload, { onConflict: 'user_code' });
+
+        if (error) {
+          alert('Konum kaydedilemedi: ' + error.message);
+          return;
+        }
+
+        await loadLastLocation();
+      },
+      (err) => {
+        alert('Konum izni alınamadı: ' + err.message);
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
+    );
+  }
+
   function changePage(key) {
     setPage(key);
     setSubPage('');
@@ -394,7 +606,7 @@ export default function App() {
         <nav className="main-menu">{menuItems.map((item) => <button key={item.key} className={page === item.key ? 'menu-item active' : 'menu-item'} onClick={() => changePage(item.key)}><span>{item.icon}</span>{menuOpen && <span>{item.title}</span>}</button>)}</nav>
       </aside>
       <main className="content">
-        {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} />}
+        {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} lastLocation={lastLocation} saveCurrentLocation={saveCurrentLocation} />}
         {page === 'islam' && <IslamPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
         {page === 'egitim' && <EgitimPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
         {page === 'gorevler' && <TasksPage tasks={tasks} setTasks={setTasks} reloadTasks={loadTasks} goHome={goHome} activeUser={activeUser} setActiveUser={setActiveUser} />}
@@ -467,13 +679,14 @@ function getNextPrayer(now) {
   return { title: next.title, remaining: `${h}:${m}:${s}` };
 }
 
-function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer, activeUser, reloadTasks }) {
+function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer, activeUser, reloadTasks, lastLocation, saveCurrentLocation }) {
   const [selectedTask, setSelectedTask] = useState(null);
   const upcoming = [...tasks].filter(t => !t.completed).sort((a, b) => a.task_date.localeCompare(b.task_date)).slice(0, 7);
 
   return (
     <>
       <CompactPrayerBar />
+      <LocationStrip location={lastLocation} onUpdate={saveCurrentLocation} />
       <PrayerChecklist logs={prayerLogs} onToggle={saveTodayPrayer} />
       <button className="task-open-button" onClick={goTasks}>✅ Yeni görev ekle / görevleri aç</button>
       <div className="home-task-list">
@@ -487,6 +700,26 @@ function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer, a
   );
 }
 
+
+
+function LocationStrip({ location, onUpdate }) {
+  const updated = location?.updated_at ? formatDateTime(location.updated_at) : '';
+  const mapsUrl = location ? `https://www.google.com/maps?q=${location.lat},${location.lng}` : '';
+
+  return (
+    <div className="location-strip">
+      <span>📍 Buradayım:</span>
+      {location ? (
+        <a href={mapsUrl} target="_blank" rel="noreferrer">
+          Haritada aç • {updated}
+        </a>
+      ) : (
+        <span>Henüz konum yok</span>
+      )}
+      <button onClick={onUpdate}>Konumumu güncelle</button>
+    </div>
+  );
+}
 
 function PrayerChecklist({ logs, onToggle }) {
   const [open, setOpen] = useState(false);
@@ -684,6 +917,19 @@ function IslamPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
       <SelectableContentPage
         title="Tesbihat ve Zikirler"
         items={tesbihatItems}
+        detailKey={detailKey}
+        setDetailKey={setDetailKey}
+        onBack={() => setSubPage('')}
+        goHome={goHome}
+      />
+    );
+  }
+
+  if (subPage === 'kuran') {
+    return (
+      <SelectableContentPage
+        title="Elif-Ba"
+        items={elifbaLessons}
         detailKey={detailKey}
         setDetailKey={setDetailKey}
         onBack={() => setSubPage('')}
@@ -1122,8 +1368,17 @@ function TextList({ items }) {
 
 const quranAudioMap = {
   'Fâtiha Suresi': ['/audio/Kt001-1.m4a'],
-  'Ayetel Kürsi': ['/audio/Ayet-El-Kursi.mp3', '/audio/Kt042-1.m4a', '/audio/Kt043-1.m4a'],
+  'Ayetel Kürsi': ['/audio/Ayet-El-Kursi.mp3'],
   'Yâsîn Suresi': ['/audio/Kt439-2.m4a', '/audio/Kt440-1.m4a', '/audio/Kt441-1.m4a', '/audio/Kt442-1.m4a', '/audio/Kt443-1.m4a', '/audio/Kt444-1.m4a', '/audio/Kt445-1.m4a'],
+
+  'Sübhaneke': ['/audio/subhaneke.mp3'],
+  'Ettehiyyâtü': ['/audio/ettehiyyatu.mp3'],
+  'Allahümme Salli': ['/audio/salli_barik.mp3'],
+  'Allahümme Bârik': ['/audio/salli_barik.mp3'],
+  'Rabbena Âtina ve Rabbenâğfirlî': ['/audio/rabbena.mp3', '/audio/rabbenagfirli.mp3'],
+  'Kunut 1': ['/audio/kunut1.mp3'],
+  'Kunut 2': ['/audio/kunut2.mp3'],
+  'Ezan Duası': ['/audio/ezanduasi.mp3'],
 
   'Fil Suresi': ['/audio/Kt601-3.m4a'],
   'Kureyş Suresi': ['/audio/Kt602-1.m4a'],
@@ -1136,6 +1391,7 @@ const quranAudioMap = {
   'Felak Suresi': ['/audio/Kt604-2.m4a'],
   'Nâs Suresi': ['/audio/Kt604-3.m4a'],
 };
+
 
 
 function ArabicFullscreen({ item, onClose }) {

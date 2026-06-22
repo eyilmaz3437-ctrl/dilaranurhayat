@@ -1841,3 +1841,56 @@ body {
     padding-top: 50px !important;
   }
 }
+
+/* v32 Elif-Ba, dua sesleri, konum satırı */
+.location-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 10px;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #fff;
+  color: #172033;
+  font-size: 14px;
+  overflow: hidden;
+}
+
+.location-strip span,
+.location-strip a {
+  white-space: nowrap;
+}
+
+.location-strip a {
+  color: #1d4ed8;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.location-strip button {
+  margin-left: auto;
+  border: 0;
+  background: #162033;
+  color: white;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .location-strip {
+    font-size: 12px;
+    border-radius: 14px;
+    gap: 5px;
+    padding: 7px 8px;
+  }
+
+  .location-strip button {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+}
