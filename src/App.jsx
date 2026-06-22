@@ -1225,7 +1225,12 @@ function MemorizationPage({ memorization, saveMemorization, goHome, setPage, set
       return;
     }
 
-    const note = prompt('Kısa tekrar notu / zorlandığı yer:', row.baba_note || '') ?? row.baba_note || '';
+    const note = prompt(
+  'Kısa tekrar notu / zorlandığı yer:',
+  row.baba_note || ''
+);
+
+const finalNote = note ?? (row.baba_note || '');
 
     saveMemorization(item.key, {
       baba_score: score,
