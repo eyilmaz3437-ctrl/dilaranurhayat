@@ -503,7 +503,7 @@ const ilmihalData = {
 
 const mathBooks = {
   1: {
-    title: '1. Kitap', icon: '📘', pdf: '/pdf/matematik-9-1-kitap.pdf',
+    title: '1. Kitap', icon: '📘', pdf: 'https://drive.google.com/drive/folders/1oQ0bjvy72wKs22MG1uwHAebJ7obzRl-m?usp=sharing',
     desc: 'Sayılar, Nicelikler ve Değişimler, Geometrik Şekiller',
     themes: [
       { id: '1', title: '1. Tema - Sayılar', shortTitle: 'Sayılar', desc: 'Üslü-köklü gösterimler, aralıklar, sayı kümeleri ve işlem özellikleri', topics: [
@@ -539,7 +539,7 @@ const mathBooks = {
     ]
   },
   2: {
-    title: '2. Kitap', icon: '📗', pdf: '/pdf/matematik-9-2-kitap.pdf',
+    title: '2. Kitap', icon: '📗', pdf: 'https://drive.google.com/drive/folders/1oQ0bjvy72wKs22MG1uwHAebJ7obzRl-m?usp=sharing',
     desc: 'Eşlik ve Benzerlik, Algoritma, İstatistik, Olasılık',
     themes: [
       { id: '4', title: '4. Tema - Eşlik ve Benzerlik', shortTitle: 'Eşlik ve Benzerlik', desc: 'Geometrik dönüşümler, eşlik, benzerlik, Tales, Öklid, Pisagor', topics: [
@@ -1308,7 +1308,16 @@ function MatematikPage({ detailKey, setDetailKey, onBack, goHome }) {
     return <><TopActions onBack={onBack} goHome={goHome} /><ListMenu title="Matematik" items={matematikMenu} onSelect={(x) => setDetailKey(x.key)} /></>;
   }
 
-  if (current === 'mat-notlar') return <MathCollectedNotesPage title="Matematik Notlarım" sections={getAllMathSections()} onBack={() => setDetailKey('Matematik')} goHome={goHome} />;
+  if (current === 'mat-notlar') {
+    const items = [
+      { key: 'mat-notlar-ogrenci', title: '📝 Matematik Notlarım', icon: '📝', desc: 'En alt bölüm notlarının otomatik toplamı' },
+      { key: 'mat-notlar-baba', title: '👨 Babamın Notları', icon: '👨', desc: 'En alt bölüm baba notlarının otomatik toplamı' },
+    ];
+    return <><TopActions onBack={() => setDetailKey('Matematik')} goHome={goHome} /><ListMenu title="Matematik Notları" items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
+  }
+
+  if (current === 'mat-notlar-ogrenci') return <MathCollectedNotesPage title="Matematik Notlarım" sections={getAllMathSections()} onBack={() => setDetailKey('mat-notlar')} goHome={goHome} />;
+  if (current === 'mat-notlar-baba') return <MathCollectedNotesPage title="Babamın Matematik Notları" sections={getAllMathSections()} noteType="baba" onBack={() => setDetailKey('mat-notlar')} goHome={goHome} />;
 
   if (current.startsWith('mat-kitap:')) {
     const [, bookNo] = current.split(':'); const book = getMathBook(bookNo);
@@ -1325,13 +1334,22 @@ function MatematikPage({ detailKey, setDetailKey, onBack, goHome }) {
   if (current.startsWith('mat-tema:')) {
     const [, bookNo, themeId] = current.split(':'); const theme = getMathTheme(bookNo, themeId);
     if (!theme) return <SimplePage title="Matematik" text="Tema bulunamadı." goHome={goHome} />;
-    const items = [{ key: `mat-tema-not:${bookNo}:${themeId}`, title: `📝 ${theme.shortTitle} Notlarım`, icon: '📝', desc: 'Bu temadaki en alt bölüm notlarının otomatik toplamı' }, ...theme.topics.map(topic => ({ key: `mat-konu:${bookNo}:${topic.id}`, title: topic.title, icon: '📌', desc: topic.desc || `Kitap sayfaları: ${topic.printedPages || 'belirlenecek'}` }))];
+    const items = [
+      { key: `mat-tema-not:${bookNo}:${themeId}`, title: `📝 ${theme.shortTitle} Notlarım`, icon: '📝', desc: 'Bu temadaki en alt bölüm notlarının otomatik toplamı' },
+      { key: `mat-tema-baba-not:${bookNo}:${themeId}`, title: '👨 Babamın Çalışma Notları', icon: '👨', desc: 'Bu temadaki baba notlarının otomatik toplamı' },
+      ...theme.topics.map(topic => ({ key: `mat-konu:${bookNo}:${topic.id}`, title: topic.title, icon: '📌', desc: topic.desc || `Kitap sayfaları: ${topic.printedPages || 'belirlenecek'}` }))
+    ];
     return <><TopActions onBack={() => setDetailKey(`mat-kitap:${bookNo}`)} goHome={goHome} /><ListMenu title={theme.title} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
   }
 
   if (current.startsWith('mat-tema-not:')) {
     const [, bookNo, themeId] = current.split(':'); const theme = getMathTheme(bookNo, themeId);
     return <MathCollectedNotesPage title={`${theme?.shortTitle || 'Tema'} Notlarım`} sections={getThemeSections(bookNo, themeId)} onBack={() => setDetailKey(`mat-tema:${bookNo}:${themeId}`)} goHome={goHome} />;
+  }
+
+  if (current.startsWith('mat-tema-baba-not:')) {
+    const [, bookNo, themeId] = current.split(':'); const theme = getMathTheme(bookNo, themeId);
+    return <MathCollectedNotesPage title={`Babamın ${theme?.shortTitle || 'Tema'} Notları`} sections={getThemeSections(bookNo, themeId)} noteType="baba" onBack={() => setDetailKey(`mat-tema:${bookNo}:${themeId}`)} goHome={goHome} />;
   }
 
   if (current.startsWith('mat-konu:')) {
@@ -1369,13 +1387,35 @@ function MatematikPage({ detailKey, setDetailKey, onBack, goHome }) {
 }
 
 function MathPdfPage({ title, pdf, onBack, goHome }) {
-  return <><TopActions onBack={onBack} goHome={goHome} /><SectionTitle title={title} /><div className="math-pdf-card"><p>PDF dosyası şu konumda olmalı: <strong>public/pdf/</strong></p><a className="math-open-link" href={pdf} target="_blank" rel="noreferrer">PDF'i yeni sekmede aç</a><iframe className="math-pdf-frame" src={pdf} title={title}></iframe></div></>;
+  return (
+    <>
+      <TopActions onBack={onBack} goHome={goHome} />
+      <SectionTitle title={title} />
+      <div className="math-pdf-card">
+        <p>Kitap PDF'leri büyük olduğu için uygulamanın içine gömülmedi. Google Drive klasöründen açılacak.</p>
+        <a className="math-open-link" href={pdf} target="_blank" rel="noreferrer">Google Drive klasörünü aç</a>
+      </div>
+    </>
+  );
 }
 
 function MathSectionBookPage({ bookNo, topicId, sectionId, onBack, goHome }) {
-  const data = getMathSection(bookNo, topicId, sectionId); if (!data) return <SimplePage title="Kitaptaki Bölüm" text="Bölüm bulunamadı." goHome={goHome} />;
-  const pdfSrc = `${data.book.pdf}#page=${data.pdfPage || data.topic.pdfPage || 1}`;
-  return <><TopActions onBack={onBack} goHome={goHome} /><SectionTitle title="Ders Kitabı İlgili Bölüm" /><div className="math-summary-card"><h2>{data.title}</h2><p className="math-muted">{data.book.title} / {data.theme.title} / {data.topic.title}</p><p>Kitap sayfaları: <strong>{data.printedPages || data.topic.printedPages || 'belirlenecek'}</strong></p><a className="math-open-link" href={pdfSrc} target="_blank" rel="noreferrer">Kitaptaki ilgili sayfadan aç</a><iframe className="math-pdf-frame" src={pdfSrc} title={`${data.title} PDF`}></iframe></div></>;
+  const data = getMathSection(bookNo, topicId, sectionId);
+  if (!data) return <SimplePage title="Kitaptaki Bölüm" text="Bölüm bulunamadı." goHome={goHome} />;
+
+  return (
+    <>
+      <TopActions onBack={onBack} goHome={goHome} />
+      <SectionTitle title="Ders Kitabı İlgili Bölüm" />
+      <div className="math-summary-card">
+        <h2>{data.title}</h2>
+        <p className="math-muted">{data.book.title} / {data.theme.title} / {data.topic.title}</p>
+        <p>Kitap sayfaları: <strong>{data.printedPages || data.topic.printedPages || 'belirlenecek'}</strong></p>
+        <p>PDF büyük olduğu için Google Drive üzerinden açılacak. İlgili sayfa aralığı yukarıda yazıyor.</p>
+        <a className="math-open-link" href={data.book.pdf} target="_blank" rel="noreferrer">Google Drive klasörünü aç</a>
+      </div>
+    </>
+  );
 }
 
 function MathSectionSummaryPage({ bookNo, topicId, sectionId, onBack, goHome }) {
