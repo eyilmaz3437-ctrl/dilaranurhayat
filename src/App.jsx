@@ -628,6 +628,13 @@ export default function App() {
   const [activeUser, setActiveUser] = useState(() => localStorage.getItem('dnh_active_user') || 'D');
   const [memorization, setMemorization] = useState([]);
   const [returnToEzber, setReturnToEzber] = useState(false);
+  const [shortcuts, setShortcuts] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('dnh_shortcuts') || '[]');
+    } catch {
+      return [];
+    }
+  });
 
   useEffect(() => {
     document.documentElement.setAttribute('translate', 'no');
@@ -759,6 +766,39 @@ export default function App() {
     await loadMemorization();
   }
 
+  function shortcutId(item) {
+    return `${item.page}|${item.subPage || ''}|${item.detailKey || ''}`;
+  }
+
+  function saveShortcuts(next) {
+    setShortcuts(next);
+    localStorage.setItem('dnh_shortcuts', JSON.stringify(next));
+  }
+
+  function toggleShortcut(item) {
+    const id = shortcutId(item);
+    const exists = shortcuts.some(x => shortcutId(x) === id);
+    const next = exists ? shortcuts.filter(x => shortcutId(x) !== id) : [...shortcuts, item].slice(-8);
+    saveShortcuts(next);
+  }
+
+  function removeShortcut(item) {
+    const id = shortcutId(item);
+    saveShortcuts(shortcuts.filter(x => shortcutId(x) !== id));
+  }
+
+  function openShortcut(item) {
+    setPage(item.page || 'home');
+    setSubPage(item.subPage || '');
+    setDetailKey(item.detailKey || '');
+    if (window.innerWidth < 700) setMenuOpen(false);
+  }
+
+  function isShortcutActive(item) {
+    const id = shortcutId(item);
+    return shortcuts.some(x => shortcutId(x) === id);
+  }
+
   function changePage(key) {
     setPage(key);
     setSubPage('');
@@ -782,9 +822,9 @@ export default function App() {
         <nav className="main-menu">{menuItems.map((item) => <button key={item.key} className={page === item.key ? 'menu-item active' : 'menu-item'} onClick={() => changePage(item.key)}><span>{item.icon}</span>{menuOpen && <span>{item.title}</span>}</button>)}</nav>
       </aside>
       <main className="content">
-        {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} memorization={memorization} goEzber={() => changePage('ezber')} />}
+        {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} memorization={memorization} goEzber={() => changePage('ezber')} shortcuts={shortcuts} openShortcut={openShortcut} removeShortcut={removeShortcut} />}
         {page === 'islam' && <IslamPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} returnToEzber={returnToEzber} goEzber={() => { setPage('ezber'); setSubPage(''); setDetailKey(''); setReturnToEzber(false); }} />}
-        {page === 'egitim' && <EgitimPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} />}
+        {page === 'egitim' && <EgitimPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} toggleShortcut={toggleShortcut} isShortcutActive={isShortcutActive} />}
         {page === 'ezber' && <MemorizationPage memorization={memorization} saveMemorization={saveMemorization} goHome={goHome} setPage={setPage} setSubPage={setSubPage} setDetailKey={setDetailKey} setReturnToEzber={setReturnToEzber} activeUser={activeUser} />}
         {page === 'gorevler' && <TasksPage tasks={tasks} setTasks={setTasks} reloadTasks={loadTasks} goHome={goHome} activeUser={activeUser} setActiveUser={setActiveUser} />}
         {page === 'hedefler' && <SimplePage title="Hedeflerim" text="Hedef takibi hazırlanıyor." goHome={goHome} />}
@@ -856,7 +896,7 @@ function getNextPrayer(now) {
   return { title: next.title, remaining: `${h}:${m}:${s}` };
 }
 
-function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer, activeUser, reloadTasks, memorization, goEzber }) {
+function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer, activeUser, reloadTasks, memorization, goEzber, shortcuts, openShortcut, removeShortcut }) {
   const [selectedTask, setSelectedTask] = useState(null);
   const upcoming = [...tasks].filter(t => !t.completed).sort((a, b) => a.task_date.localeCompare(b.task_date)).slice(0, 7);
 
@@ -865,15 +905,34 @@ function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer, a
       <CompactPrayerBar />
       <MemorizationSummary memorization={memorization} goEzber={goEzber} />
       <PrayerChecklist logs={prayerLogs} onToggle={saveTodayPrayer} />
+      <HomeShortcuts shortcuts={shortcuts} openShortcut={openShortcut} removeShortcut={removeShortcut} />
       <button className="task-open-button" onClick={goTasks}>✅ Yeni görev ekle / görevleri aç</button>
       <div className="home-task-list">
         {tasksLoading && <div className="home-empty">Görevler yükleniyor...</div>}
         {!tasksLoading && upcoming.length === 0 && <div className="home-empty">Henüz görev yok.</div>}
         {upcoming.map(t => <CompactTaskRow key={t.id} task={t} onOpen={() => setSelectedTask(t)} />)}
-        <div className="home-note">🌷 Az ama düzenli çalışmak, çok başlayıp bırakmaktan daha güzeldir.</div>
+
       </div>
       {selectedTask && <TaskReadModal task={selectedTask} activeUser={activeUser} reloadTasks={reloadTasks} onClose={() => setSelectedTask(null)} />}
     </>
+  );
+}
+
+
+function HomeShortcuts({ shortcuts, openShortcut, removeShortcut }) {
+  if (!shortcuts || shortcuts.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="home-shortcuts">
+      {shortcuts.map((item) => (
+        <div className="home-shortcut-chip" key={`${item.page}|${item.subPage || ''}|${item.detailKey || ''}`}>
+          <button onClick={() => openShortcut(item)}>{item.icon || '⭐'} {item.title}</button>
+          <button className="home-shortcut-remove" onClick={() => removeShortcut(item)}>×</button>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -1261,9 +1320,9 @@ function IlmihalPage({ detailKey, setDetailKey, onBack, goHome }) {
   return <IlmihalPage detailKey="" setDetailKey={setDetailKey} onBack={onBack} goHome={goHome} />;
 }
 
-function EgitimPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
+function EgitimPage({ subPage, setSubPage, detailKey, setDetailKey, goHome, toggleShortcut, isShortcutActive }) {
   if (subPage === 'lise9' && (detailKey === 'Matematik' || detailKey.startsWith('mat-'))) {
-    return <MatematikPage detailKey={detailKey} setDetailKey={setDetailKey} onBack={() => setDetailKey('')} goHome={goHome} />;
+    return <MatematikPage detailKey={detailKey} setDetailKey={setDetailKey} onBack={() => setDetailKey('')} goHome={goHome} toggleShortcut={toggleShortcut} isShortcutActive={isShortcutActive} />;
   }
 
   if (!subPage) {
@@ -1299,13 +1358,29 @@ function EgitimPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
 }
 
 
-function MatematikPage({ detailKey, setDetailKey, onBack, goHome }) {
+function MatematikPage({ detailKey, setDetailKey, onBack, goHome, toggleShortcut, isShortcutActive }) {
   let current = detailKey || 'Matematik';
   if (current === 'mat-kitap1') current = 'mat-kitap:1';
   if (current === 'mat-kitap2') current = 'mat-kitap:2';
 
+  const shortcut = (title, icon = '📐') => ({
+    page: 'egitim',
+    subPage: 'lise9',
+    detailKey: current,
+    title,
+    icon,
+  });
+
+  const shortcutButton = (title, icon = '📐') => (
+    <MathShortcutButton
+      item={shortcut(title, icon)}
+      toggleShortcut={toggleShortcut}
+      isShortcutActive={isShortcutActive}
+    />
+  );
+
   if (current === 'Matematik') {
-    return <><TopActions onBack={onBack} goHome={goHome} /><ListMenu title="Matematik" items={matematikMenu} onSelect={(x) => setDetailKey(x.key)} /></>;
+    return <><TopActions onBack={onBack} goHome={goHome} />{shortcutButton('Matematik', '📐')}<ListMenu title="Matematik" items={matematikMenu} onSelect={(x) => setDetailKey(x.key)} /></>;
   }
 
   if (current === 'mat-notlar') {
@@ -1323,7 +1398,7 @@ function MatematikPage({ detailKey, setDetailKey, onBack, goHome }) {
     const [, bookNo] = current.split(':'); const book = getMathBook(bookNo);
     if (!book) return <SimplePage title="Matematik" text="Kitap bulunamadı." goHome={goHome} />;
     const items = [{ key: `mat-pdf:${bookNo}`, title: `${book.icon} ${book.title} PDF`, icon: '📄', desc: 'Ders kitabını aç' }, ...book.themes.map(theme => ({ key: `mat-tema:${bookNo}:${theme.id}`, title: theme.title, icon: '📚', desc: theme.desc }))];
-    return <><TopActions onBack={() => setDetailKey('Matematik')} goHome={goHome} /><ListMenu title={`Matematik - ${book.title}`} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
+    return <><TopActions onBack={() => setDetailKey('Matematik')} goHome={goHome} />{shortcutButton(`Matematik - ${book.title}`, book.icon)}<ListMenu title={`Matematik - ${book.title}`} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
   }
 
   if (current.startsWith('mat-pdf:')) {
@@ -1339,7 +1414,7 @@ function MatematikPage({ detailKey, setDetailKey, onBack, goHome }) {
       { key: `mat-tema-baba-not:${bookNo}:${themeId}`, title: '👨 Babamın Çalışma Notları', icon: '👨', desc: 'Bu temadaki baba notlarının otomatik toplamı' },
       ...theme.topics.map(topic => ({ key: `mat-konu:${bookNo}:${topic.id}`, title: topic.title, icon: '📌', desc: topic.desc || `Kitap sayfaları: ${topic.printedPages || 'belirlenecek'}` }))
     ];
-    return <><TopActions onBack={() => setDetailKey(`mat-kitap:${bookNo}`)} goHome={goHome} /><ListMenu title={theme.title} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
+    return <><TopActions onBack={() => setDetailKey(`mat-kitap:${bookNo}`)} goHome={goHome} />{shortcutButton(theme.title, '📚')}<ListMenu title={theme.title} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
   }
 
   if (current.startsWith('mat-tema-not:')) {
@@ -1356,7 +1431,7 @@ function MatematikPage({ detailKey, setDetailKey, onBack, goHome }) {
     const [, bookNo, topicId] = current.split(':'); const data = getMathTopic(bookNo, topicId);
     if (!data) return <SimplePage title="Matematik" text="Konu bulunamadı." goHome={goHome} />;
     const items = [{ key: `mat-konu-not:${bookNo}:${topicId}`, title: `📝 Notlarım (${data.theme.shortTitle} ${data.id})`, icon: '📝', desc: 'Bu konudaki en alt bölüm notlarının otomatik toplamı' }, { key: `mat-konu-baba-toplu:${bookNo}:${topicId}`, title: '👨 Babamın Çalışma Notları', icon: '👨', desc: 'Bu konudaki baba notlarının toplu görünümü' }, ...(data.sections || []).map(section => ({ key: `mat-bolum:${bookNo}:${topicId}:${section.id}`, title: section.title, icon: '🔹', desc: `Kitap sayfaları: ${section.printedPages || data.printedPages || 'belirlenecek'}` }))];
-    return <><TopActions onBack={() => setDetailKey(`mat-tema:${bookNo}:${data.theme.id}`)} goHome={goHome} /><ListMenu title={data.title} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
+    return <><TopActions onBack={() => setDetailKey(`mat-tema:${bookNo}:${data.theme.id}`)} goHome={goHome} />{shortcutButton(data.title, '📌')}<ListMenu title={data.title} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
   }
 
   if (current.startsWith('mat-konu-not:')) { const [, bookNo, topicId] = current.split(':'); const data = getMathTopic(bookNo, topicId); return <MathCollectedNotesPage title={`Notlarım - ${data?.id || ''}`} sections={getTopicSections(bookNo, topicId)} onBack={() => setDetailKey(`mat-konu:${bookNo}:${topicId}`)} goHome={goHome} />; }
@@ -1368,12 +1443,12 @@ function MatematikPage({ detailKey, setDetailKey, onBack, goHome }) {
     const items = [
       { key: `mat-bolum-not:${bookNo}:${topicId}:${sectionId}`, title: `📝 Notlarım (${data.theme.shortTitle} ${data.topic.id})`, icon: '📝', desc: 'Veri girişi yapılacak asıl not alanı' },
       { key: `mat-bolum-baba:${bookNo}:${topicId}:${sectionId}`, title: '👨 Babamın Çalışma Notları', icon: '👨', desc: 'Baba notu veri girişi' },
-      { key: `mat-bolum-kitap:${bookNo}:${topicId}:${sectionId}`, title: '📖 Ders Kitabı İlgili Bölüm', icon: '📖', desc: `${data.book.title}, sayfalar: ${data.printedPages || data.topic.printedPages}` },
+      { key: `mat-bolum-kitap:${bookNo}:${topicId}:${sectionId}`, title: '📖 Konu Anlatımı (MEB)', icon: '📖', desc: `${data.book.title}, sayfalar: ${data.printedPages || data.topic.printedPages}` },
       { key: `mat-bolum-ozet:${bookNo}:${topicId}:${sectionId}`, title: '📌 Özet', icon: '📌', desc: 'Kısa bölüm özeti' },
       { key: `mat-bolum-meb:${bookNo}:${topicId}:${sectionId}`, title: '📂 MEB Materyal', icon: '📂', desc: 'Etkileşimli materyal daha sonra bağlanacak' },
       { key: `mat-bolum-gpt:${bookNo}:${topicId}:${sectionId}`, title: '🤖 ChatGPT Tavsiye 2', icon: '🤖', desc: 'Çalışma önerisi' },
     ];
-    return <><TopActions onBack={() => setDetailKey(`mat-konu:${bookNo}:${topicId}`)} goHome={goHome} /><ListMenu title={data.title} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
+    return <><TopActions onBack={() => setDetailKey(`mat-konu:${bookNo}:${topicId}`)} goHome={goHome} />{shortcutButton(data.title, '🔹')}<ListMenu title={data.title} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
   }
 
   if (current.startsWith('mat-bolum-not:')) { const [, bookNo, topicId, sectionId] = current.split(':'); const data = getMathSection(bookNo, topicId, sectionId); return <MathNoteEditor title={`Notlarım - ${data?.title || ''}`} storageKey={mathNoteKey(sectionId)} placeholder="Diloş bu en alt bölüm için kendi notlarını buraya yazacak..." onBack={() => setDetailKey(`mat-bolum:${bookNo}:${topicId}:${sectionId}`)} goHome={goHome} />; }
@@ -1386,14 +1461,28 @@ function MatematikPage({ detailKey, setDetailKey, onBack, goHome }) {
   return <SimplePage title="Matematik" text="Bu matematik bölümü hazırlanıyor." goHome={goHome} />;
 }
 
+
+function MathShortcutButton({ item, toggleShortcut, isShortcutActive }) {
+  if (!toggleShortcut || !isShortcutActive || !item?.detailKey) return null;
+  const active = isShortcutActive(item);
+
+  return (
+    <div className="math-shortcut-action">
+      <button onClick={() => toggleShortcut(item)}>
+        {active ? '⭐ Ana sayfa kısa yolundan kaldır' : '☆ Ana sayfaya kısa yol ekle'}
+      </button>
+    </div>
+  );
+}
+
 function MathPdfPage({ title, pdf, onBack, goHome }) {
   return (
     <>
       <TopActions onBack={onBack} goHome={goHome} />
       <SectionTitle title={title} />
       <div className="math-pdf-card">
-        <p>Kitap PDF'leri büyük olduğu için uygulamanın içine gömülmedi. Google Drive klasöründen açılacak.</p>
-        <a className="math-open-link" href={pdf} target="_blank" rel="noreferrer">Google Drive klasörünü aç</a>
+        <p>PDF dosyasını uygulamaya gömmek yerine konu anlatımlarını bölüm bölüm uygulamanın içine alacağız.</p>
+        <p>Bu yöntem telefon, tablet ve PC'de daha hızlı açılır; büyük PDF dosyası bekletmez.</p>
       </div>
     </>
   );
@@ -1401,18 +1490,17 @@ function MathPdfPage({ title, pdf, onBack, goHome }) {
 
 function MathSectionBookPage({ bookNo, topicId, sectionId, onBack, goHome }) {
   const data = getMathSection(bookNo, topicId, sectionId);
-  if (!data) return <SimplePage title="Kitaptaki Bölüm" text="Bölüm bulunamadı." goHome={goHome} />;
+  if (!data) return <SimplePage title="Konu Anlatımı (MEB)" text="Bölüm bulunamadı." goHome={goHome} />;
 
   return (
     <>
       <TopActions onBack={onBack} goHome={goHome} />
-      <SectionTitle title="Ders Kitabı İlgili Bölüm" />
+      <SectionTitle title="Konu Anlatımı (MEB)" />
       <div className="math-summary-card">
         <h2>{data.title}</h2>
         <p className="math-muted">{data.book.title} / {data.theme.title} / {data.topic.title}</p>
         <p>Kitap sayfaları: <strong>{data.printedPages || data.topic.printedPages || 'belirlenecek'}</strong></p>
-        <p>PDF büyük olduğu için Google Drive üzerinden açılacak. İlgili sayfa aralığı yukarıda yazıyor.</p>
-        <a className="math-open-link" href={data.book.pdf} target="_blank" rel="noreferrer">Google Drive klasörünü aç</a>
+        <pre>{data.summary || 'Bu bölümün MEB konu anlatımı buraya yazı olarak eklenecek.'}</pre>
       </div>
     </>
   );
