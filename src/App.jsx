@@ -503,207 +503,101 @@ const ilmihalData = {
 
 const mathBooks = {
   1: {
-    title: '1. Kitap',
-    icon: '📘',
-    pdf: '/pdf/matematik-9-1-kitap.pdf',
+    title: '1. Kitap', icon: '📘', pdf: '/pdf/matematik-9-1-kitap.pdf',
     desc: 'Sayılar, Nicelikler ve Değişimler, Geometrik Şekiller',
     themes: [
-      {
-        id: '1',
-        title: '1. Tema - Sayılar',
-        desc: 'Üslü-köklü gösterimler, aralıklar, sayı kümeleri ve işlem özellikleri',
-        pdfPage: 11,
-        topics: [
-          {
-            id: '1.1',
-            title: '1.1 Gerçek Sayıların Üslü ve Köklü Gösterimleri ile Yapılan İşlemler',
-            printedPages: '13-36',
-            pdfPage: 14,
-            pdfEndPage: 37,
-            summary: `Bu konuda gerçek sayıların üslü ve köklü gösterimleriyle işlem yapma becerisi geliştirilir.
-
-Ana başlıklar:
-• Üslü gösterim
-• Köklü gösterim
-• Bilimsel gösterim
-• Çok büyük ve çok küçük sayıların ifade edilmesi
-• Üslü ve köklü ifadelerle işlem yapma
-
-Kitap bağlantısı:
-1. Kitap, 1. Tema, 1.1 konusu. Basılı kitap sayfa aralığı yaklaşık 13-36.`
-          },
-          {
-            id: '1.2',
-            title: '1.2 Gerçek Sayı Aralıklarının Gösteriminde ve Aralıklarla İlgili İşlemlerde Küme Sembol ve İşlemleri',
-            printedPages: '37-55',
-            pdfPage: 38,
-            pdfEndPage: 56,
-            summary: `Bu konuda gerçek sayı aralıklarının küme sembolleriyle gösterilmesi ve aralıklarla işlem yapılması çalışılır.
-
-Ana başlıklar:
-• Aralık gösterimi
-• Açık-kapalı aralıklar
-• Birleşim, kesişim, fark ve tümleme
-• Sayı doğrusu üzerinde gösterim
-• Eşitsizlik ve aralık ilişkisi
-
-Kitap bağlantısı:
-1. Kitap, 1. Tema, 1.2 konusu. Basılı kitap sayfa aralığı yaklaşık 37-55.`
-          },
-          {
-            id: '1.3',
-            title: '1.3 Sayı Kümelerinin Özellikleri',
-            printedPages: '57-66',
-            pdfPage: 58,
-            pdfEndPage: 67,
-            summary: `Bu konuda sayı kümeleri ve bu kümelerin özellikleri ele alınır.
-
-Ana başlıklar:
-• Doğal sayılar
-• Tam sayılar
-• Rasyonel sayılar
-• İrrasyonel sayılar
-• Gerçek sayılar
-• Kümeler arası ilişki ve kapsama
-
-Kitap bağlantısı:
-1. Kitap, 1. Tema, 1.3 konusu. Basılı kitap sayfa aralığı yaklaşık 57-66.`
-          },
-          {
-            id: '1.4',
-            title: '1.4 Gerçek Sayıların İşlem Özellikleri',
-            printedPages: '67-80',
-            pdfPage: 68,
-            pdfEndPage: 81,
-            summary: `Bu konuda gerçek sayılarda işlem özellikleri cebirsel olarak ele alınır.
-
-Ana başlıklar:
-• Toplama ve çarpma işlemlerinin özellikleri
-• Değişme, birleşme ve dağılma özellikleri
-• Etkisiz eleman ve ters eleman
-• Özdeşlikler
-• Analojik akıl yürütme
-
-Kitap bağlantısı:
-1. Kitap, 1. Tema, 1.4 konusu. Basılı kitap sayfa aralığı yaklaşık 67-80.`
-          }
-        ]
-      },
-      {
-        id: '2',
-        title: '2. Tema - Nicelikler ve Değişimler',
-        desc: 'Doğrusal fonksiyon, mutlak değer fonksiyonu, denklem ve eşitsizlik problemleri',
-        pdfPage: 89,
-        topics: [
-          { id: '2.1', title: '2.1 Gerçek Sayılarda Tanımlı Doğrusal Fonksiyonlar ve Nitel Özellikleri', printedPages: '91-116', pdfPage: 92, summary: 'Doğrusal fonksiyonlar, grafikler, değişim oranı ve nitel özellikler çalışılır.' },
-          { id: '2.2', title: '2.2 Gerçek Sayılarda Tanımlı Mutlak Değer Fonksiyonları ve Nitel Özellikleri', printedPages: '120-135', pdfPage: 121, summary: 'Mutlak değer fonksiyonları, grafik yorumları ve nitel özellikler çalışılır.' },
-          { id: '2.3', title: '2.3 Doğrusal Fonksiyonlarla İfade Edilebilen Denklem ve Eşitsizlikler İçeren Problemler', printedPages: '136-159', pdfPage: 137, summary: 'Doğrusal fonksiyonlarla modellenen denklem ve eşitsizlik problemleri çözülür.' }
-        ]
-      },
-      {
-        id: '3',
-        title: '3. Tema - Geometrik Şekiller',
-        desc: 'Üçgende açı ve kenarlarla ilgili özellikler',
-        pdfPage: 171,
-        topics: [
-          { id: '3.1', title: '3.1 Üçgende Açı ve Kenarlarla İlgili Özellikler', printedPages: '172-192', pdfPage: 173, summary: 'Üçgende açı, kenar ilişkileri ve temel geometri özellikleri çalışılır.' }
-        ]
-      }
+      { id: '1', title: '1. Tema - Sayılar', shortTitle: 'Sayılar', desc: 'Üslü-köklü gösterimler, aralıklar, sayı kümeleri ve işlem özellikleri', topics: [
+        { id: '1.1', title: '1.1 Gerçek Sayıların Üslü ve Köklü Gösterimleri ile Yapılan İşlemler', desc: 'Üslü gösterim, köklü gösterim ve bilimsel gösterim', printedPages: '13-36', pdfPage: 14, sections: [
+          { id: '1.1.a', title: 'Gerçek Sayıların Üslü Gösterimi', printedPages: '13-18', pdfPage: 14, summary: `Çok büyük ve çok küçük sayıların kısa ve düzenli yazılması için üslü gösterim kullanılır.\n\nBu bölümde:\n• Üslü gösterimin anlamı\n• Pozitif ve negatif kuvvetler\n• 10'un kuvvetleri\n• Çok büyük ve çok küçük sayıların gösterimi\n\nÇalışma hedefi: Önce üssün neyi ifade ettiği kavransın, sonra 10'un kuvvetleri ve bilimsel gösterim bağlantısı kurulsun.` },
+          { id: '1.1.b', title: 'Gerçek Sayıların Üslü Gösterimleriyle Yapılan Toplama ve Çıkarma İşlemleri', printedPages: '18-22', pdfPage: 19, summary: `Üslü ifadelerde toplama ve çıkarma yapılırken benzer ifadeler birlikte düşünülür.\n\nBu bölümde:\n• Benzer üslü ifadeler\n• Ortak çarpan alma\n• Bilimsel gösterimlerde toplama-çıkarma\n• İşlem önceliği` },
+          { id: '1.1.c', title: '5 Üslü Gösterimleri Verilen Sayıların Üssünü Alma İşlemi', printedPages: '22-25', pdfPage: 23, summary: `Bir üslü ifadenin tekrar kuvveti alınırken üsler çarpılır.\n\nTemel fikir:\n(aᵐ)ⁿ = aᵐⁿ\n\nBu bölümde üssün üssü, çarpımın kuvveti, bölümün kuvveti ve negatif üslerle bağlantı çalışılır.` },
+          { id: '1.1.d', title: 'Gerçek Sayıların Köklü Gösterimi', printedPages: '26-30', pdfPage: 27, summary: `Köklü gösterim, üslü gösterimle yakından ilişkilidir.\n\nBu bölümde karekök, n. dereceden kök, kök içindeki sayının anlamı ve köklü gösterimin üslü gösterimle ilişkisi çalışılır.` },
+          { id: '1.1.e', title: 'Gerçek Sayıların Köklü Gösterimleriyle Yapılan Toplama, Çıkarma, Çarpma ve Bölme İşlemleri', printedPages: '30-36', pdfPage: 31, summary: `Köklü ifadelerle işlem yapılırken benzer köklüler ve kök kuralları kullanılır.\n\nBu bölümde kök dışına çıkarma, kök içine alma, benzer köklüler, çarpma ve bölme işlemleri çalışılır.` },
+          { id: '1.1.f', title: 'ChatGPT Tavsiye 1', printedPages: '', pdfPage: 14, summary: `Çalışma sırası önerisi:\n1. Önce 10'un kuvvetleri\n2. Sonra negatif üs\n3. Sonra bilimsel gösterim\n4. En son karma işlemler` },
+          { id: '1.1.g', title: 'ChatGPT Tavsiye 2', printedPages: '', pdfPage: 14, summary: `Zorlanan öğrenci için öneri: Kural ezberinden önce örnek üzerinden mantık kurulmalı. Her kural için en az 3 kolay örnek, sonra 3 orta örnek çözülmeli.` }
+        ]},
+        { id: '1.2', title: '1.2 Gerçek Sayı Aralıklarının Gösteriminde ve Aralıklarla İlgili İşlemlerde Küme Sembol ve İşlemleri', desc: 'Aralık gösterimi, sayı doğrusu, birleşim, kesişim, fark ve tümleme', printedPages: '37-55', pdfPage: 38, sections: [
+          { id: '1.2.a', title: 'Sayı Kümeleri', printedPages: '37-42', pdfPage: 38, summary: 'Sayı kümeleri ve aralık gösterimlerine hazırlık yapılır.' },
+          { id: '1.2.b', title: 'Gerçek Sayı Aralıkları', printedPages: '42-50', pdfPage: 43, summary: 'Açık, kapalı ve yarı açık aralıklar sayı doğrusu üzerinde gösterilir.' },
+          { id: '1.2.c', title: 'Aralıklarla İlgili Küme İşlemleri', printedPages: '50-55', pdfPage: 51, summary: 'Aralıklarda birleşim, kesişim, fark ve tümleme işlemleri çalışılır.' }
+        ]},
+        { id: '1.3', title: '1.3 Sayı Kümelerinin Özellikleri', desc: 'Doğal, tam, rasyonel, irrasyonel ve gerçek sayılar', printedPages: '57-66', pdfPage: 58, sections: [
+          { id: '1.3.a', title: 'Sayı Kümelerinin Özellikleri', printedPages: '57-66', pdfPage: 58, summary: 'N, Z, Q, irrasyonel ve R kümeleri ile bu kümeler arasındaki ilişkiler çalışılır.' }
+        ]},
+        { id: '1.4', title: '1.4 Gerçek Sayıların İşlem Özellikleri', desc: 'Değişme, birleşme, dağılma, etkisiz eleman ve ters eleman', printedPages: '67-80', pdfPage: 68, sections: [
+          { id: '1.4.a', title: 'Gerçek Sayıların İşlem Özellikleri', printedPages: '67-80', pdfPage: 68, summary: 'Toplama ve çarpma işlemlerinin temel özellikleri cebirsel olarak ifade edilir.' }
+        ]}
+      ]},
+      { id: '2', title: '2. Tema - Nicelikler ve Değişimler', shortTitle: 'Nicelikler ve Değişimler', desc: 'Doğrusal fonksiyon, mutlak değer fonksiyonu, denklem ve eşitsizlik problemleri', topics: [
+        { id: '2.1', title: '2.1 Gerçek Sayılarda Tanımlı Doğrusal Fonksiyonlar ve Nitel Özellikleri', desc: 'Doğrusal fonksiyonlar ve grafik yorumları', printedPages: '91-116', pdfPage: 92, sections: [{ id: '2.1.a', title: 'Doğrusal Fonksiyonlar', printedPages: '91-116', pdfPage: 92, summary: 'Doğrusal fonksiyon, eğim, grafik ve değişim oranı çalışılır.' }] },
+        { id: '2.2', title: '2.2 Gerçek Sayılarda Tanımlı Mutlak Değer Fonksiyonları ve Nitel Özellikleri', desc: 'Mutlak değer fonksiyonu ve grafikler', printedPages: '120-135', pdfPage: 121, sections: [{ id: '2.2.a', title: 'Mutlak Değer Fonksiyonları', printedPages: '120-135', pdfPage: 121, summary: 'Mutlak değer fonksiyonlarının nitel özellikleri ve grafikleri çalışılır.' }] },
+        { id: '2.3', title: '2.3 Doğrusal Fonksiyonlarla İfade Edilebilen Denklem ve Eşitsizlikler İçeren Problemler', desc: 'Denklem ve eşitsizlik problemleri', printedPages: '136-159', pdfPage: 137, sections: [{ id: '2.3.a', title: 'Doğrusal Fonksiyon Problemleri', printedPages: '136-159', pdfPage: 137, summary: 'Denklem ve eşitsizlik içeren gerçek yaşam problemleri doğrusal fonksiyonlarla modellenir.' }] }
+      ]},
+      { id: '3', title: '3. Tema - Geometrik Şekiller', shortTitle: 'Geometrik Şekiller', desc: 'Üçgende açı ve kenarlarla ilgili özellikler', topics: [
+        { id: '3.1', title: '3.1 Üçgende Açı ve Kenarlarla İlgili Özellikler', desc: 'Üçgende açı ve kenar ilişkileri', printedPages: '172-192', pdfPage: 173, sections: [{ id: '3.1.a', title: 'Üçgende Açı ve Kenar İlişkileri', printedPages: '172-192', pdfPage: 173, summary: 'Üçgende açı, kenar ve temel geometri ilişkileri çalışılır.' }] }
+      ]}
     ]
   },
   2: {
-    title: '2. Kitap',
-    icon: '📗',
-    pdf: '/pdf/matematik-9-2-kitap.pdf',
+    title: '2. Kitap', icon: '📗', pdf: '/pdf/matematik-9-2-kitap.pdf',
     desc: 'Eşlik ve Benzerlik, Algoritma, İstatistik, Olasılık',
     themes: [
-      {
-        id: '4',
-        title: '4. Tema - Eşlik ve Benzerlik',
-        desc: 'Geometrik dönüşümler, eşlik, benzerlik, Tales, Öklid, Pisagor',
-        pdfPage: 11,
-        topics: [
-          { id: '4.1', title: '4.1 Geometrik Dönüşümler', printedPages: '13-35', pdfPage: 14, summary: 'Yansıma, öteleme ve dönme dönüşümleriyle geometrik çıkarımlar yapılır.' },
-          { id: '4.2', title: '4.2 İki Üçgenin Eş veya Benzer Olması İçin Gerekli Olan Asgari Koşullar', printedPages: '36-51', pdfPage: 37, summary: 'Üçgenlerde eşlik ve benzerlik için gerekli koşullar çalışılır.' },
-          { id: '4.3', title: '4.3 Bir Üçgenden Hareketle Ona Benzer Üçgenler Oluşturma', printedPages: '53-59', pdfPage: 54, summary: 'Bir üçgenden hareketle benzer üçgenler oluşturulur ve oran ilişkileri incelenir.' },
-          { id: '4.4', title: '4.4 Tales, Öklid ve Pisagor Teoremleri', printedPages: '60-74', pdfPage: 61, summary: 'Tales, Öklid ve Pisagor teoremleri ve uygulamaları çalışılır.' },
-          { id: '4.5', title: '4.5 Eşlik ve Benzerlikle İlgili Problemler', printedPages: '76-85', pdfPage: 77, summary: 'Eşlik ve benzerlik içeren geometri problemleri çözülür.' }
-        ]
-      },
-      {
-        id: '5',
-        title: '5. Tema - Algoritma ve Bilişim',
-        desc: 'Algoritma temelli problem çözme, mantık bağlaçları ve niceleyiciler',
-        pdfPage: 97,
-        topics: [
-          { id: '5.1', title: '5.1 Algoritma Temelli Yaklaşımlarla Problem Çözme', printedPages: '99-126', pdfPage: 100, summary: 'Problem çözümünde algoritmik düşünme ve adım adım çözüm yaklaşımı çalışılır.' },
-          { id: '5.2', title: '5.2 Algoritmik Yapılar İçerisindeki Mantık Bağlaçları ve Niceleyiciler', printedPages: '127-134', pdfPage: 128, summary: 'Algoritmik yapılarda ve, veya, ise, bazı, her gibi mantık ifadeleri çalışılır.' },
-          { id: '5.3', title: '5.3 Algoritmalarda ve Matematiksel İspatlarda Mantık Bağlaçları ve Niceleyiciler', printedPages: '135-140', pdfPage: 136, summary: 'Matematiksel ispatlarda mantık bağlaçları ve niceleyiciler kullanılır.' }
-        ]
-      },
-      {
-        id: '6',
-        title: '6. Tema - İstatistiksel Araştırma Süreci',
-        desc: 'Veri dağılımları, veriye dayalı karar verme ve yorumları tartışma',
-        pdfPage: 151,
-        topics: [
-          { id: '6.1', title: '6.1 Tek Nicel Değişkenli Veri Dağılımları ile Çalışma ve Veriye Dayalı Karar Verme', printedPages: '154-189', pdfPage: 155, summary: 'Tek nicel değişkenli veri dağılımları incelenir ve veriye dayalı karar verme çalışılır.' },
-          { id: '6.2', title: '6.2 Başkaları Tarafından Oluşturulan Tek Nicel Değişkenli Veri Dağılımlarına Dayalı Sonuç veya Yorumları Tartışabilme', printedPages: '193-195', pdfPage: 194, summary: 'Hazır veri dağılımlarından yapılan sonuç ve yorumlar değerlendirilir.' }
-        ]
-      },
-      {
-        id: '7',
-        title: '7. Tema - Veriden Olasılığa',
-        desc: 'Olasılık tahmini ve tümevarımsal akıl yürütme',
-        pdfPage: 201,
-        topics: [
-          { id: '7.1', title: '7.1 Olayların Olasılığını Gözleme Dayalı Tahmin Etme', printedPages: '204-213', pdfPage: 205, summary: 'Gözleme dayalı olasılık tahmini ve deneysel olasılık çalışılır.' },
-          { id: '7.2', title: '7.2 Olayların Olasılığına İlişkin Tümevarımsal Akıl Yürütme', printedPages: '214-227', pdfPage: 215, summary: 'Olasılıkta örüntü ve gözlemlerden hareketle tümevarımsal akıl yürütme çalışılır.' }
-        ]
-      }
+      { id: '4', title: '4. Tema - Eşlik ve Benzerlik', shortTitle: 'Eşlik ve Benzerlik', desc: 'Geometrik dönüşümler, eşlik, benzerlik, Tales, Öklid, Pisagor', topics: [
+        { id: '4.1', title: '4.1 Geometrik Dönüşümler', desc: 'Yansıma, öteleme, dönme', printedPages: '13-35', pdfPage: 14, sections: [{ id: '4.1.a', title: 'Geometrik Dönüşümler', printedPages: '13-35', pdfPage: 14, summary: 'Yansıma, öteleme ve dönme dönüşümleriyle geometrik çıkarımlar yapılır.' }] },
+        { id: '4.2', title: '4.2 İki Üçgenin Eş veya Benzer Olması İçin Gerekli Olan Asgari Koşullar', desc: 'Üçgenlerde eşlik ve benzerlik koşulları', printedPages: '36-51', pdfPage: 37, sections: [{ id: '4.2.a', title: 'Eşlik ve Benzerlik Koşulları', printedPages: '36-51', pdfPage: 37, summary: 'İki üçgenin eş veya benzer olması için gerekli asgari koşullar çalışılır.' }] },
+        { id: '4.3', title: '4.3 Bir Üçgenden Hareketle Ona Benzer Üçgenler Oluşturma', desc: 'Benzer üçgen oluşturma', printedPages: '53-59', pdfPage: 54, sections: [{ id: '4.3.a', title: 'Benzer Üçgenler Oluşturma', printedPages: '53-59', pdfPage: 54, summary: 'Bir üçgenden hareketle ona benzer üçgenler oluşturma çalışılır.' }] },
+        { id: '4.4', title: '4.4 Tales, Öklid ve Pisagor Teoremleri', desc: 'Tales, Öklid, Pisagor', printedPages: '60-74', pdfPage: 61, sections: [{ id: '4.4.a', title: 'Tales, Öklid ve Pisagor Teoremleri', printedPages: '60-74', pdfPage: 61, summary: 'Tales, Öklid ve Pisagor teoremleri ile uygulamaları çalışılır.' }] },
+        { id: '4.5', title: '4.5 Eşlik ve Benzerlikle İlgili Problemler', desc: 'Eşlik ve benzerlik problemleri', printedPages: '76-85', pdfPage: 77, sections: [{ id: '4.5.a', title: 'Eşlik ve Benzerlik Problemleri', printedPages: '76-85', pdfPage: 77, summary: 'Eşlik ve benzerlik içeren problemler çözülür.' }] }
+      ]},
+      { id: '5', title: '5. Tema - Algoritma ve Bilişim', shortTitle: 'Algoritma ve Bilişim', desc: 'Algoritma temelli problem çözme, mantık bağlaçları ve niceleyiciler', topics: [
+        { id: '5.1', title: '5.1 Algoritma Temelli Yaklaşımlarla Problem Çözme', desc: 'Algoritmik problem çözme', printedPages: '99-126', pdfPage: 100, sections: [{ id: '5.1.a', title: 'Algoritma Temelli Problem Çözme', printedPages: '99-126', pdfPage: 100, summary: 'Problem çözümünde algoritmik düşünme çalışılır.' }] },
+        { id: '5.2', title: '5.2 Algoritmik Yapılar İçerisindeki Mantık Bağlaçları ve Niceleyiciler', desc: 'Mantık bağlaçları ve niceleyiciler', printedPages: '127-134', pdfPage: 128, sections: [{ id: '5.2.a', title: 'Algoritmik Yapılarda Mantık', printedPages: '127-134', pdfPage: 128, summary: 'Algoritmik yapılarda mantık bağlaçları ve niceleyiciler çalışılır.' }] },
+        { id: '5.3', title: '5.3 Algoritmalarda ve Matematiksel İspatlarda Mantık Bağlaçları ve Niceleyiciler', desc: 'İspatlarda mantık', printedPages: '135-140', pdfPage: 136, sections: [{ id: '5.3.a', title: 'İspatlarda Mantık Bağlaçları', printedPages: '135-140', pdfPage: 136, summary: 'Matematiksel ispatlarda mantık bağlaçları ve niceleyiciler kullanılır.' }] }
+      ]},
+      { id: '6', title: '6. Tema - İstatistiksel Araştırma Süreci', shortTitle: 'İstatistiksel Araştırma Süreci', desc: 'Veri dağılımları ve veriye dayalı yorumlama', topics: [
+        { id: '6.1', title: '6.1 Tek Nicel Değişkenli Veri Dağılımları ile Çalışma ve Veriye Dayalı Karar Verme', desc: 'Veri dağılımları', printedPages: '154-189', pdfPage: 155, sections: [{ id: '6.1.a', title: 'Veri Dağılımları ve Karar Verme', printedPages: '154-189', pdfPage: 155, summary: 'Tek nicel değişkenli veri dağılımlarıyla çalışma ve karar verme ele alınır.' }] },
+        { id: '6.2', title: '6.2 Başkaları Tarafından Oluşturulan Tek Nicel Değişkenli Veri Dağılımlarına Dayalı Sonuç veya Yorumları Tartışabilme', desc: 'Veriye dayalı yorumları tartışma', printedPages: '193-195', pdfPage: 194, sections: [{ id: '6.2.a', title: 'Veri Yorumlarını Tartışma', printedPages: '193-195', pdfPage: 194, summary: 'Hazır veri dağılımlarına dayalı sonuç ve yorumlar değerlendirilir.' }] }
+      ]},
+      { id: '7', title: '7. Tema - Veriden Olasılığa', shortTitle: 'Veriden Olasılığa', desc: 'Olasılık tahmini ve tümevarımsal akıl yürütme', topics: [
+        { id: '7.1', title: '7.1 Olayların Olasılığını Gözleme Dayalı Tahmin Etme', desc: 'Deneysel olasılık', printedPages: '204-213', pdfPage: 205, sections: [{ id: '7.1.a', title: 'Gözleme Dayalı Olasılık Tahmini', printedPages: '204-213', pdfPage: 205, summary: 'Gözlem ve deney tekrarlarıyla olasılık tahmin edilir.' }] },
+        { id: '7.2', title: '7.2 Olayların Olasılığına İlişkin Tümevarımsal Akıl Yürütme', desc: 'Tümevarımsal olasılık', printedPages: '214-227', pdfPage: 215, sections: [{ id: '7.2.a', title: 'Tümevarımsal Olasılık Akıl Yürütme', printedPages: '214-227', pdfPage: 215, summary: 'Olasılıkta gözlemlerden yola çıkarak tümevarımsal akıl yürütme çalışılır.' }] }
+      ]}
     ]
   }
 };
 
 const matematikMenu = [
-  { key: 'mat-notlar', title: '📝 Matematik Notlarım', desc: 'Konu notları → Tema notları → Matematik notları toplu görünüm.' },
+  { key: 'mat-notlar', title: '📝 Matematik Notlarım', desc: 'En alt bölüm notlarının otomatik toplu görünümü.' },
   { key: 'mat-kitap:1', title: '📘 1. Kitap', desc: mathBooks[1].desc },
   { key: 'mat-kitap:2', title: '📗 2. Kitap', desc: mathBooks[2].desc },
 ];
 
-function getAllMathTopics() {
-  return Object.entries(mathBooks).flatMap(([bookNo, book]) =>
-    book.themes.flatMap(theme => theme.topics.map(topic => ({ ...topic, bookNo, theme })))
-  );
-}
-
-function getMathBook(bookNo) {
-  return mathBooks[String(bookNo)] || mathBooks[Number(bookNo)];
-}
-
-function getMathTheme(bookNo, themeId) {
-  const book = getMathBook(bookNo);
-  return book?.themes.find(theme => theme.id === themeId);
-}
-
+function getMathBook(bookNo) { return mathBooks[String(bookNo)] || mathBooks[Number(bookNo)]; }
+function getMathTheme(bookNo, themeId) { return getMathBook(bookNo)?.themes.find(theme => theme.id === themeId); }
 function getMathTopic(bookNo, topicId) {
-  const book = getMathBook(bookNo);
-  if (!book) return null;
-  for (const theme of book.themes) {
-    const topic = theme.topics.find(x => x.id === topicId);
-    if (topic) return { ...topic, theme, book };
-  }
+  const book = getMathBook(bookNo); if (!book) return null;
+  for (const theme of book.themes) { const topic = theme.topics.find(x => x.id === topicId); if (topic) return { ...topic, theme, book, bookNo: String(bookNo) }; }
   return null;
 }
-
-function mathNoteKey(topicId) {
-  return `dnh_math_topic_note_${topicId}`;
+function getMathSection(bookNo, topicId, sectionId) {
+  const topic = getMathTopic(bookNo, topicId); if (!topic) return null;
+  const section = (topic.sections || []).find(x => x.id === sectionId);
+  return section ? { ...section, topic, theme: topic.theme, book: topic.book, bookNo: String(bookNo) } : null;
 }
-
-function mathBabaNoteKey(topicId) {
-  return `dnh_math_baba_note_${topicId}`;
+function getAllMathSections() {
+  return Object.entries(mathBooks).flatMap(([bookNo, book]) => book.themes.flatMap(theme => theme.topics.flatMap(topic => (topic.sections || []).map(section => ({ ...section, topic, theme, book, bookNo })))));
 }
-
+function getThemeSections(bookNo, themeId) {
+  const theme = getMathTheme(bookNo, themeId); if (!theme) return [];
+  const book = getMathBook(bookNo);
+  return theme.topics.flatMap(topic => (topic.sections || []).map(section => ({ ...section, topic, theme, book, bookNo: String(bookNo) })));
+}
+function getTopicSections(bookNo, topicId) {
+  const topic = getMathTopic(bookNo, topicId); if (!topic) return [];
+  return (topic.sections || []).map(section => ({ ...section, topic, theme: topic.theme, book: topic.book, bookNo: String(bookNo) }));
+}
+function mathNoteKey(sectionId) { return `dnh_math_section_note_${sectionId}`; }
+function mathBabaNoteKey(sectionId) { return `dnh_math_baba_note_${sectionId}`; }
 
 const egitimLevels = [
   { key: 'lise9', title: 'Lise 1 / 9. Sınıf' },
@@ -1406,298 +1300,100 @@ function EgitimPage({ subPage, setSubPage, detailKey, setDetailKey, goHome }) {
 
 
 function MatematikPage({ detailKey, setDetailKey, onBack, goHome }) {
-  const current = detailKey || 'Matematik';
+  let current = detailKey || 'Matematik';
+  if (current === 'mat-kitap1') current = 'mat-kitap:1';
+  if (current === 'mat-kitap2') current = 'mat-kitap:2';
 
   if (current === 'Matematik') {
-    return (
-      <>
-        <TopActions onBack={onBack} goHome={goHome} />
-        <ListMenu title="Matematik" items={matematikMenu} onSelect={(x) => setDetailKey(x.key)} />
-      </>
-    );
+    return <><TopActions onBack={onBack} goHome={goHome} /><ListMenu title="Matematik" items={matematikMenu} onSelect={(x) => setDetailKey(x.key)} /></>;
   }
 
-  if (current === 'mat-notlar') {
-    return <MathAllNotesPage onBack={() => setDetailKey('Matematik')} goHome={goHome} />;
-  }
+  if (current === 'mat-notlar') return <MathCollectedNotesPage title="Matematik Notlarım" sections={getAllMathSections()} onBack={() => setDetailKey('Matematik')} goHome={goHome} />;
 
   if (current.startsWith('mat-kitap:')) {
-    const [, bookNo] = current.split(':');
-    const book = getMathBook(bookNo);
+    const [, bookNo] = current.split(':'); const book = getMathBook(bookNo);
     if (!book) return <SimplePage title="Matematik" text="Kitap bulunamadı." goHome={goHome} />;
-
-    const items = [
-      { key: `mat-pdf:${bookNo}`, title: `${book.icon} ${book.title} PDF`, icon: '📄', desc: 'Ders kitabını aç' },
-      ...book.themes.map(theme => ({
-        key: `mat-tema:${bookNo}:${theme.id}`,
-        title: theme.title,
-        icon: '📚',
-        desc: theme.desc,
-      }))
-    ];
-
-    return (
-      <>
-        <TopActions onBack={() => setDetailKey('Matematik')} goHome={goHome} />
-        <ListMenu title={`Matematik - ${book.title}`} items={items} onSelect={(x) => setDetailKey(x.key)} />
-      </>
-    );
+    const items = [{ key: `mat-pdf:${bookNo}`, title: `${book.icon} ${book.title} PDF`, icon: '📄', desc: 'Ders kitabını aç' }, ...book.themes.map(theme => ({ key: `mat-tema:${bookNo}:${theme.id}`, title: theme.title, icon: '📚', desc: theme.desc }))];
+    return <><TopActions onBack={() => setDetailKey('Matematik')} goHome={goHome} /><ListMenu title={`Matematik - ${book.title}`} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
   }
 
   if (current.startsWith('mat-pdf:')) {
-    const [, bookNo] = current.split(':');
-    const book = getMathBook(bookNo);
-    return (
-      <MathPdfPage
-        title={`${book?.title || 'Kitap'} PDF`}
-        pdf={book?.pdf}
-        onBack={() => setDetailKey(`mat-kitap:${bookNo}`)}
-        goHome={goHome}
-      />
-    );
+    const [, bookNo] = current.split(':'); const book = getMathBook(bookNo);
+    return <MathPdfPage title={`${book?.title || 'Kitap'} PDF`} pdf={book?.pdf} onBack={() => setDetailKey(`mat-kitap:${bookNo}`)} goHome={goHome} />;
   }
 
   if (current.startsWith('mat-tema:')) {
-    const [, bookNo, themeId] = current.split(':');
-    const theme = getMathTheme(bookNo, themeId);
+    const [, bookNo, themeId] = current.split(':'); const theme = getMathTheme(bookNo, themeId);
     if (!theme) return <SimplePage title="Matematik" text="Tema bulunamadı." goHome={goHome} />;
-
-    const items = [
-      { key: `mat-tema-not:${bookNo}:${themeId}`, title: `${theme.title} Notlarım`, icon: '📝', desc: 'Bu temadaki konu notlarının toplu görünümü' },
-      ...theme.topics.map(topic => ({
-        key: `mat-konu:${bookNo}:${topic.id}`,
-        title: topic.title,
-        icon: '📌',
-        desc: `Kitap sayfaları: ${topic.printedPages || 'belirlenecek'}`,
-      }))
-    ];
-
-    return (
-      <>
-        <TopActions onBack={() => setDetailKey(`mat-kitap:${bookNo}`)} goHome={goHome} />
-        <ListMenu title={theme.title} items={items} onSelect={(x) => setDetailKey(x.key)} />
-      </>
-    );
+    const items = [{ key: `mat-tema-not:${bookNo}:${themeId}`, title: `📝 ${theme.shortTitle} Notlarım`, icon: '📝', desc: 'Bu temadaki en alt bölüm notlarının otomatik toplamı' }, ...theme.topics.map(topic => ({ key: `mat-konu:${bookNo}:${topic.id}`, title: topic.title, icon: '📌', desc: topic.desc || `Kitap sayfaları: ${topic.printedPages || 'belirlenecek'}` }))];
+    return <><TopActions onBack={() => setDetailKey(`mat-kitap:${bookNo}`)} goHome={goHome} /><ListMenu title={theme.title} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
   }
 
   if (current.startsWith('mat-tema-not:')) {
-    const [, bookNo, themeId] = current.split(':');
-    return <MathThemeNotesPage bookNo={bookNo} themeId={themeId} onBack={() => setDetailKey(`mat-tema:${bookNo}:${themeId}`)} goHome={goHome} />;
+    const [, bookNo, themeId] = current.split(':'); const theme = getMathTheme(bookNo, themeId);
+    return <MathCollectedNotesPage title={`${theme?.shortTitle || 'Tema'} Notlarım`} sections={getThemeSections(bookNo, themeId)} onBack={() => setDetailKey(`mat-tema:${bookNo}:${themeId}`)} goHome={goHome} />;
   }
 
   if (current.startsWith('mat-konu:')) {
-    const [, bookNo, topicId] = current.split(':');
-    const data = getMathTopic(bookNo, topicId);
+    const [, bookNo, topicId] = current.split(':'); const data = getMathTopic(bookNo, topicId);
     if (!data) return <SimplePage title="Matematik" text="Konu bulunamadı." goHome={goHome} />;
+    const items = [{ key: `mat-konu-not:${bookNo}:${topicId}`, title: `📝 Notlarım (${data.theme.shortTitle} ${data.id})`, icon: '📝', desc: 'Bu konudaki en alt bölüm notlarının otomatik toplamı' }, { key: `mat-konu-baba-toplu:${bookNo}:${topicId}`, title: '👨 Babamın Çalışma Notları', icon: '👨', desc: 'Bu konudaki baba notlarının toplu görünümü' }, ...(data.sections || []).map(section => ({ key: `mat-bolum:${bookNo}:${topicId}:${section.id}`, title: section.title, icon: '🔹', desc: `Kitap sayfaları: ${section.printedPages || data.printedPages || 'belirlenecek'}` }))];
+    return <><TopActions onBack={() => setDetailKey(`mat-tema:${bookNo}:${data.theme.id}`)} goHome={goHome} /><ListMenu title={data.title} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
+  }
 
+  if (current.startsWith('mat-konu-not:')) { const [, bookNo, topicId] = current.split(':'); const data = getMathTopic(bookNo, topicId); return <MathCollectedNotesPage title={`Notlarım - ${data?.id || ''}`} sections={getTopicSections(bookNo, topicId)} onBack={() => setDetailKey(`mat-konu:${bookNo}:${topicId}`)} goHome={goHome} />; }
+  if (current.startsWith('mat-konu-baba-toplu:')) { const [, bookNo, topicId] = current.split(':'); const data = getMathTopic(bookNo, topicId); return <MathCollectedNotesPage title={`Babamın Çalışma Notları - ${data?.id || ''}`} sections={getTopicSections(bookNo, topicId)} noteType="baba" onBack={() => setDetailKey(`mat-konu:${bookNo}:${topicId}`)} goHome={goHome} />; }
+
+  if (current.startsWith('mat-bolum:')) {
+    const [, bookNo, topicId, sectionId] = current.split(':'); const data = getMathSection(bookNo, topicId, sectionId);
+    if (!data) return <SimplePage title="Matematik" text="Bölüm bulunamadı." goHome={goHome} />;
     const items = [
-      { key: `mat-konu-not:${bookNo}:${topicId}`, title: '📝 Konu Notlarım', icon: '📝', desc: 'Diloşun kendi ders notları' },
-      { key: `mat-konu-ozet:${bookNo}:${topicId}`, title: '📌 Konu Özeti', icon: '📌', desc: 'Kitaptaki ilgili konu bölümü ve kısa özet' },
-      { key: `mat-konu-meb:${bookNo}:${topicId}`, title: '📂 MEB Etkileşimli İçerik', icon: '📂', desc: 'Tema HTML içeriği daha sonra bağlanacak' },
-      { key: `mat-konu-baba:${bookNo}:${topicId}`, title: '👨 Baba Çalışma Notları', icon: '👨', desc: 'Babanın çalışma planı ve püf noktaları' },
-      { key: `mat-konu-diger:${bookNo}:${topicId}`, title: '🧩 Diğer', icon: '🧩', desc: 'Test, video, çalışma kağıdı ve ek kaynaklar' },
+      { key: `mat-bolum-not:${bookNo}:${topicId}:${sectionId}`, title: `📝 Notlarım (${data.theme.shortTitle} ${data.topic.id})`, icon: '📝', desc: 'Veri girişi yapılacak asıl not alanı' },
+      { key: `mat-bolum-baba:${bookNo}:${topicId}:${sectionId}`, title: '👨 Babamın Çalışma Notları', icon: '👨', desc: 'Baba notu veri girişi' },
+      { key: `mat-bolum-kitap:${bookNo}:${topicId}:${sectionId}`, title: '📖 Ders Kitabı İlgili Bölüm', icon: '📖', desc: `${data.book.title}, sayfalar: ${data.printedPages || data.topic.printedPages}` },
+      { key: `mat-bolum-ozet:${bookNo}:${topicId}:${sectionId}`, title: '📌 Özet', icon: '📌', desc: 'Kısa bölüm özeti' },
+      { key: `mat-bolum-meb:${bookNo}:${topicId}:${sectionId}`, title: '📂 MEB Materyal', icon: '📂', desc: 'Etkileşimli materyal daha sonra bağlanacak' },
+      { key: `mat-bolum-gpt:${bookNo}:${topicId}:${sectionId}`, title: '🤖 ChatGPT Tavsiye 2', icon: '🤖', desc: 'Çalışma önerisi' },
     ];
-
-    return (
-      <>
-        <TopActions onBack={() => setDetailKey(`mat-tema:${bookNo}:${data.theme.id}`)} goHome={goHome} />
-        <ListMenu title={data.title} items={items} onSelect={(x) => setDetailKey(x.key)} />
-      </>
-    );
+    return <><TopActions onBack={() => setDetailKey(`mat-konu:${bookNo}:${topicId}`)} goHome={goHome} /><ListMenu title={data.title} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
   }
 
-  if (current.startsWith('mat-konu-not:')) {
-    const [, bookNo, topicId] = current.split(':');
-    const data = getMathTopic(bookNo, topicId);
-    return (
-      <MathNoteEditor
-        title={data?.title || 'Konu Notlarım'}
-        storageKey={mathNoteKey(topicId)}
-        placeholder="Diloş bu konu için kendi ders notlarını buraya yazacak..."
-        onBack={() => setDetailKey(`mat-konu:${bookNo}:${topicId}`)}
-        goHome={goHome}
-      />
-    );
-  }
-
-  if (current.startsWith('mat-konu-baba:')) {
-    const [, bookNo, topicId] = current.split(':');
-    const data = getMathTopic(bookNo, topicId);
-    return (
-      <MathNoteEditor
-        title={`Baba Çalışma Notları - ${data?.id || ''}`}
-        storageKey={mathBabaNoteKey(topicId)}
-        placeholder="Bu konu için babanın kısa çalışma planı, dikkat notu, tekrar önerisi..."
-        onBack={() => setDetailKey(`mat-konu:${bookNo}:${topicId}`)}
-        goHome={goHome}
-      />
-    );
-  }
-
-  if (current.startsWith('mat-konu-ozet:')) {
-    const [, bookNo, topicId] = current.split(':');
-    return <MathTopicSummaryPage bookNo={bookNo} topicId={topicId} onBack={() => setDetailKey(`mat-konu:${bookNo}:${topicId}`)} goHome={goHome} />;
-  }
-
-  if (current.startsWith('mat-konu-meb:')) {
-    const [, bookNo, topicId] = current.split(':');
-    const data = getMathTopic(bookNo, topicId);
-    return (
-      <SubContent
-        title="MEB Etkileşimli İçerik"
-        items={[{
-          title: data?.title || 'MEB İçerik',
-          text: `Bu başlığa MEB etkileşimli HTML paketi bağlanacak.
-
-Plan:
-• public/meb/matematik/ klasörü oluşturulacak.
-• İndirilen tema paketleri ilgili klasörlere konacak.
-• Bu ekrandan doğrudan açılacak.
-
-Şimdilik bu alan yer tutucu olarak bırakıldı.`
-        }]}
-        onBack={() => setDetailKey(`mat-konu:${bookNo}:${topicId}`)}
-        goHome={goHome}
-      />
-    );
-  }
-
-  if (current.startsWith('mat-konu-diger:')) {
-    const [, bookNo, topicId] = current.split(':');
-    const data = getMathTopic(bookNo, topicId);
-    return (
-      <SubContent
-        title="Diğer Materyaller"
-        items={[{
-          title: data?.title || 'Diğer',
-          text: `Bu alana daha sonra şunlar eklenecek:
-
-• Çalışma kağıtları
-• Testler
-• Video anlatım linkleri
-• PDF parçaları
-• Çözümlü örnekler
-• Deneme yanlışları`
-        }]}
-        onBack={() => setDetailKey(`mat-konu:${bookNo}:${topicId}`)}
-        goHome={goHome}
-      />
-    );
-  }
+  if (current.startsWith('mat-bolum-not:')) { const [, bookNo, topicId, sectionId] = current.split(':'); const data = getMathSection(bookNo, topicId, sectionId); return <MathNoteEditor title={`Notlarım - ${data?.title || ''}`} storageKey={mathNoteKey(sectionId)} placeholder="Diloş bu en alt bölüm için kendi notlarını buraya yazacak..." onBack={() => setDetailKey(`mat-bolum:${bookNo}:${topicId}:${sectionId}`)} goHome={goHome} />; }
+  if (current.startsWith('mat-bolum-baba:')) { const [, bookNo, topicId, sectionId] = current.split(':'); const data = getMathSection(bookNo, topicId, sectionId); return <MathNoteEditor title={`Babamın Çalışma Notları - ${data?.title || ''}`} storageKey={mathBabaNoteKey(sectionId)} placeholder="Bu en alt bölüm için çalışma planı, püf noktası, tekrar önerisi..." onBack={() => setDetailKey(`mat-bolum:${bookNo}:${topicId}:${sectionId}`)} goHome={goHome} />; }
+  if (current.startsWith('mat-bolum-kitap:')) { const [, bookNo, topicId, sectionId] = current.split(':'); return <MathSectionBookPage bookNo={bookNo} topicId={topicId} sectionId={sectionId} onBack={() => setDetailKey(`mat-bolum:${bookNo}:${topicId}:${sectionId}`)} goHome={goHome} />; }
+  if (current.startsWith('mat-bolum-ozet:')) { const [, bookNo, topicId, sectionId] = current.split(':'); return <MathSectionSummaryPage bookNo={bookNo} topicId={topicId} sectionId={sectionId} onBack={() => setDetailKey(`mat-bolum:${bookNo}:${topicId}:${sectionId}`)} goHome={goHome} />; }
+  if (current.startsWith('mat-bolum-meb:')) { const [, bookNo, topicId, sectionId] = current.split(':'); const data = getMathSection(bookNo, topicId, sectionId); return <SubContent title="MEB Materyal" items={[{ title: data?.title || 'MEB Materyal', text: 'Bu alana MEB etkileşimli içerik dosyası bağlanacak.' }]} onBack={() => setDetailKey(`mat-bolum:${bookNo}:${topicId}:${sectionId}`)} goHome={goHome} />; }
+  if (current.startsWith('mat-bolum-gpt:')) { const [, bookNo, topicId, sectionId] = current.split(':'); const data = getMathSection(bookNo, topicId, sectionId); return <SubContent title="ChatGPT Tavsiye" items={[{ title: data?.title || 'Tavsiye', text: 'Bu bölüm için çalışma tavsiyesi daha sonra doldurulacak.' }]} onBack={() => setDetailKey(`mat-bolum:${bookNo}:${topicId}:${sectionId}`)} goHome={goHome} />; }
 
   return <SimplePage title="Matematik" text="Bu matematik bölümü hazırlanıyor." goHome={goHome} />;
 }
 
 function MathPdfPage({ title, pdf, onBack, goHome }) {
-  return (
-    <>
-      <TopActions onBack={onBack} goHome={goHome} />
-      <SectionTitle title={title} />
-      <div className="math-pdf-card">
-        <p>PDF dosyası public/pdf klasöründe olmalı.</p>
-        <a className="math-open-link" href={pdf} target="_blank" rel="noreferrer">PDF'i yeni sekmede aç</a>
-        <iframe className="math-pdf-frame" src={pdf} title={title}></iframe>
-      </div>
-    </>
-  );
+  return <><TopActions onBack={onBack} goHome={goHome} /><SectionTitle title={title} /><div className="math-pdf-card"><p>PDF dosyası şu konumda olmalı: <strong>public/pdf/</strong></p><a className="math-open-link" href={pdf} target="_blank" rel="noreferrer">PDF'i yeni sekmede aç</a><iframe className="math-pdf-frame" src={pdf} title={title}></iframe></div></>;
 }
 
-function MathTopicSummaryPage({ bookNo, topicId, onBack, goHome }) {
-  const data = getMathTopic(bookNo, topicId);
-  if (!data) return <SimplePage title="Konu Özeti" text="Konu bulunamadı." goHome={goHome} />;
+function MathSectionBookPage({ bookNo, topicId, sectionId, onBack, goHome }) {
+  const data = getMathSection(bookNo, topicId, sectionId); if (!data) return <SimplePage title="Kitaptaki Bölüm" text="Bölüm bulunamadı." goHome={goHome} />;
+  const pdfSrc = `${data.book.pdf}#page=${data.pdfPage || data.topic.pdfPage || 1}`;
+  return <><TopActions onBack={onBack} goHome={goHome} /><SectionTitle title="Ders Kitabı İlgili Bölüm" /><div className="math-summary-card"><h2>{data.title}</h2><p className="math-muted">{data.book.title} / {data.theme.title} / {data.topic.title}</p><p>Kitap sayfaları: <strong>{data.printedPages || data.topic.printedPages || 'belirlenecek'}</strong></p><a className="math-open-link" href={pdfSrc} target="_blank" rel="noreferrer">Kitaptaki ilgili sayfadan aç</a><iframe className="math-pdf-frame" src={pdfSrc} title={`${data.title} PDF`}></iframe></div></>;
+}
 
-  const pdfSrc = `${data.book.pdf}#page=${data.pdfPage || 1}`;
-
-  return (
-    <>
-      <TopActions onBack={onBack} goHome={goHome} />
-      <SectionTitle title="Konu Özeti" />
-      <div className="math-summary-card">
-        <h2>{data.title}</h2>
-        <p className="math-muted">{data.book.title} / {data.theme.title} / Kitap sayfaları: {data.printedPages || 'belirlenecek'}</p>
-        <pre>{data.summary}</pre>
-        <a className="math-open-link" href={pdfSrc} target="_blank" rel="noreferrer">Kitaptaki ilgili sayfadan aç</a>
-        <iframe className="math-pdf-frame" src={pdfSrc} title={`${data.title} PDF`}></iframe>
-      </div>
-    </>
-  );
+function MathSectionSummaryPage({ bookNo, topicId, sectionId, onBack, goHome }) {
+  const data = getMathSection(bookNo, topicId, sectionId); if (!data) return <SimplePage title="Özet" text="Bölüm bulunamadı." goHome={goHome} />;
+  return <><TopActions onBack={onBack} goHome={goHome} /><SectionTitle title="Özet" /><div className="math-summary-card"><h2>{data.title}</h2><p className="math-muted">{data.book.title} / {data.theme.title} / {data.topic.title}</p><pre>{data.summary || 'Bu bölümün özeti daha sonra detaylandırılacak.'}</pre></div></>;
 }
 
 function MathNoteEditor({ title, storageKey, placeholder, onBack, goHome }) {
-  const [value, setValue] = useState(() => localStorage.getItem(storageKey) || '');
-  const [saved, setSaved] = useState(false);
-
-  function save() {
-    localStorage.setItem(storageKey, value);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1200);
-  }
-
-  return (
-    <>
-      <TopActions onBack={onBack} goHome={goHome} />
-      <SectionTitle title={title} />
-      <div className="math-note-editor">
-        <textarea value={value} onChange={(e) => setValue(e.target.value)} placeholder={placeholder} />
-        <button onClick={save}>{saved ? 'Kaydedildi ✓' : 'Notu Kaydet'}</button>
-        <p>Notlar şimdilik bu cihazın tarayıcı hafızasına kaydedilir. Sonraki aşamada Supabase'e taşıyabiliriz.</p>
-      </div>
-    </>
-  );
+  const [value, setValue] = useState(() => localStorage.getItem(storageKey) || ''); const [saved, setSaved] = useState(false);
+  function save() { localStorage.setItem(storageKey, value); setSaved(true); setTimeout(() => setSaved(false), 1200); }
+  return <><TopActions onBack={onBack} goHome={goHome} /><SectionTitle title={title} /><div className="math-note-editor"><textarea value={value} onChange={(e) => setValue(e.target.value)} placeholder={placeholder} /><button onClick={save}>{saved ? 'Kaydedildi ✓' : 'Notu Kaydet'}</button><p>Veri girişi sadece en alt kırınımdaki Notlarım ve Baba Çalışma Notları ekranlarında yapılır.</p></div></>;
 }
 
-function MathThemeNotesPage({ bookNo, themeId, onBack, goHome }) {
-  const theme = getMathTheme(bookNo, themeId);
-  if (!theme) return <SimplePage title="Tema Notlarım" text="Tema bulunamadı." goHome={goHome} />;
-
-  return (
-    <>
-      <TopActions onBack={onBack} goHome={goHome} />
-      <SectionTitle title={`${theme.title} Notlarım`} />
-      <div className="math-notes-stack">
-        {theme.topics.map(topic => {
-          const note = localStorage.getItem(mathNoteKey(topic.id)) || '';
-          return (
-            <article className="math-note-read" key={topic.id}>
-              <h3>{topic.title}</h3>
-              <pre>{note || 'Henüz konu notu yok.'}</pre>
-            </article>
-          );
-        })}
-      </div>
-    </>
-  );
+function MathCollectedNotesPage({ title, sections, noteType = 'student', onBack, goHome }) {
+  const keyGetter = noteType === 'baba' ? mathBabaNoteKey : mathNoteKey;
+  const filled = sections.map(section => ({ section, note: localStorage.getItem(keyGetter(section.id)) || '' })).filter(x => x.note.trim());
+  return <><TopActions onBack={onBack} goHome={goHome} /><SectionTitle title={title} /><div className="math-readonly-info">Bu sayfa otomatik oluşur. Not eklemek için ilgili en alt bölüme girip Notlarım ekranını düzenleyin.</div><div className="math-notes-stack">{filled.map(({ section, note }) => <article className="math-note-read" key={section.id}><h3>{section.theme.title} / {section.topic.title}</h3><h4>{section.title}</h4><pre>{note}</pre></article>)}{filled.length === 0 && <article className="math-note-read"><h3>Henüz not yok</h3><p>En alt kırınımdaki Notlarım alanlarına veri girildikçe burada otomatik toplanacak.</p></article>}</div></>;
 }
-
-function MathAllNotesPage({ onBack, goHome }) {
-  const topics = getAllMathTopics();
-
-  return (
-    <>
-      <TopActions onBack={onBack} goHome={goHome} />
-      <SectionTitle title="Matematik Notlarım" />
-      <div className="math-notes-stack">
-        {topics.map(topic => {
-          const note = localStorage.getItem(mathNoteKey(topic.id)) || '';
-          if (!note.trim()) return null;
-          return (
-            <article className="math-note-read" key={topic.id}>
-              <h3>{topic.theme.title} / {topic.title}</h3>
-              <pre>{note}</pre>
-            </article>
-          );
-        })}
-        {!topics.some(topic => (localStorage.getItem(mathNoteKey(topic.id)) || '').trim()) && (
-          <article className="math-note-read">
-            <h3>Henüz not yok</h3>
-            <p>Konu Notlarım alanlarına not yazıldıkça burada toplu şekilde görünecek.</p>
-          </article>
-        )}
-      </div>
-    </>
-  );
-}
-
 function MemorizationPage({ memorization, saveMemorization, goHome, setPage, setSubPage, setDetailKey, setReturnToEzber, activeUser }) {
   const groups = [...new Set(memorizationItems.map(item => item.group))];
 
