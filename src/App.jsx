@@ -508,7 +508,67 @@ const mathBooks = {
     themes: [
       { id: '1', title: '1. Tema - Sayılar', shortTitle: 'Sayılar', desc: 'Üslü-köklü gösterimler, aralıklar, sayı kümeleri ve işlem özellikleri', topics: [
         { id: '1.1', title: '1.1 Gerçek Sayıların Üslü ve Köklü Gösterimleri ile Yapılan İşlemler', desc: 'Üslü gösterim, köklü gösterim ve bilimsel gösterim', printedPages: '13-36', pdfPage: 14, sections: [
-          { id: '1.1.a', title: 'Gerçek Sayıların Üslü Gösterimi', printedPages: '13-18', pdfPage: 14, summary: `Çok büyük ve çok küçük sayıların kısa ve düzenli yazılması için üslü gösterim kullanılır.\n\nBu bölümde:\n• Üslü gösterimin anlamı\n• Pozitif ve negatif kuvvetler\n• 10'un kuvvetleri\n• Çok büyük ve çok küçük sayıların gösterimi\n\nÇalışma hedefi: Önce üssün neyi ifade ettiği kavransın, sonra 10'un kuvvetleri ve bilimsel gösterim bağlantısı kurulsun.` },
+          { id: '1.1.a', title: 'Gerçek Sayıların Üslü Gösterimi', printedPages: '13-18', pdfPage: 14, summary: `Çok büyük ve çok küçük sayıların kısa ve düzenli yazılması için üslü gösterim kullanılır.\n\nBu bölümde:\n• Üslü gösterimin anlamı\n• Pozitif ve negatif kuvvetler\n• 10'un kuvvetleri\n• Çok büyük ve çok küçük sayıların gösterimi\n\nÇalışma hedefi: Önce üssün neyi ifade ettiği kavransın, sonra 10'un kuvvetleri ve bilimsel gösterim bağlantısı kurulsun.`,
+            meb: `GERÇEK SAYILARIN ÜSLÜ GÖSTERİMİ
+
+Bir sayının kendisiyle tekrarlı çarpımı üslü gösterimle kısa biçimde yazılır.
+
+Örnek:
+2 × 2 × 2 = 2³
+5 × 5 × 5 × 5 = 5⁴
+
+Burada:
+• 2³ ifadesinde 2 taban, 3 üstür.
+• Üst, tabanın kaç kez çarpan olarak yazıldığını gösterir.
+
+Temel kurallar:
+1) a¹ = a
+Bir sayının birinci kuvveti kendisidir.
+
+2) a⁰ = 1
+Sıfırdan farklı her sayının sıfırıncı kuvveti 1'dir.
+
+3) a⁻ⁿ = 1 / aⁿ
+Negatif üs, sayının çarpma işlemine göre tersini ifade eder.
+
+Örnek:
+2⁻³ = 1 / 2³ = 1/8
+
+10'UN KUVVETLERİ
+
+10'un pozitif kuvvetleri çok büyük sayıları yazmakta kullanılır.
+
+10¹ = 10
+10² = 100
+10³ = 1000
+10⁶ = 1 000 000
+
+10'un negatif kuvvetleri çok küçük sayıları yazmakta kullanılır.
+
+10⁻¹ = 0,1
+10⁻² = 0,01
+10⁻³ = 0,001
+
+ÇALIŞMA NOTU
+
+Diloş önce şu soruya alışmalı:
+“Bu ifadede taban ne, üst ne?”
+
+Sonra şu sırayla ilerlemeli:
+1. Pozitif üs
+2. Sıfırıncı kuvvet
+3. Negatif üs
+4. 10'un kuvvetleri
+5. Bilimsel gösterime hazırlık
+
+KISA ÖRNEKLER
+
+3² = 9
+4³ = 64
+10⁴ = 10000
+10⁻² = 0,01
+5⁰ = 1`
+          },
           { id: '1.1.b', title: 'Gerçek Sayıların Üslü Gösterimleriyle Yapılan Toplama ve Çıkarma İşlemleri', printedPages: '18-22', pdfPage: 19, summary: `Üslü ifadelerde toplama ve çıkarma yapılırken benzer ifadeler birlikte düşünülür.\n\nBu bölümde:\n• Benzer üslü ifadeler\n• Ortak çarpan alma\n• Bilimsel gösterimlerde toplama-çıkarma\n• İşlem önceliği` },
           { id: '1.1.c', title: '5 Üslü Gösterimleri Verilen Sayıların Üssünü Alma İşlemi', printedPages: '22-25', pdfPage: 23, summary: `Bir üslü ifadenin tekrar kuvveti alınırken üsler çarpılır.\n\nTemel fikir:\n(aᵐ)ⁿ = aᵐⁿ\n\nBu bölümde üssün üssü, çarpımın kuvveti, bölümün kuvveti ve negatif üslerle bağlantı çalışılır.` },
           { id: '1.1.d', title: 'Gerçek Sayıların Köklü Gösterimi', printedPages: '26-30', pdfPage: 27, summary: `Köklü gösterim, üslü gösterimle yakından ilişkilidir.\n\nBu bölümde karekök, n. dereceden kök, kök içindeki sayının anlamı ve köklü gösterimin üslü gösterimle ilişkisi çalışılır.` },
@@ -778,13 +838,34 @@ export default function App() {
   function toggleShortcut(item) {
     const id = shortcutId(item);
     const exists = shortcuts.some(x => shortcutId(x) === id);
-    const next = exists ? shortcuts.filter(x => shortcutId(x) !== id) : [...shortcuts, item].slice(-8);
+    if (exists) {
+      saveShortcuts(shortcuts.filter(x => shortcutId(x) !== id));
+      return;
+    }
+
+    const customTitle = prompt('Kısa yol adı:', item.title || '');
+    if (customTitle === null) return;
+
+    const cleanTitle = (customTitle.trim() || item.title || 'Kısa Yol').slice(0, 32);
+    const next = [...shortcuts, { ...item, title: cleanTitle }].slice(-8);
     saveShortcuts(next);
   }
 
   function removeShortcut(item) {
     const id = shortcutId(item);
     saveShortcuts(shortcuts.filter(x => shortcutId(x) !== id));
+  }
+
+  function renameShortcut(item) {
+    const id = shortcutId(item);
+    const current = shortcuts.find(x => shortcutId(x) === id);
+    if (!current) return;
+
+    const nextTitle = prompt('Kısa yol yeni adı:', current.title || item.title || '');
+    if (nextTitle === null) return;
+
+    const cleanTitle = (nextTitle.trim() || current.title || 'Kısa Yol').slice(0, 32);
+    saveShortcuts(shortcuts.map(x => shortcutId(x) === id ? { ...x, title: cleanTitle } : x));
   }
 
   function openShortcut(item) {
@@ -822,7 +903,7 @@ export default function App() {
         <nav className="main-menu">{menuItems.map((item) => <button key={item.key} className={page === item.key ? 'menu-item active' : 'menu-item'} onClick={() => changePage(item.key)}><span>{item.icon}</span>{menuOpen && <span>{item.title}</span>}</button>)}</nav>
       </aside>
       <main className="content">
-        {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} memorization={memorization} goEzber={() => changePage('ezber')} shortcuts={shortcuts} openShortcut={openShortcut} removeShortcut={removeShortcut} />}
+        {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} memorization={memorization} goEzber={() => changePage('ezber')} shortcuts={shortcuts} openShortcut={openShortcut} removeShortcut={removeShortcut} renameShortcut={renameShortcut} />}
         {page === 'islam' && <IslamPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} returnToEzber={returnToEzber} goEzber={() => { setPage('ezber'); setSubPage(''); setDetailKey(''); setReturnToEzber(false); }} />}
         {page === 'egitim' && <EgitimPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} toggleShortcut={toggleShortcut} isShortcutActive={isShortcutActive} />}
         {page === 'ezber' && <MemorizationPage memorization={memorization} saveMemorization={saveMemorization} goHome={goHome} setPage={setPage} setSubPage={setSubPage} setDetailKey={setDetailKey} setReturnToEzber={setReturnToEzber} activeUser={activeUser} />}
@@ -896,7 +977,7 @@ function getNextPrayer(now) {
   return { title: next.title, remaining: `${h}:${m}:${s}` };
 }
 
-function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer, activeUser, reloadTasks, memorization, goEzber, shortcuts, openShortcut, removeShortcut }) {
+function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer, activeUser, reloadTasks, memorization, goEzber, shortcuts, openShortcut, removeShortcut, renameShortcut }) {
   const [selectedTask, setSelectedTask] = useState(null);
   const upcoming = [...tasks].filter(t => !t.completed).sort((a, b) => a.task_date.localeCompare(b.task_date)).slice(0, 7);
 
@@ -905,7 +986,7 @@ function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer, a
       <CompactPrayerBar />
       <MemorizationSummary memorization={memorization} goEzber={goEzber} />
       <PrayerChecklist logs={prayerLogs} onToggle={saveTodayPrayer} />
-      <HomeShortcuts shortcuts={shortcuts} openShortcut={openShortcut} removeShortcut={removeShortcut} />
+      <HomeShortcuts shortcuts={shortcuts} openShortcut={openShortcut} removeShortcut={removeShortcut} renameShortcut={renameShortcut} />
       <button className="task-open-button" onClick={goTasks}>✅ Yeni görev ekle / görevleri aç</button>
       <div className="home-task-list">
         {tasksLoading && <div className="home-empty">Görevler yükleniyor...</div>}
@@ -919,7 +1000,7 @@ function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer, a
 }
 
 
-function HomeShortcuts({ shortcuts, openShortcut, removeShortcut }) {
+function HomeShortcuts({ shortcuts, openShortcut, removeShortcut, renameShortcut }) {
   if (!shortcuts || shortcuts.length === 0) {
     return null;
   }
@@ -927,9 +1008,15 @@ function HomeShortcuts({ shortcuts, openShortcut, removeShortcut }) {
   return (
     <div className="home-shortcuts">
       {shortcuts.map((item) => (
-        <div className="home-shortcut-chip" key={`${item.page}|${item.subPage || ''}|${item.detailKey || ''}`}>
-          <button onClick={() => openShortcut(item)}>{item.icon || '⭐'} {item.title}</button>
-          <button className="home-shortcut-remove" onClick={() => removeShortcut(item)}>×</button>
+        <div className="home-shortcut-tile" key={`${item.page}|${item.subPage || ''}|${item.detailKey || ''}`}>
+          <button className="home-shortcut-main" onClick={() => openShortcut(item)}>
+            <span className="shortcut-icon">{item.icon || '⭐'}</span>
+            <span className="shortcut-title">{item.title}</span>
+          </button>
+          <div className="home-shortcut-tools">
+            <button onClick={() => renameShortcut(item)} title="Yeniden adlandır">✎</button>
+            <button onClick={() => removeShortcut(item)} title="Kaldır">×</button>
+          </div>
         </div>
       ))}
     </div>
@@ -1469,7 +1556,7 @@ function MathShortcutButton({ item, toggleShortcut, isShortcutActive }) {
   return (
     <div className="math-shortcut-action">
       <button onClick={() => toggleShortcut(item)}>
-        {active ? '⭐ Ana sayfa kısa yolundan kaldır' : '☆ Ana sayfaya kısa yol ekle'}
+        {active ? '⭐ Kısa yolu kaldır' : '☆ Kısa yol ekle'}
       </button>
     </div>
   );
@@ -1500,7 +1587,7 @@ function MathSectionBookPage({ bookNo, topicId, sectionId, onBack, goHome }) {
         <h2>{data.title}</h2>
         <p className="math-muted">{data.book.title} / {data.theme.title} / {data.topic.title}</p>
         <p>Kitap sayfaları: <strong>{data.printedPages || data.topic.printedPages || 'belirlenecek'}</strong></p>
-        <pre>{data.summary || 'Bu bölümün MEB konu anlatımı buraya yazı olarak eklenecek.'}</pre>
+        <pre>{data.meb || data.summary || 'Bu bölümün MEB konu anlatımı buraya yazı olarak eklenecek.'}</pre>
       </div>
     </>
   );
