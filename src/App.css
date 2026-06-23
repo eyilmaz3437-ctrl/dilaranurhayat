@@ -2456,3 +2456,117 @@ body {
     font-size: 11px !important;
   }
 }
+
+
+
+/* v41 Matematik deneme yapısı: PDF, konu notu, tema notu, toplu not */
+.math-pdf-card,
+.math-summary-card,
+.math-note-editor,
+.math-note-read {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px;
+  margin: 12px auto;
+  max-width: 900px;
+  color: #162033;
+}
+
+.math-summary-card h2,
+.math-note-read h3 {
+  margin-bottom: 8px;
+  color: #162033;
+}
+
+.math-muted {
+  color: #64748b;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.math-summary-card pre,
+.math-note-read pre {
+  white-space: pre-wrap;
+  font-family: inherit;
+  line-height: 1.55;
+  color: #334155;
+}
+
+.math-open-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0 12px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #162033;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 900;
+}
+
+.math-pdf-frame {
+  width: 100%;
+  height: 70vh;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.math-note-editor textarea {
+  width: 100%;
+  min-height: 260px;
+  resize: vertical;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 14px;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #162033;
+  background: #ffffff;
+}
+
+.math-note-editor button {
+  width: 100%;
+  margin-top: 10px;
+  border: 0;
+  border-radius: 999px;
+  background: #16a34a;
+  color: #ffffff;
+  padding: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.math-note-editor p {
+  color: #64748b;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.math-notes-stack {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+@media (max-width: 700px) {
+  .math-pdf-card,
+  .math-summary-card,
+  .math-note-editor,
+  .math-note-read {
+    padding: 12px;
+    border-radius: 14px;
+    margin: 10px 0;
+  }
+
+  .math-pdf-frame {
+    height: 62vh;
+  }
+
+  .math-note-editor textarea {
+    min-height: 220px;
+    font-size: 14px;
+  }
+}
