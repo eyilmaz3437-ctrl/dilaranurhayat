@@ -1686,41 +1686,88 @@ function MathDbMebPage({ topic, pdfUrl, onBack, goHome }) {
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [debugInfo, setDebugInfo] = useState('');
 
   useEffect(() => {
     let alive = true;
 
+    async function findTopicId() {
+      if (topic?.topic_id) return topic.topic_id;
+
+      const { data, error } = await supabase
+        .from('lesson_topics')
+        .select(`
+          id,
+          topic_no,
+          lesson_themes!inner(
+            theme_no,
+            lesson_books!inner(course_code, book_no)
+          )
+        `)
+        .eq('topic_no', topic?.topic_no)
+        .eq('lesson_themes.theme_no', Number(topic?.theme_no))
+        .eq('lesson_themes.lesson_books.book_no', Number(topic?.book_no))
+        .eq('lesson_themes.lesson_books.course_code', 'mat9')
+        .maybeSingle();
+
+      if (error) throw error;
+      return data?.id || null;
+    }
+
     async function loadContent() {
-      if (!topic?.topic_id) {
+      if (!topic) {
         setLoading(false);
         return;
       }
 
       setLoading(true);
       setError('');
+      setDebugInfo('');
+      setContent(null);
 
-      const { data, error } = await supabase
-        .from('lesson_topic_contents')
-        .select('title, body, updated_at')
-        .eq('topic_id', topic.topic_id)
-        .eq('content_type', 'meb')
-        .maybeSingle();
+      try {
+        const resolvedTopicId = await findTopicId();
 
-      if (!alive) return;
+        if (!resolvedTopicId) {
+          if (alive) {
+            setDebugInfo(`Konu ID bulunamadı. book=${topic?.book_no}, theme=${topic?.theme_no}, topic=${topic?.topic_no}`);
+            setLoading(false);
+          }
+          return;
+        }
 
-      if (error) {
-        setError(error.message || 'Konu anlatımı okunamadı.');
-        setContent(null);
-      } else {
-        setContent(data || null);
+        const { data, error } = await supabase
+          .from('lesson_topic_contents')
+          .select('title, body, updated_at')
+          .eq('topic_id', resolvedTopicId)
+          .eq('content_type', 'meb')
+          .limit(1)
+          .maybeSingle();
+
+        if (!alive) return;
+
+        if (error) {
+          setError(error.message || 'Konu anlatımı okunamadı.');
+          setContent(null);
+        } else {
+          setContent(data || null);
+          if (!data?.body) {
+            setDebugInfo(`MEB içerik kaydı bulunamadı. topic_id=${resolvedTopicId}, topic_no=${topic?.topic_no}`);
+          }
+        }
+      } catch (err) {
+        if (alive) {
+          setError(err?.message || 'Konu anlatımı okunamadı.');
+          setContent(null);
+        }
       }
 
-      setLoading(false);
+      if (alive) setLoading(false);
     }
 
     loadContent();
     return () => { alive = false; };
-  }, [topic?.topic_id]);
+  }, [topic?.topic_id, topic?.topic_no, topic?.theme_no, topic?.book_no]);
 
   if (!topic) return <SimplePage title="Konu Anlatımı (MEB)" text="Konu bulunamadı." goHome={goHome} />;
 
@@ -1750,6 +1797,7 @@ function MathDbMebPage({ topic, pdfUrl, onBack, goHome }) {
         ) : (
           <>
             <p>Bu konu için Supabase’de MEB konu metni henüz yok. Metin eklenince burada PDF yerine doğrudan yazı görünecek.</p>
+            {debugInfo ? <p className="math-debug-text">{debugInfo}</p> : null}
             {openUrl ? <a className="math-open-link" href={openUrl} target="_blank" rel="noreferrer">PDF'i ilgili sayfadan aç</a> : null}
           </>
         )}
