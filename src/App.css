@@ -2666,3 +2666,15 @@ body {
     font-size: 9.5px;
   }
 }
+
+
+
+/* v47 Supabase matematik bağlantısı */
+.math-error {
+  color: #dc2626 !important;
+  font-weight: 800;
+}
+.math-note-editor button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}

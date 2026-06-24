@@ -1446,9 +1446,94 @@ function EgitimPage({ subPage, setSubPage, detailKey, setDetailKey, goHome, togg
 
 
 function MatematikPage({ detailKey, setDetailKey, onBack, goHome, toggleShortcut, isShortcutActive }) {
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   let current = detailKey || 'Matematik';
+
   if (current === 'mat-kitap1') current = 'mat-kitap:1';
   if (current === 'mat-kitap2') current = 'mat-kitap:2';
+
+  useEffect(() => {
+    let alive = true;
+
+    async function loadMathMap() {
+      setLoading(true);
+      setError('');
+      const { data, error } = await supabase
+        .from('v_lesson_topic_map')
+        .select('*')
+        .eq('course_code', 'mat9')
+        .order('book_no', { ascending: true })
+        .order('theme_no', { ascending: true })
+        .order('sort_order', { ascending: true });
+
+      if (!alive) return;
+      if (error) {
+        setError(error.message || 'Matematik verisi alınamadı.');
+        setRows([]);
+      } else {
+        setRows(data || []);
+      }
+      setLoading(false);
+    }
+
+    loadMathMap();
+    return () => { alive = false; };
+  }, []);
+
+  const books = useMemo(() => {
+    const map = new Map();
+    rows.forEach(row => {
+      if (!map.has(row.book_no)) {
+        map.set(row.book_no, {
+          book_no: row.book_no,
+          title: row.book_title,
+          pdf_path: row.pdf_path,
+          themes: new Map(),
+        });
+      }
+      const book = map.get(row.book_no);
+      if (!book.themes.has(row.theme_no)) {
+        book.themes.set(row.theme_no, {
+          theme_no: row.theme_no,
+          title: row.theme_title,
+          topics: [],
+        });
+      }
+      book.themes.get(row.theme_no).topics.push(row);
+    });
+
+    return [...map.values()].map(book => ({
+      ...book,
+      themes: [...book.themes.values()],
+    }));
+  }, [rows]);
+
+  function bookIcon(bookNo) {
+    return Number(bookNo) === 1 ? '📘' : '📗';
+  }
+
+  function findBook(bookNo) {
+    return books.find(x => String(x.book_no) === String(bookNo));
+  }
+
+  function findTheme(bookNo, themeNo) {
+    return findBook(bookNo)?.themes.find(x => String(x.theme_no) === String(themeNo));
+  }
+
+  function findTopic(bookNo, themeNo, topicNo) {
+    return findTheme(bookNo, themeNo)?.topics.find(x => String(x.topic_no) === String(topicNo));
+  }
+
+  function getPublicPdfUrl(row) {
+    if (!row?.pdf_path) return '';
+    try {
+      return supabase.storage.from('dersler').getPublicUrl(row.pdf_path).data.publicUrl;
+    } catch {
+      return '';
+    }
+  }
 
   const shortcut = (title, icon = '📐') => ({
     page: 'egitim',
@@ -1459,95 +1544,289 @@ function MatematikPage({ detailKey, setDetailKey, onBack, goHome, toggleShortcut
   });
 
   const shortcutButton = (title, icon = '📐') => (
-    <MathShortcutButton
-      item={shortcut(title, icon)}
-      toggleShortcut={toggleShortcut}
-      isShortcutActive={isShortcutActive}
-    />
+    <MathShortcutButton item={shortcut(title, icon)} toggleShortcut={toggleShortcut} isShortcutActive={isShortcutActive} />
   );
 
+  if (loading) {
+    return <SimplePage title="Matematik" text="Supabase’den matematik konu haritası yükleniyor..." goHome={goHome} />;
+  }
+
+  if (error) {
+    return <SimplePage title="Matematik" text={`Supabase bağlantı hatası: ${error}`} goHome={goHome} />;
+  }
+
+  if (rows.length === 0) {
+    return <SimplePage title="Matematik" text="Supabase’de mat9 konu haritası bulunamadı." goHome={goHome} />;
+  }
+
   if (current === 'Matematik') {
-    return <><TopActions onBack={onBack} goHome={goHome} />{shortcutButton('Matematik', '📐')}<ListMenu title="Matematik" items={matematikMenu} onSelect={(x) => setDetailKey(x.key)} /></>;
+    const items = [
+      { key: 'mat-notlar', title: '📝 Matematik Notlarım', icon: '📝', desc: 'Konu notları ve baba notları toplu görünüm' },
+      ...books.map(book => ({
+        key: `mat-kitap:${book.book_no}`,
+        title: `${bookIcon(book.book_no)} ${book.book_no}. Kitap`,
+        icon: bookIcon(book.book_no),
+        desc: book.title,
+      }))
+    ];
+
+    return <><TopActions onBack={onBack} goHome={goHome} />{shortcutButton('Matematik', '📐')}<ListMenu title="Matematik" items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
   }
 
   if (current === 'mat-notlar') {
     const items = [
-      { key: 'mat-notlar-ogrenci', title: '📝 Matematik Notlarım', icon: '📝', desc: 'En alt bölüm notlarının otomatik toplamı' },
-      { key: 'mat-notlar-baba', title: '👨 Babamın Notları', icon: '👨', desc: 'En alt bölüm baba notlarının otomatik toplamı' },
+      { key: 'mat-notlar-ogrenci', title: '📝 Matematik Notlarım', icon: '📝', desc: 'Bütün konu notlarının toplu görünümü' },
+      { key: 'mat-notlar-baba', title: '👨 Babamın Notları', icon: '👨', desc: 'Bütün baba çalışma notlarının toplu görünümü' },
     ];
     return <><TopActions onBack={() => setDetailKey('Matematik')} goHome={goHome} /><ListMenu title="Matematik Notları" items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
   }
 
-  if (current === 'mat-notlar-ogrenci') return <MathCollectedNotesPage title="Matematik Notlarım" sections={getAllMathSections()} onBack={() => setDetailKey('mat-notlar')} goHome={goHome} />;
-  if (current === 'mat-notlar-baba') return <MathCollectedNotesPage title="Babamın Matematik Notları" sections={getAllMathSections()} noteType="baba" onBack={() => setDetailKey('mat-notlar')} goHome={goHome} />;
+  if (current === 'mat-notlar-ogrenci') return <MathDbNotesPage title="Matematik Notlarım" rows={rows} noteType="student" onBack={() => setDetailKey('mat-notlar')} goHome={goHome} />;
+  if (current === 'mat-notlar-baba') return <MathDbNotesPage title="Babamın Matematik Notları" rows={rows} noteType="father" onBack={() => setDetailKey('mat-notlar')} goHome={goHome} />;
 
   if (current.startsWith('mat-kitap:')) {
-    const [, bookNo] = current.split(':'); const book = getMathBook(bookNo);
+    const [, bookNo] = current.split(':');
+    const book = findBook(bookNo);
     if (!book) return <SimplePage title="Matematik" text="Kitap bulunamadı." goHome={goHome} />;
-    const items = [{ key: `mat-pdf:${bookNo}`, title: `${book.icon} ${book.title} PDF`, icon: '📄', desc: 'Ders kitabını aç' }, ...book.themes.map(theme => ({ key: `mat-tema:${bookNo}:${theme.id}`, title: theme.title, icon: '📚', desc: theme.desc }))];
-    return <><TopActions onBack={() => setDetailKey('Matematik')} goHome={goHome} />{shortcutButton(`Matematik - ${book.title}`, book.icon)}<ListMenu title={`Matematik - ${book.title}`} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
-  }
 
-  if (current.startsWith('mat-pdf:')) {
-    const [, bookNo] = current.split(':'); const book = getMathBook(bookNo);
-    return <MathPdfPage title={`${book?.title || 'Kitap'} PDF`} pdf={book?.pdf} onBack={() => setDetailKey(`mat-kitap:${bookNo}`)} goHome={goHome} />;
+    const items = [
+      ...book.themes.map(theme => ({
+        key: `mat-tema:${book.book_no}:${theme.theme_no}`,
+        title: theme.title,
+        icon: '📚',
+        desc: `${theme.topics.length} başlık`,
+      }))
+    ];
+
+    return <><TopActions onBack={() => setDetailKey('Matematik')} goHome={goHome} />{shortcutButton(`Matematik - ${book.book_no}. Kitap`, bookIcon(book.book_no))}<ListMenu title={`Matematik - ${book.book_no}. Kitap`} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
   }
 
   if (current.startsWith('mat-tema:')) {
-    const [, bookNo, themeId] = current.split(':'); const theme = getMathTheme(bookNo, themeId);
+    const [, bookNo, themeNo] = current.split(':');
+    const theme = findTheme(bookNo, themeNo);
     if (!theme) return <SimplePage title="Matematik" text="Tema bulunamadı." goHome={goHome} />;
+
     const items = [
-      { key: `mat-tema-not:${bookNo}:${themeId}`, title: `📝 ${theme.shortTitle} Notlarım`, icon: '📝', desc: 'Bu temadaki en alt bölüm notlarının otomatik toplamı' },
-      { key: `mat-tema-baba-not:${bookNo}:${themeId}`, title: '👨 Babamın Çalışma Notları', icon: '👨', desc: 'Bu temadaki baba notlarının otomatik toplamı' },
-      ...theme.topics.map(topic => ({ key: `mat-konu:${bookNo}:${topic.id}`, title: topic.title, icon: '📌', desc: topic.desc || `Kitap sayfaları: ${topic.printedPages || 'belirlenecek'}` }))
+      { key: `mat-tema-not:${bookNo}:${themeNo}`, title: `📝 ${theme.title} Notlarım`, icon: '📝', desc: 'Bu temadaki konu notlarının otomatik toplamı' },
+      { key: `mat-tema-baba-not:${bookNo}:${themeNo}`, title: '👨 Babamın Çalışma Notları', icon: '👨', desc: 'Bu temadaki baba notlarının otomatik toplamı' },
+      ...theme.topics.map(topic => ({
+        key: `mat-konu-db:${bookNo}:${themeNo}:${topic.topic_no}`,
+        title: topic.topic_title,
+        icon: topic.topic_no.includes('.A') || topic.topic_no.endsWith('.O') || topic.topic_no.endsWith('.0') ? '🧪' : '📌',
+        desc: `Sayfa ${topic.page_start}${topic.page_end && topic.page_end !== topic.page_start ? `-${topic.page_end}` : ''}`,
+      }))
     ];
+
     return <><TopActions onBack={() => setDetailKey(`mat-kitap:${bookNo}`)} goHome={goHome} />{shortcutButton(theme.title, '📚')}<ListMenu title={theme.title} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
   }
 
   if (current.startsWith('mat-tema-not:')) {
-    const [, bookNo, themeId] = current.split(':'); const theme = getMathTheme(bookNo, themeId);
-    return <MathCollectedNotesPage title={`${theme?.shortTitle || 'Tema'} Notlarım`} sections={getThemeSections(bookNo, themeId)} onBack={() => setDetailKey(`mat-tema:${bookNo}:${themeId}`)} goHome={goHome} />;
+    const [, bookNo, themeNo] = current.split(':');
+    const theme = findTheme(bookNo, themeNo);
+    return <MathDbNotesPage title={`${theme?.title || 'Tema'} Notlarım`} rows={theme?.topics || []} noteType="student" onBack={() => setDetailKey(`mat-tema:${bookNo}:${themeNo}`)} goHome={goHome} />;
   }
 
   if (current.startsWith('mat-tema-baba-not:')) {
-    const [, bookNo, themeId] = current.split(':'); const theme = getMathTheme(bookNo, themeId);
-    return <MathCollectedNotesPage title={`Babamın ${theme?.shortTitle || 'Tema'} Notları`} sections={getThemeSections(bookNo, themeId)} noteType="baba" onBack={() => setDetailKey(`mat-tema:${bookNo}:${themeId}`)} goHome={goHome} />;
+    const [, bookNo, themeNo] = current.split(':');
+    const theme = findTheme(bookNo, themeNo);
+    return <MathDbNotesPage title={`Babamın ${theme?.title || 'Tema'} Notları`} rows={theme?.topics || []} noteType="father" onBack={() => setDetailKey(`mat-tema:${bookNo}:${themeNo}`)} goHome={goHome} />;
   }
 
-  if (current.startsWith('mat-konu:')) {
-    const [, bookNo, topicId] = current.split(':'); const data = getMathTopic(bookNo, topicId);
-    if (!data) return <SimplePage title="Matematik" text="Konu bulunamadı." goHome={goHome} />;
-    const items = [{ key: `mat-konu-not:${bookNo}:${topicId}`, title: `📝 Notlarım (${data.theme.shortTitle} ${data.id})`, icon: '📝', desc: 'Bu konudaki en alt bölüm notlarının otomatik toplamı' }, { key: `mat-konu-baba-toplu:${bookNo}:${topicId}`, title: '👨 Babamın Çalışma Notları', icon: '👨', desc: 'Bu konudaki baba notlarının toplu görünümü' }, ...(data.sections || []).map(section => ({ key: `mat-bolum:${bookNo}:${topicId}:${section.id}`, title: section.title, icon: '🔹', desc: `Kitap sayfaları: ${section.printedPages || data.printedPages || 'belirlenecek'}` }))];
-    return <><TopActions onBack={() => setDetailKey(`mat-tema:${bookNo}:${data.theme.id}`)} goHome={goHome} />{shortcutButton(data.title, '📌')}<ListMenu title={data.title} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
-  }
+  if (current.startsWith('mat-konu-db:')) {
+    const [, bookNo, themeNo, topicNo] = current.split(':');
+    const topic = findTopic(bookNo, themeNo, topicNo);
+    if (!topic) return <SimplePage title="Matematik" text="Konu bulunamadı." goHome={goHome} />;
 
-  if (current.startsWith('mat-konu-not:')) { const [, bookNo, topicId] = current.split(':'); const data = getMathTopic(bookNo, topicId); return <MathCollectedNotesPage title={`Notlarım - ${data?.id || ''}`} sections={getTopicSections(bookNo, topicId)} onBack={() => setDetailKey(`mat-konu:${bookNo}:${topicId}`)} goHome={goHome} />; }
-  if (current.startsWith('mat-konu-baba-toplu:')) { const [, bookNo, topicId] = current.split(':'); const data = getMathTopic(bookNo, topicId); return <MathCollectedNotesPage title={`Babamın Çalışma Notları - ${data?.id || ''}`} sections={getTopicSections(bookNo, topicId)} noteType="baba" onBack={() => setDetailKey(`mat-konu:${bookNo}:${topicId}`)} goHome={goHome} />; }
-
-  if (current.startsWith('mat-bolum:')) {
-    const [, bookNo, topicId, sectionId] = current.split(':'); const data = getMathSection(bookNo, topicId, sectionId);
-    if (!data) return <SimplePage title="Matematik" text="Bölüm bulunamadı." goHome={goHome} />;
     const items = [
-      { key: `mat-bolum-not:${bookNo}:${topicId}:${sectionId}`, title: `📝 Notlarım (${data.theme.shortTitle} ${data.topic.id})`, icon: '📝', desc: 'Veri girişi yapılacak asıl not alanı' },
-      { key: `mat-bolum-baba:${bookNo}:${topicId}:${sectionId}`, title: '👨 Babamın Çalışma Notları', icon: '👨', desc: 'Baba notu veri girişi' },
-      { key: `mat-bolum-kitap:${bookNo}:${topicId}:${sectionId}`, title: '📖 Konu Anlatımı (MEB)', icon: '📖', desc: `${data.book.title}, sayfalar: ${data.printedPages || data.topic.printedPages}` },
-      { key: `mat-bolum-ozet:${bookNo}:${topicId}:${sectionId}`, title: '📌 Özet', icon: '📌', desc: 'Kısa bölüm özeti' },
-      { key: `mat-bolum-meb:${bookNo}:${topicId}:${sectionId}`, title: '📂 MEB Materyal', icon: '📂', desc: 'Etkileşimli materyal daha sonra bağlanacak' },
-      { key: `mat-bolum-gpt:${bookNo}:${topicId}:${sectionId}`, title: '🤖 ChatGPT Tavsiye 2', icon: '🤖', desc: 'Çalışma önerisi' },
+      { key: `mat-db-note:${bookNo}:${themeNo}:${topicNo}:student`, title: '📝 Notlarım', icon: '📝', desc: 'Bu konu için Diloş notu' },
+      { key: `mat-db-note:${bookNo}:${themeNo}:${topicNo}:father`, title: '👨 Babamın Çalışma Notları', icon: '👨', desc: 'Bu konu için baba çalışma notu' },
+      { key: `mat-db-meb:${bookNo}:${themeNo}:${topicNo}`, title: '📖 Konu Anlatımı (MEB)', icon: '📖', desc: `Kitap sayfaları: ${topic.page_start}-${topic.page_end}` },
+      { key: `mat-db-summary:${bookNo}:${themeNo}:${topicNo}`, title: '📌 Özet', icon: '📌', desc: 'Kısa özet alanı' },
+      { key: `mat-db-material:${bookNo}:${themeNo}:${topicNo}`, title: '📂 MEB Materyal', icon: '📂', desc: 'Etkileşimli materyal daha sonra bağlanacak' },
+      { key: `mat-db-gpt:${bookNo}:${themeNo}:${topicNo}`, title: '🤖 ChatGPT Tavsiye', icon: '🤖', desc: 'Çalışma tavsiyesi' },
     ];
-    return <><TopActions onBack={() => setDetailKey(`mat-konu:${bookNo}:${topicId}`)} goHome={goHome} />{shortcutButton(data.title, '🔹')}<ListMenu title={data.title} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
+
+    return <><TopActions onBack={() => setDetailKey(`mat-tema:${bookNo}:${themeNo}`)} goHome={goHome} />{shortcutButton(topic.topic_title, '📌')}<ListMenu title={topic.topic_title} items={items} onSelect={(x) => setDetailKey(x.key)} /></>;
   }
 
-  if (current.startsWith('mat-bolum-not:')) { const [, bookNo, topicId, sectionId] = current.split(':'); const data = getMathSection(bookNo, topicId, sectionId); return <MathNoteEditor title={`Notlarım - ${data?.title || ''}`} storageKey={mathNoteKey(sectionId)} placeholder="Diloş bu en alt bölüm için kendi notlarını buraya yazacak..." onBack={() => setDetailKey(`mat-bolum:${bookNo}:${topicId}:${sectionId}`)} goHome={goHome} />; }
-  if (current.startsWith('mat-bolum-baba:')) { const [, bookNo, topicId, sectionId] = current.split(':'); const data = getMathSection(bookNo, topicId, sectionId); return <MathNoteEditor title={`Babamın Çalışma Notları - ${data?.title || ''}`} storageKey={mathBabaNoteKey(sectionId)} placeholder="Bu en alt bölüm için çalışma planı, püf noktası, tekrar önerisi..." onBack={() => setDetailKey(`mat-bolum:${bookNo}:${topicId}:${sectionId}`)} goHome={goHome} />; }
-  if (current.startsWith('mat-bolum-kitap:')) { const [, bookNo, topicId, sectionId] = current.split(':'); return <MathSectionBookPage bookNo={bookNo} topicId={topicId} sectionId={sectionId} onBack={() => setDetailKey(`mat-bolum:${bookNo}:${topicId}:${sectionId}`)} goHome={goHome} />; }
-  if (current.startsWith('mat-bolum-ozet:')) { const [, bookNo, topicId, sectionId] = current.split(':'); return <MathSectionSummaryPage bookNo={bookNo} topicId={topicId} sectionId={sectionId} onBack={() => setDetailKey(`mat-bolum:${bookNo}:${topicId}:${sectionId}`)} goHome={goHome} />; }
-  if (current.startsWith('mat-bolum-meb:')) { const [, bookNo, topicId, sectionId] = current.split(':'); const data = getMathSection(bookNo, topicId, sectionId); return <SubContent title="MEB Materyal" items={[{ title: data?.title || 'MEB Materyal', text: 'Bu alana MEB etkileşimli içerik dosyası bağlanacak.' }]} onBack={() => setDetailKey(`mat-bolum:${bookNo}:${topicId}:${sectionId}`)} goHome={goHome} />; }
-  if (current.startsWith('mat-bolum-gpt:')) { const [, bookNo, topicId, sectionId] = current.split(':'); const data = getMathSection(bookNo, topicId, sectionId); return <SubContent title="ChatGPT Tavsiye" items={[{ title: data?.title || 'Tavsiye', text: 'Bu bölüm için çalışma tavsiyesi daha sonra doldurulacak.' }]} onBack={() => setDetailKey(`mat-bolum:${bookNo}:${topicId}:${sectionId}`)} goHome={goHome} />; }
+  if (current.startsWith('mat-db-note:')) {
+    const [, bookNo, themeNo, topicNo, noteType] = current.split(':');
+    const topic = findTopic(bookNo, themeNo, topicNo);
+    return <MathDbNoteEditor topic={topic} noteType={noteType} onBack={() => setDetailKey(`mat-konu-db:${bookNo}:${themeNo}:${topicNo}`)} goHome={goHome} />;
+  }
+
+  if (current.startsWith('mat-db-meb:')) {
+    const [, bookNo, themeNo, topicNo] = current.split(':');
+    const topic = findTopic(bookNo, themeNo, topicNo);
+    return <MathDbMebPage topic={topic} pdfUrl={getPublicPdfUrl(topic)} onBack={() => setDetailKey(`mat-konu-db:${bookNo}:${themeNo}:${topicNo}`)} goHome={goHome} />;
+  }
+
+  if (current.startsWith('mat-db-summary:')) {
+    const [, bookNo, themeNo, topicNo] = current.split(':');
+    const topic = findTopic(bookNo, themeNo, topicNo);
+    return <SubContent title="Özet" items={[{ title: topic?.topic_title || 'Özet', text: topic?.description || 'Bu konu için özet daha sonra hazırlanacak.' }]} onBack={() => setDetailKey(`mat-konu-db:${bookNo}:${themeNo}:${topicNo}`)} goHome={goHome} />;
+  }
+
+  if (current.startsWith('mat-db-material:')) {
+    const [, bookNo, themeNo, topicNo] = current.split(':');
+    const topic = findTopic(bookNo, themeNo, topicNo);
+    return <SubContent title="MEB Materyal" items={[{ title: topic?.topic_title || 'MEB Materyal', text: 'Bu alana etkileşimli MEB materyali daha sonra bağlanacak.' }]} onBack={() => setDetailKey(`mat-konu-db:${bookNo}:${themeNo}:${topicNo}`)} goHome={goHome} />;
+  }
+
+  if (current.startsWith('mat-db-gpt:')) {
+    const [, bookNo, themeNo, topicNo] = current.split(':');
+    const topic = findTopic(bookNo, themeNo, topicNo);
+    return <SubContent title="ChatGPT Tavsiye" items={[{ title: topic?.topic_title || 'Tavsiye', text: 'Bu konu için çalışma tavsiyesi daha sonra hazırlanacak.' }]} onBack={() => setDetailKey(`mat-konu-db:${bookNo}:${themeNo}:${topicNo}`)} goHome={goHome} />;
+  }
 
   return <SimplePage title="Matematik" text="Bu matematik bölümü hazırlanıyor." goHome={goHome} />;
 }
 
+function MathDbMebPage({ topic, pdfUrl, onBack, goHome }) {
+  if (!topic) return <SimplePage title="Konu Anlatımı (MEB)" text="Konu bulunamadı." goHome={goHome} />;
+  const pageText = `Sayfa ${topic.page_start}${topic.page_end && topic.page_end !== topic.page_start ? `-${topic.page_end}` : ''}`;
+  const openUrl = pdfUrl ? `${pdfUrl}#page=${topic.page_start}` : '';
+
+  return (
+    <>
+      <TopActions onBack={onBack} goHome={goHome} />
+      <SectionTitle title="Konu Anlatımı (MEB)" />
+      <div className="math-summary-card">
+        <h2>{topic.topic_title}</h2>
+        <p className="math-muted">{topic.book_title} / {topic.theme_title}</p>
+        <p>Kitap bölümü: <strong>{pageText}</strong></p>
+        {openUrl ? <a className="math-open-link" href={openUrl} target="_blank" rel="noreferrer">PDF'i ilgili sayfadan aç</a> : <p>PDF Storage bağlantısı henüz hazır değil. Supabase Storage’da <strong>dersler</strong> bucket içine <strong>{topic.pdf_path}</strong> dosyasını yükleyince bağlantı çalışacak.</p>}
+      </div>
+    </>
+  );
+}
+
+function MathDbNoteEditor({ topic, noteType, onBack, goHome }) {
+  const [value, setValue] = useState('');
+  const [noteId, setNoteId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState('');
+  const type = noteType === 'father' ? 'father' : 'student';
+  const title = type === 'father' ? 'Babamın Çalışma Notları' : 'Notlarım';
+
+  useEffect(() => {
+    let alive = true;
+
+    async function loadNote() {
+      if (!topic?.topic_id) {
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      setError('');
+      const { data, error } = await supabase
+        .from('lesson_notes')
+        .select('id, body')
+        .eq('topic_id', topic.topic_id)
+        .eq('note_type', type)
+        .maybeSingle();
+
+      if (!alive) return;
+      if (error) {
+        setError(error.message || 'Not okunamadı.');
+      } else {
+        setNoteId(data?.id || null);
+        setValue(data?.body || '');
+      }
+      setLoading(false);
+    }
+
+    loadNote();
+    return () => { alive = false; };
+  }, [topic?.topic_id, type]);
+
+  async function save() {
+    if (!topic?.topic_id) return;
+    setError('');
+    const payload = { topic_id: topic.topic_id, note_type: type, body: value, updated_at: new Date().toISOString() };
+    const { data, error } = await supabase
+      .from('lesson_notes')
+      .upsert(payload, { onConflict: 'topic_id,note_type' })
+      .select('id')
+      .single();
+
+    if (error) {
+      setError(error.message || 'Kaydedilemedi.');
+      return;
+    }
+    setNoteId(data?.id || noteId);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1200);
+  }
+
+  if (!topic) return <SimplePage title={title} text="Konu bulunamadı." goHome={goHome} />;
+
+  return (
+    <>
+      <TopActions onBack={onBack} goHome={goHome} />
+      <SectionTitle title={title} />
+      <div className="math-note-editor">
+        <h3>{topic.topic_title}</h3>
+        {loading ? <p>Not yükleniyor...</p> : <textarea value={value} onChange={(e) => setValue(e.target.value)} placeholder="Bu konu için not yaz..." />}
+        {error && <p className="math-error">{error}</p>}
+        <button onClick={save} disabled={loading}>{saved ? 'Kaydedildi ✓' : 'Notu Kaydet'}</button>
+        <p>Bu not Supabase lesson_notes tablosuna kaydedilir.</p>
+      </div>
+    </>
+  );
+}
+
+function MathDbNotesPage({ title, rows, noteType = 'student', onBack, goHome }) {
+  const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const ids = useMemo(() => rows.map(x => x.topic_id).filter(Boolean), [rows]);
+  const type = noteType === 'father' ? 'father' : 'student';
+
+  useEffect(() => {
+    let alive = true;
+    async function loadNotes() {
+      if (!ids.length) {
+        setNotes([]);
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      const { data } = await supabase
+        .from('lesson_notes')
+        .select('topic_id, body, note_type')
+        .eq('note_type', type)
+        .in('topic_id', ids);
+      if (!alive) return;
+      setNotes(data || []);
+      setLoading(false);
+    }
+    loadNotes();
+    return () => { alive = false; };
+  }, [ids.join(','), type]);
+
+  const noteByTopic = new Map(notes.map(n => [n.topic_id, n.body]));
+  const filled = rows.map(row => ({ row, note: noteByTopic.get(row.topic_id) || '' })).filter(x => x.note.trim());
+
+  return (
+    <>
+      <TopActions onBack={onBack} goHome={goHome} />
+      <SectionTitle title={title} />
+      <div className="math-readonly-info">Bu sayfa otomatik oluşur. Not eklemek için ilgili konu içindeki Notlarım veya Baba Notları ekranını düzenleyin.</div>
+      <div className="math-notes-stack">
+        {loading && <article className="math-note-read"><h3>Yükleniyor...</h3></article>}
+        {!loading && filled.map(({ row, note }) => (
+          <article className="math-note-read" key={row.topic_id}>
+            <h3>{row.theme_title}</h3>
+            <h4>{row.topic_title}</h4>
+            <pre>{note}</pre>
+          </article>
+        ))}
+        {!loading && filled.length === 0 && <article className="math-note-read"><h3>Henüz not yok</h3><p>Not girildikçe burada otomatik toplanacak.</p></article>}
+      </div>
+    </>
+  );
+}
 
 function MathShortcutButton({ item, toggleShortcut, isShortcutActive }) {
   if (!toggleShortcut || !isShortcutActive || !item?.detailKey) return null;
