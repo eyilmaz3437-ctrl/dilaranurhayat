@@ -1683,9 +1683,53 @@ function MatematikPage({ detailKey, setDetailKey, onBack, goHome, toggleShortcut
 }
 
 function MathDbMebPage({ topic, pdfUrl, onBack, goHome }) {
+  const [content, setContent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let alive = true;
+
+    async function loadContent() {
+      if (!topic?.topic_id) {
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError('');
+
+      const { data, error } = await supabase
+        .from('lesson_topic_contents')
+        .select('title, body, updated_at')
+        .eq('topic_id', topic.topic_id)
+        .eq('content_type', 'meb')
+        .maybeSingle();
+
+      if (!alive) return;
+
+      if (error) {
+        setError(error.message || 'Konu anlatımı okunamadı.');
+        setContent(null);
+      } else {
+        setContent(data || null);
+      }
+
+      setLoading(false);
+    }
+
+    loadContent();
+    return () => { alive = false; };
+  }, [topic?.topic_id]);
+
   if (!topic) return <SimplePage title="Konu Anlatımı (MEB)" text="Konu bulunamadı." goHome={goHome} />;
+
   const pageText = `Sayfa ${topic.page_start}${topic.page_end && topic.page_end !== topic.page_start ? `-${topic.page_end}` : ''}`;
   const openUrl = pdfUrl ? `${pdfUrl}#page=${topic.page_start}` : '';
+
+  if (loading) {
+    return <SimplePage title="Konu Anlatımı (MEB)" text="Supabase’den konu anlatımı yükleniyor..." goHome={goHome} />;
+  }
 
   return (
     <>
@@ -1695,7 +1739,20 @@ function MathDbMebPage({ topic, pdfUrl, onBack, goHome }) {
         <h2>{topic.topic_title}</h2>
         <p className="math-muted">{topic.book_title} / {topic.theme_title}</p>
         <p>Kitap bölümü: <strong>{pageText}</strong></p>
-        {openUrl ? <a className="math-open-link" href={openUrl} target="_blank" rel="noreferrer">PDF'i ilgili sayfadan aç</a> : <p>PDF Storage bağlantısı henüz hazır değil. Supabase Storage’da <strong>dersler</strong> bucket içine <strong>{topic.pdf_path}</strong> dosyasını yükleyince bağlantı çalışacak.</p>}
+
+        {error && <p className="math-error-text">Supabase hata: {error}</p>}
+
+        {content?.body ? (
+          <>
+            <h3>{content.title || 'Konu Anlatımı (MEB)'}</h3>
+            <pre className="math-meb-text">{content.body}</pre>
+          </>
+        ) : (
+          <>
+            <p>Bu konu için Supabase’de MEB konu metni henüz yok. Metin eklenince burada PDF yerine doğrudan yazı görünecek.</p>
+            {openUrl ? <a className="math-open-link" href={openUrl} target="_blank" rel="noreferrer">PDF'i ilgili sayfadan aç</a> : null}
+          </>
+        )}
       </div>
     </>
   );
