@@ -1747,6 +1747,12 @@ function MathDbMebPage({ topic, pdfUrl, onBack, goHome }) {
         </div>
 
         <div className="meb-page-frame" ref={frameRef}>
+          <div className="meb-fullscreen-controls">
+            <button disabled={!canPrev} onClick={() => changePage(currentPage - 1)}>←</button>
+            <strong>{currentPage}</strong>
+            <button disabled={!canNext} onClick={() => changePage(currentPage + 1)}>→</button>
+          </div>
+
           {!imageError ? (
             <img
               className="meb-page-image"
@@ -1772,7 +1778,7 @@ function MathDbMebPage({ topic, pdfUrl, onBack, goHome }) {
 
 function getBookPageImageUrl(topic, pageNo) {
   if (!topic) return '';
-  const base = import.meta.env.VITE_supabaseUrl || supabaseUrl;
+  const base = import.meta.env.VITE_SUPABASE_URL || SUPABASE_URL;
   const pageFile = `${String(Number(pageNo)).padStart(3, '0')}.jpg`;
   return `${base}/storage/v1/object/public/dersler/kitaplar/matematik-9-${topic.book_no}/${pageFile}`;
 }
