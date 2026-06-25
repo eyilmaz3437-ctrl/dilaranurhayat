@@ -1683,127 +1683,98 @@ function MatematikPage({ detailKey, setDetailKey, onBack, goHome, toggleShortcut
 }
 
 function MathDbMebPage({ topic, pdfUrl, onBack, goHome }) {
-  const [content, setContent] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [debugInfo, setDebugInfo] = useState('');
+  const startPage = Number(topic?.page_start || 1);
+  const endPage = Number(topic?.page_end || topic?.page_start || 1);
+  const [currentPage, setCurrentPage] = useState(startPage);
+  const [zoom, setZoom] = useState(1);
+  const [imageError, setImageError] = useState(false);
+  const frameRef = useRef(null);
 
   useEffect(() => {
-    let alive = true;
-
-    async function findTopicId() {
-      if (topic?.topic_id) return topic.topic_id;
-
-      const { data, error } = await supabase
-        .from('lesson_topics')
-        .select(`
-          id,
-          topic_no,
-          lesson_themes!inner(
-            theme_no,
-            lesson_books!inner(course_code, book_no)
-          )
-        `)
-        .eq('topic_no', topic?.topic_no)
-        .eq('lesson_themes.theme_no', Number(topic?.theme_no))
-        .eq('lesson_themes.lesson_books.book_no', Number(topic?.book_no))
-        .eq('lesson_themes.lesson_books.course_code', 'mat9')
-        .maybeSingle();
-
-      if (error) throw error;
-      return data?.id || null;
-    }
-
-    async function loadContent() {
-      if (!topic) {
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-      setError('');
-      setDebugInfo('');
-      setContent(null);
-
-      try {
-        const resolvedTopicId = await findTopicId();
-
-        if (!resolvedTopicId) {
-          if (alive) {
-            setDebugInfo(`Konu ID bulunamadı. book=${topic?.book_no}, theme=${topic?.theme_no}, topic=${topic?.topic_no}`);
-            setLoading(false);
-          }
-          return;
-        }
-
-        const { data, error } = await supabase
-          .from('lesson_topic_contents')
-          .select('title, body, updated_at')
-          .eq('topic_id', resolvedTopicId)
-          .eq('content_type', 'meb')
-          .limit(1)
-          .maybeSingle();
-
-        if (!alive) return;
-
-        if (error) {
-          setError(error.message || 'Konu anlatımı okunamadı.');
-          setContent(null);
-        } else {
-          setContent(data || null);
-          if (!data?.body) {
-            setDebugInfo(`MEB içerik kaydı bulunamadı. topic_id=${resolvedTopicId}, topic_no=${topic?.topic_no}`);
-          }
-        }
-      } catch (err) {
-        if (alive) {
-          setError(err?.message || 'Konu anlatımı okunamadı.');
-          setContent(null);
-        }
-      }
-
-      if (alive) setLoading(false);
-    }
-
-    loadContent();
-    return () => { alive = false; };
-  }, [topic?.topic_id, topic?.topic_no, topic?.theme_no, topic?.book_no]);
+    setCurrentPage(startPage);
+    setZoom(1);
+    setImageError(false);
+  }, [topic?.topic_id, topic?.topic_no, topic?.page_start]);
 
   if (!topic) return <SimplePage title="Konu Anlatımı (MEB)" text="Konu bulunamadı." goHome={goHome} />;
 
-  const pageText = `Sayfa ${topic.page_start}${topic.page_end && topic.page_end !== topic.page_start ? `-${topic.page_end}` : ''}`;
-  const openUrl = pdfUrl ? `${pdfUrl}#page=${topic.page_start}` : '';
+  const pageText = `Sayfa ${startPage}${endPage && endPage !== startPage ? `-${endPage}` : ''}`;
+  const pageUrl = getBookPageImageUrl(topic, currentPage);
+  const canPrev = currentPage > startPage;
+  const canNext = currentPage < endPage;
 
-  if (loading) {
-    return <SimplePage title="Konu Anlatımı (MEB)" text="Supabase’den konu anlatımı yükleniyor..." goHome={goHome} />;
+  function changePage(nextPage) {
+    const safePage = Math.max(startPage, Math.min(endPage, nextPage));
+    setCurrentPage(safePage);
+    setImageError(false);
+  }
+
+  function changeZoom(nextZoom) {
+    const safeZoom = Math.max(0.65, Math.min(3.5, Number(nextZoom.toFixed(2))));
+    setZoom(safeZoom);
+  }
+
+  function openFullscreen() {
+    const el = frameRef.current;
+    if (!el) return;
+
+    if (el.requestFullscreen) {
+      el.requestFullscreen();
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
   }
 
   return (
     <>
       <TopActions onBack={onBack} goHome={goHome} />
       <SectionTitle title="Konu Anlatımı (MEB)" />
-      <div className="math-summary-card">
+      <div className="math-summary-card meb-image-card">
         <h2>{topic.topic_title}</h2>
         <p className="math-muted">{topic.book_title} / {topic.theme_title}</p>
         <p>Kitap bölümü: <strong>{pageText}</strong></p>
 
-        {error && <p className="math-error-text">Supabase hata: {error}</p>}
+        <div className="meb-page-toolbar">
+          <button disabled={!canPrev} onClick={() => changePage(currentPage - 1)}>← Önceki</button>
+          <strong>{currentPage}. sayfa</strong>
+          <button disabled={!canNext} onClick={() => changePage(currentPage + 1)}>Sonraki →</button>
+          <span className="meb-toolbar-sep"></span>
+          <button onClick={() => changeZoom(zoom - 0.15)}>−</button>
+          <strong>{Math.round(zoom * 100)}%</strong>
+          <button onClick={() => changeZoom(zoom + 0.15)}>+</button>
+          <button onClick={() => changeZoom(1)}>Sıfırla</button>
+          <button onClick={openFullscreen}>⛶ Tam ekran</button>
+        </div>
 
-        {content?.body ? (
-          <>
-            <h3>{content.title || 'Konu Anlatımı (MEB)'}</h3>
-            <pre className="math-meb-text">{content.body}</pre>
-          </>
-        ) : (
-          <>
-            <p>Bu konu için Supabase’de MEB konu metni henüz yok. Metin eklenince burada PDF yerine doğrudan yazı görünecek.</p>
-            {debugInfo ? <p className="math-debug-text">{debugInfo}</p> : null}
-            {openUrl ? <a className="math-open-link" href={openUrl} target="_blank" rel="noreferrer">PDF'i ilgili sayfadan aç</a> : null}
-          </>
-        )}
+        <div className="meb-page-frame" ref={frameRef}>
+          {!imageError ? (
+            <img
+              className="meb-page-image"
+              src={pageUrl}
+              alt={`${topic.topic_title} - sayfa ${currentPage}`}
+              style={{ width: `${zoom * 100}%` }}
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <div className="meb-image-missing">
+              <h3>Sayfa görseli bulunamadı</h3>
+              <p>Beklenen dosya yolu:</p>
+              <code>{pageUrl}</code>
+              <p>JPG dosyalarını Supabase Storage içinde şu yapıyla yükleyelim:</p>
+              <code>dersler / kitaplar / matematik-9-{topic.book_no} / {String(currentPage).padStart(3, '0')}.jpg</code>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
+}
+
+function getBookPageImageUrl(topic, pageNo) {
+  if (!topic) return '';
+  const base = import.meta.env.VITE_SUPABASE_URL || SUPABASE_URL;
+  const pageFile = `${String(Number(pageNo)).padStart(3, '0')}.jpg`;
+  return `${base}/storage/v1/object/public/dersler/kitaplar/matematik-9-${topic.book_no}/${pageFile}`;
 }
 
 function MathDbNoteEditor({ topic, noteType, onBack, goHome }) {
