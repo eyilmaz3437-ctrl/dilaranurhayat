@@ -1778,7 +1778,7 @@ function MathDbMebPage({ topic, pdfUrl, onBack, goHome }) {
 
 function getBookPageImageUrl(topic, pageNo) {
   if (!topic) return '';
-  const base = import.meta.env.VITE_SUPABASE_URL || SUPABASE_URL;
+  const base = import.meta.env.VITE_supabaseUrl || supabaseUrl;
   const pageFile = `${String(Number(pageNo)).padStart(3, '0')}.jpg`;
   return `${base}/storage/v1/object/public/dersler/kitaplar/matematik-9-${topic.book_no}/${pageFile}`;
 }
