@@ -19,6 +19,7 @@ const menuItems = [
   { key: 'home', title: 'Ana Sayfa', icon: '🏠' },
   { key: 'islam', title: 'İslam', icon: '☪' },
   { key: 'egitim', title: 'Eğitim', icon: '📚' },
+  { key: 'kariyer', title: 'Kariyer', icon: '🎓' },
   { key: 'ezber', title: 'Ezber Takibi', icon: '🧠' },
   { key: 'gorevler', title: 'Görevler', icon: '✅' },
   { key: 'hedefler', title: 'Hedeflerim', icon: '🎯' },
@@ -906,6 +907,7 @@ export default function App() {
         {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} memorization={memorization} goEzber={() => changePage('ezber')} shortcuts={shortcuts} openShortcut={openShortcut} removeShortcut={removeShortcut} renameShortcut={renameShortcut} />}
         {page === 'islam' && <IslamPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} returnToEzber={returnToEzber} goEzber={() => { setPage('ezber'); setSubPage(''); setDetailKey(''); setReturnToEzber(false); }} />}
         {page === 'egitim' && <EgitimPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} toggleShortcut={toggleShortcut} isShortcutActive={isShortcutActive} />}
+        {page === 'kariyer' && <CareerPage goHome={goHome} />}
         {page === 'ezber' && <MemorizationPage memorization={memorization} saveMemorization={saveMemorization} goHome={goHome} setPage={setPage} setSubPage={setSubPage} setDetailKey={setDetailKey} setReturnToEzber={setReturnToEzber} activeUser={activeUser} />}
         {page === 'gorevler' && <TasksPage tasks={tasks} setTasks={setTasks} reloadTasks={loadTasks} goHome={goHome} activeUser={activeUser} setActiveUser={setActiveUser} />}
         {page === 'hedefler' && <SimplePage title="Hedeflerim" text="Hedef takibi hazırlanıyor." goHome={goHome} />}
@@ -916,6 +918,211 @@ export default function App() {
     </div>
   );
 }
+
+
+const engineeringAcademyTracks = [
+  {
+    key: 'ortak',
+    icon: '🧭',
+    title: 'Mühendislik Ortak Yol',
+    desc: 'Bölüm seçmeden önce bütün mühendisliklere lazım olan temel zemin.',
+    bullets: ['Matematik temeli', 'Fizik mantığı', 'Algoritmik düşünme', 'Teknik İngilizce', 'Proje alışkanlığı']
+  },
+  {
+    key: 'bilgisayar',
+    icon: '💻',
+    title: 'Bilgisayar / Yazılım',
+    desc: 'Kodlama, algoritma, veri, web, yapay zekâ ve ürün geliştirme.',
+    bullets: ['Python başlangıç', 'Web temelleri', 'Veritabanı', 'GitHub portföyü', 'Yapay zekâ okuryazarlığı']
+  },
+  {
+    key: 'elektrik',
+    icon: '⚡',
+    title: 'Elektrik - Elektronik',
+    desc: 'Devreler, elektronik sistemler, haberleşme, robotik ve gömülü sistemler.',
+    bullets: ['Devre mantığı', 'Arduino denemeleri', 'Elektrik fiziği', 'Sensörler', 'Lehim ve prototip']
+  },
+  {
+    key: 'makine',
+    icon: '⚙️',
+    title: 'Makine / Mekatronik',
+    desc: 'Mekanik, tasarım, üretim, robotik ve hareket sistemleri.',
+    bullets: ['Kuvvet ve hareket', '3B tasarım', 'Basit mekanizmalar', 'Robotik', 'Üretim mantığı']
+  },
+  {
+    key: 'endustri',
+    icon: '📊',
+    title: 'Endüstri Mühendisliği',
+    desc: 'Sistem kurma, süreç iyileştirme, veriyle karar alma ve planlama.',
+    bullets: ['Excel / veri', 'Optimizasyon fikri', 'Süreç analizi', 'İstatistik', 'İş dünyası okuryazarlığı']
+  },
+  {
+    key: 'insaat',
+    icon: '🏗️',
+    title: 'İnşaat / Mimarlık Yakın Alanları',
+    desc: 'Yapılar, zemin, malzeme, çizim, ölçme ve proje koordinasyonu.',
+    bullets: ['Geometri', 'Statik fikri', 'Teknik çizim', 'Malzeme', 'Saha gözlemi']
+  }
+];
+
+const careerRoadmap = [
+  { year: '9. Sınıf', icon: '🌱', title: 'Temel Kurma', text: 'Matematik, İngilizce ve düzenli çalışma alışkanlığı. Haftada küçük Python denemeleri.' },
+  { year: '10. Sınıf', icon: '🧪', title: 'Keşif ve Deneme', text: 'Fizik, algoritma, web ve küçük projeler. Hangi mühendislik ilgisini çekiyor gözlemleme.' },
+  { year: '11. Sınıf', icon: '🛠️', title: 'Proje ve Portföy', text: 'GitHub, basit uygulamalar, Arduino/robotik veya veri projeleri. AYT temellerini güçlendirme.' },
+  { year: '12. Sınıf', icon: '🎯', title: 'Sınav ve Tercih', text: 'TYT/AYT net takibi, bölüm araştırması, üniversite tercih listesi ve hedef planı.' }
+];
+
+const engineeringDepartments = [
+  ['Bilgisayar Mühendisliği', 'Kodlama, algoritma, veri ve yazılım ürünleri'],
+  ['Yazılım Mühendisliği', 'Uygulama geliştirme, test, ürün ve süreç yönetimi'],
+  ['Yapay Zekâ / Veri Bilimi', 'Veri, modelleme, otomasyon ve karar destek sistemleri'],
+  ['Elektrik-Elektronik', 'Devreler, haberleşme, enerji, gömülü sistemler'],
+  ['Makine', 'Mekanik tasarım, üretim, enerji ve hareket sistemleri'],
+  ['Mekatronik', 'Makine + elektronik + yazılım + robotik birleşimi'],
+  ['Endüstri', 'Süreç, verimlilik, planlama, optimizasyon ve iş sistemleri'],
+  ['İnşaat', 'Yapılar, zemin, malzeme, proje ve saha yönetimi'],
+  ['Biyomedikal', 'Sağlık teknolojileri, cihazlar ve mühendislik çözümleri'],
+  ['Uçak-Uzay', 'Aerodinamik, itki, kontrol, malzeme ve yüksek teknoloji']
+];
+
+function CareerPage({ goHome }) {
+  const [tab, setTab] = useState('anasayfa');
+  const [copied, setCopied] = useState(false);
+
+  const assistantPrompt = `Ben 9. sınıfa giden bir öğrenciyim. Mühendislik düşünüyorum ama bölümüm net değil. Bana seviyeme uygun, sade ve adım adım bir mühendislik yol haritası hazırla. Matematik, fizik, İngilizce, programlama ve proje önerilerini haftalık yapılabilir şekilde açıkla.`;
+
+  async function copyPromptAndOpenChatGPT() {
+    try {
+      await navigator.clipboard.writeText(assistantPrompt);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setCopied(false);
+    }
+    window.open('https://chatgpt.com/', '_blank', 'noopener,noreferrer');
+  }
+
+  const tabs = [
+    { key: 'anasayfa', title: 'Ana Plan', icon: '🧭' },
+    { key: 'akademi', title: 'Mühendislik Akademisi', icon: '⚙️' },
+    { key: 'bolumler', title: 'Bölümler', icon: '🏛️' },
+    { key: 'yol', title: 'Yol Haritası', icon: '🛤️' },
+    { key: 'asistan', title: 'Diloş Asistanı', icon: '🤖' },
+  ];
+
+  return (
+    <>
+      <TopActions goHome={goHome} />
+      <SectionTitle title="Kariyer ve Üniversite" />
+
+      <div className="career-hero">
+        <div>
+          <span className="career-eyebrow">🎓 Diloş için yeni yol</span>
+          <h2>Mühendislik Yol Haritası</h2>
+          <p>
+            Bölüm henüz net değilse sorun yok. Önce bütün mühendisliklerin ortak temelini kuracağız:
+            matematik, fizik, algoritma, İngilizce, proje ve merak.
+          </p>
+        </div>
+        <div className="career-hero-badge">
+          <strong>9 → 12</strong>
+          <span>Sınıf sınıf ilerleme</span>
+        </div>
+      </div>
+
+      <div className="career-tabs">
+        {tabs.map(x => (
+          <button key={x.key} className={tab === x.key ? 'active' : ''} onClick={() => setTab(x.key)}>
+            <span>{x.icon}</span>{x.title}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'anasayfa' && (
+        <div className="career-grid">
+          <CareerCard icon="🧭" title="Kendimi Tanıyorum" text="Hangi dersleri seviyorum, nasıl problemler hoşuma gidiyor, masa başı mı saha mı bana daha uygun?" />
+          <CareerCard icon="⚙️" title="Mühendislik Ortak Temel" text="Bölüm seçmeden önce matematik, fizik, algoritma ve teknik İngilizce altyapısı kurulur." />
+          <CareerCard icon="📂" title="Portföyüm" text="Küçük projeler, sertifikalar, denemeler ve notlar zamanla burada birikir." />
+          <CareerCard icon="🎯" title="Hedeflerim" text="Gitmek istediğim bölüm, üniversite, net hedefi ve haftalık çalışma planı takip edilir." />
+        </div>
+      )}
+
+      {tab === 'akademi' && (
+        <div className="career-track-list">
+          {engineeringAcademyTracks.map(track => (
+            <article className="career-track" key={track.key}>
+              <div className="career-track-icon">{track.icon}</div>
+              <div>
+                <h3>{track.title}</h3>
+                <p>{track.desc}</p>
+                <div className="career-chip-row">
+                  {track.bullets.map(b => <span key={b}>{b}</span>)}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {tab === 'bolumler' && (
+        <div className="career-departments">
+          {engineeringDepartments.map(([name, text]) => (
+            <div className="career-dept" key={name}>
+              <strong>{name}</strong>
+              <span>{text}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {tab === 'yol' && (
+        <div className="career-roadmap">
+          {careerRoadmap.map(step => (
+            <article className="career-road-step" key={step.year}>
+              <div className="career-road-icon">{step.icon}</div>
+              <div>
+                <strong>{step.year}</strong>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {tab === 'asistan' && (
+        <div className="career-assistant">
+          <h2>🤖 Diloş Asistanı</h2>
+          <p>
+            Şimdilik uygulama içinden doğrudan ChatGPT API bağlamıyoruz. Ama Diloş tek tuşla hazır soruyu kopyalayıp
+            ChatGPT’ye geçebilir. İleride API bağlantısını güvenli şekilde sunucu üzerinden kurarız.
+          </p>
+          <div className="career-prompt-box">{assistantPrompt}</div>
+          <button className="career-primary-button" onClick={copyPromptAndOpenChatGPT}>
+            {copied ? 'Kopyalandı ✓ ChatGPT açılıyor' : 'Soruyu kopyala ve ChatGPT’yi aç'}
+          </button>
+          <div className="career-mini-prompts">
+            <strong>Hazır sorular:</strong>
+            <span>“Bilgisayar mühendisliği bana uygun mu?”</span>
+            <span>“Bugün 2 saatim var, ne çalışayım?”</span>
+            <span>“Matematikte zorlanıyorum, mühendislik için ne yapmalıyım?”</span>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function CareerCard({ icon, title, text }) {
+  return (
+    <article className="career-card">
+      <div className="career-card-icon">{icon}</div>
+      <h3>{title}</h3>
+      <p>{text}</p>
+    </article>
+  );
+}
+
 
 function CompactPrayerBar() {
   const [now, setNow] = useState(new Date());
@@ -1689,6 +1896,7 @@ function MathDbMebPage({ topic, pdfUrl, onBack, goHome }) {
   const [zoom, setZoom] = useState(1);
   const [imageError, setImageError] = useState(false);
   const frameRef = useRef(null);
+  const pinchRef = useRef({ active: false, distance: 0, zoom: 1 });
 
   useEffect(() => {
     setCurrentPage(startPage);
@@ -1712,6 +1920,39 @@ function MathDbMebPage({ topic, pdfUrl, onBack, goHome }) {
   function changeZoom(nextZoom) {
     const safeZoom = Math.max(0.65, Math.min(3.5, Number(nextZoom.toFixed(2))));
     setZoom(safeZoom);
+  }
+
+  function getTouchDistance(touches) {
+    if (!touches || touches.length < 2) return 0;
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  function handleTouchStart(e) {
+    if (e.touches.length === 2) {
+      pinchRef.current = {
+        active: true,
+        distance: getTouchDistance(e.touches),
+        zoom,
+      };
+    }
+  }
+
+  function handleTouchMove(e) {
+    if (e.touches.length === 2 && pinchRef.current.active) {
+      e.preventDefault();
+      const nextDistance = getTouchDistance(e.touches);
+      if (!pinchRef.current.distance || !nextDistance) return;
+      const ratio = nextDistance / pinchRef.current.distance;
+      changeZoom(pinchRef.current.zoom * ratio);
+    }
+  }
+
+  function handleTouchEnd(e) {
+    if (e.touches.length < 2) {
+      pinchRef.current.active = false;
+    }
   }
 
   function openFullscreen() {
@@ -1746,7 +1987,14 @@ function MathDbMebPage({ topic, pdfUrl, onBack, goHome }) {
           <button onClick={openFullscreen}>⛶ Tam ekran</button>
         </div>
 
-        <div className="meb-page-frame" ref={frameRef}>
+        <div
+          className="meb-page-frame"
+          ref={frameRef}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={handleTouchEnd}
+        >
           <div className="meb-fullscreen-controls">
             <button disabled={!canPrev} onClick={() => changePage(currentPage - 1)}>←</button>
             <strong>{currentPage}</strong>
@@ -1778,7 +2026,7 @@ function MathDbMebPage({ topic, pdfUrl, onBack, goHome }) {
 
 function getBookPageImageUrl(topic, pageNo) {
   if (!topic) return '';
-  const base = import.meta.env.VITE_supabaseUrl || supabaseUrl;
+  const base = import.meta.env.VITE_SUPABASE_URL || supabaseUrl;
   const pageFile = `${String(Number(pageNo)).padStart(3, '0')}.jpg`;
   return `${base}/storage/v1/object/public/dersler/kitaplar/matematik-9-${topic.book_no}/${pageFile}`;
 }
