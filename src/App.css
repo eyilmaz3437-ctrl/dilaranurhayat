@@ -3527,3 +3527,25 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
   .prayer-modal{width:100%!important;}
   .modal-prayer-list div{padding:9px 3px!important;font-size:11px!important;}
 }
+
+
+/* v64.8 takvim bugun vurgusu */
+.calendar-day.today{
+  position:relative!important;
+  outline:3px solid #2563eb!important;
+  outline-offset:-3px!important;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.9),0 0 0 1px #2563eb!important;
+  z-index:2!important;
+}
+.calendar-day.today>b{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:24px!important;
+  height:24px!important;
+  padding:0 5px!important;
+  border-radius:999px!important;
+  background:#2563eb!important;
+  color:#fff!important;
+  font-weight:900!important;
+}
