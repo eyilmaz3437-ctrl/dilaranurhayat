@@ -1427,6 +1427,7 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
   useEffect(()=>{const sync=()=>setCalendarEvents(loadCalendarEvents());window.addEventListener('dnh-calendar',sync);window.addEventListener('dnh-shared',sync);return()=>{window.removeEventListener('dnh-calendar',sync);window.removeEventListener('dnh-shared',sync)}},[]);
   const todayISO=localDateISO();
   const [upcomingOpen,setUpcomingOpen]=useState(false);
+  const [fullYearCalendar,setFullYearCalendar]=useState(false);
   const upcoming=[...tasks.filter(t=>!t.delivered&&t.task_date>=todayISO&&t.title.startsWith('Proje (')).map(t=>({date:t.task_date,label:'📗 '+t.title,type:'project'})),...calendarEvents.filter(e=>e.date>=todayISO&&e.type==='exam').map(e=>({date:e.date,label:'📝 Sınav ('+e.subject+')',type:'exam',note:e.note}))].sort((a,b)=>a.date.localeCompare(b.date));
 
   function swipeStart(e) {
@@ -1459,7 +1460,7 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
       <div className="home-swipe-stage" onTouchStart={swipeStart} onTouchEnd={swipeEnd} onPointerDown={swipeStart} onPointerUp={swipeEnd}>
         {screen === 0 && <HomeworkHome tasks={tasks} tasksLoading={tasksLoading} goTasks={goTasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
         {screen === 1 && <WeeklySchedule goTasks={goTasks} />}
-        {screen === 2 && <HomeworkCalendar tasks={tasks} onOpen={setSelectedTask} />}
+        {screen === 2 && <HomeworkCalendar tasks={tasks} onOpen={setSelectedTask} onOpenFullYear={()=>setFullYearCalendar(true)} />}
         {screen === 3 && <DeliveredHomework tasks={tasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
         {screen === 4 && <FamilyNotes currentUser={currentUser} />}
         {screen === 5 && <ReadingTrackerPage embedded currentUser={currentUser} />}
@@ -1468,6 +1469,7 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
         <span>‹</span><div><i></i><small>Sayfa değiştir</small></div><span>›</span>
       </div>
       {selectedTask && <TaskReadModal task={selectedTask} activeUser="D" reloadTasks={reloadTasks} onClose={() => setSelectedTask(null)} />}
+      {fullYearCalendar&&<div className="full-year-calendar-overlay"><button className="full-year-close" onClick={()=>setFullYearCalendar(false)}>← Aylık takvime dön</button><HomeworkCalendar tasks={tasks} onOpen={setSelectedTask} fullYear /></div>}
     </>
   );
 }
@@ -1588,7 +1590,7 @@ function WeeklySchedule({ goTasks }) {
  </section>;
 }
 
-function HomeworkCalendar({ tasks, onOpen }) {
+function HomeworkCalendar({ tasks, onOpen, fullYear=false, onOpenFullYear }) {
   const now=new Date();
   const schoolStart=new Date(2026,8,1), schoolEnd=new Date(2027,5,30);
   const initial=(now>=schoolStart&&now<=schoolEnd)?new Date(now.getFullYear(),now.getMonth(),1):new Date(2026,8,1);
@@ -1650,8 +1652,8 @@ function HomeworkCalendar({ tasks, onOpen }) {
   }
   return <section className="android-home-screen calendar-screen">
     <div className="screen-title-row"><div><span className="screen-kicker">3. EKRAN</span><h2>Takvim</h2></div><div className="calendar-nav"><button onClick={()=>moveMonth(-1)}>‹</button><strong>{monthName}</strong><button onClick={()=>moveMonth(1)}>›</button></div></div>
-    <div className="calendar-toolbar"><button className="exam-add-button" onClick={()=>setExamOpen(true)}>📝 Yazılı / Sınav Ekle</button><span><i className="legend-dot exam"></i>Sınav <i className="legend-dot task"></i>Ödev <i className="legend-dot note"></i>Not</span></div>
-    <div className="school-year-calendar-scroll" ref={scrollRef}>{schoolMonths.map(renderMonth)}</div>
+    <div className="calendar-toolbar"><button className="exam-add-button" onClick={()=>setExamOpen(true)}>📝 Yazılı / Sınav Ekle</button>{!fullYear&&<button className="school-year-open-button" onClick={onOpenFullYear}>📚 Eğitim Yılı</button>}<span><i className="legend-dot exam"></i>Sınav <i className="legend-dot task"></i>Ödev <i className="legend-dot note"></i>Not</span></div>
+    <div className={fullYear?'school-year-calendar-scroll':'single-month-calendar'} ref={scrollRef}>{fullYear?schoolMonths.map(renderMonth):renderMonth(cursor)}</div>
     {eventDetail&&<div className="modal-backdrop" onClick={()=>setEventDetail(null)}><div className="calendar-detail-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>{eventDetail.type==='exam'?'Sınav':eventDetail.type==='meb'?'MEB Takvimi':'Takvim Notu'}</strong><button onClick={()=>setEventDetail(null)}>×</button></div><div className="calendar-detail-body"><span className="calendar-detail-date">{formatShortDate(eventDetail.date)}</span><h2>{eventDetail.subject||'Not'}</h2><p>{eventDetail.note||'Açıklama girilmemiş.'}</p>{!eventDetail.fixed&&<div className="calendar-detail-actions"><button onClick={beginEditEvent}>Düzenle</button><button className="danger" onClick={deleteEvent}>Sil</button></div>}</div></div></div>}
     {eventEdit&&<div className="modal-backdrop" onClick={()=>setEventEdit(null)}><div className="exam-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>{eventEdit.type==='exam'?'Sınavı Düzenle':'Takvim Notunu Düzenle'}</strong><button onClick={()=>setEventEdit(null)}>×</button></div><label>Ders<select value={eventEdit.subject||''} onChange={e=>setEventEdit({...eventEdit,subject:e.target.value})}><option value="">Ders seç</option>{subjects.map(s=><option key={s.id}>{s.name}</option>)}</select></label><label>Tarih<input type="date" value={eventEdit.date||''} onChange={e=>setEventEdit({...eventEdit,date:e.target.value})}/></label><label>{eventEdit.type==='exam'?'Konular / Not':'Not'}<textarea value={eventEdit.note||''} onChange={e=>setEventEdit({...eventEdit,note:e.target.value})}/></label><button className="exam-save" onClick={saveEventEdit}>Değişiklikleri kaydet</button></div></div>}
     {examOpen&&<div className="modal-backdrop" onClick={()=>setExamOpen(false)}><div className="exam-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>Yazılı / Sınav Ekle</strong><button onClick={()=>setExamOpen(false)}>×</button></div><label>Ders<select value={exam.subject} onChange={e=>setExam({...exam,subject:e.target.value})}><option value="">Ders seç</option>{subjects.map(s=><option key={s.id}>{s.name}</option>)}</select></label><div className="quick-date-row"><button onClick={()=>setExam({...exam,date:localDateISO()})}>Bugün</button><button onClick={()=>setExam({...exam,date:shiftDate(1)})}>Yarın</button><button onClick={()=>setExam({...exam,date:nextWeekdayDate()})}>Gelecek hafta</button></div><label>Tarih<input type="date" value={exam.date} onChange={e=>setExam({...exam,date:e.target.value})}/></label><label>Konular / Not<textarea value={exam.note} onChange={e=>setExam({...exam,note:e.target.value})} placeholder="Sınav konuları, hatırlatma..."/></label><button className="exam-save" onClick={saveExam}>Sınavı kaydet</button></div></div>}
