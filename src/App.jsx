@@ -6,14 +6,48 @@ const supabaseUrl = 'https://prwofdineklysdtjcwmp.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByd29mZGluZWtseXNkdGpjd21wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NjkyMzYsImV4cCI6MjA5NzU0NTIzNn0.feAhSXYzqK2MAX9536J5ZhkN3x8Ya4JUJtc8jOC7Q_Y';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const prayers = [
-  { key: 'imsak', title: 'İmsak', time: '03:25' },
-  { key: 'gunes', title: 'Güneş', time: '05:24' },
-  { key: 'ogle', title: 'Öğle', time: '13:13' },
-  { key: 'ikindi', title: 'İkindi', time: '17:11' },
-  { key: 'aksam', title: 'Akşam', time: '20:42' },
-  { key: 'yatsi', title: 'Yatsı', time: '22:33' },
+const FALLBACK_PRAYERS = [
+  { key: 'imsak', title: 'İmsak', time: '05:19' },
+  { key: 'gunes', title: 'Güneş', time: '06:44' },
+  { key: 'ogle', title: 'Öğle', time: '13:02' },
+  { key: 'ikindi', title: 'İkindi', time: '16:27' },
+  { key: 'aksam', title: 'Akşam', time: '19:10' },
+  { key: 'yatsi', title: 'Yatsı', time: '20:30' },
 ];
+
+function cleanPrayerTime(value) {
+  return String(value || '').match(/\d{1,2}:\d{2}/)?.[0] || '';
+}
+
+function useIstanbulPrayerTimes() {
+  const [prayers, setPrayers] = useState(FALLBACK_PRAYERS);
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      try {
+        const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Istanbul&country=Turkey&method=13');
+        if (!res.ok) throw new Error('Prayer API');
+        const json = await res.json();
+        const t = json?.data?.timings;
+        if (!t || !active) return;
+        const next = [
+          { key: 'imsak', title: 'İmsak', time: cleanPrayerTime(t.Fajr) },
+          { key: 'gunes', title: 'Güneş', time: cleanPrayerTime(t.Sunrise) },
+          { key: 'ogle', title: 'Öğle', time: cleanPrayerTime(t.Dhuhr) },
+          { key: 'ikindi', title: 'İkindi', time: cleanPrayerTime(t.Asr) },
+          { key: 'aksam', title: 'Akşam', time: cleanPrayerTime(t.Maghrib) },
+          { key: 'yatsi', title: 'Yatsı', time: cleanPrayerTime(t.Isha) },
+        ];
+        if (next.every(p => p.time)) setPrayers(next);
+      } catch (err) {
+        console.warn('Namaz vakitleri alınamadı; yedek vakitler kullanılıyor.', err);
+      }
+    }
+    load();
+    return () => { active = false; };
+  }, []);
+  return prayers;
+}
 
 const menuItems = [
   { key: 'home', title: 'Ana Sayfa', icon: '🏠' },
@@ -1365,6 +1399,7 @@ function CareerCard({ icon, title, text }) {
 
 
 function CompactPrayerBar() {
+  const prayers = useIstanbulPrayerTimes();
   const [now, setNow] = useState(new Date());
   const [open, setOpen] = useState(false);
 
@@ -1373,7 +1408,7 @@ function CompactPrayerBar() {
     return () => clearInterval(id);
   }, []);
 
-  const next = useMemo(() => getNextPrayer(now), [now]);
+  const next = useMemo(() => getNextPrayer(now, prayers), [now, prayers]);
 
   return (
     <>
@@ -1405,7 +1440,7 @@ function CompactPrayerBar() {
   );
 }
 
-function getNextPrayer(now) {
+function getNextPrayer(now, prayers) {
   const today = new Date(now);
   const list = prayers.map((p) => {
     const [h, m] = p.time.split(':').map(Number);
