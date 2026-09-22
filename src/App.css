@@ -3457,3 +3457,10 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
 .full-year-calendar-overlay>.full-year-close{flex:0 0 auto;align-self:flex-start;margin:2px 0 8px;border:0;border-radius:10px;padding:9px 12px;background:#162033;color:#fff;font-weight:900}
 .full-year-calendar-overlay>.calendar-screen{flex:1;min-height:0;max-height:none!important}
 @media(max-width:700px){.calendar-toolbar{grid-template-columns:auto auto minmax(0,1fr)!important;gap:5px!important}.school-year-open-button,.exam-add-button{font-size:10px!important;padding:8px 7px!important}.full-year-calendar-overlay{padding:6px}}
+
+/* v67.1 yillik takvim geri cikis */
+.full-year-topbar{flex:0 0 auto;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;position:relative;z-index:120;background:#fff;padding:4px 2px 9px;border-bottom:1px solid #e2e8f0}
+.full-year-topbar strong{text-align:center;color:#172033;font-size:16px}
+.full-year-topbar .full-year-close,.full-year-topbar .full-year-x{border:0;border-radius:10px;background:#162033;color:#fff!important;font-weight:900}
+.full-year-topbar .full-year-close{padding:9px 12px}.full-year-topbar .full-year-x{width:38px;height:38px;font-size:22px}
+.full-year-calendar-overlay>.calendar-screen{overflow:hidden!important}
