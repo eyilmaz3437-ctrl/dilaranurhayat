@@ -1058,6 +1058,8 @@ function LatestLocationPage({ goHome, openHistory }) {
   const [row, setRow] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [sending,setSending]=useState(false);
+  const [sendMsg,setSendMsg]=useState('');
 
   useEffect(() => {
     let alive = true;
@@ -1077,14 +1079,30 @@ function LatestLocationPage({ goHome, openHistory }) {
     return () => { alive = false; };
   }, []);
 
+  function shareThisPhone(){
+    if(!navigator.geolocation){setSendMsg('Bu cihaz konum paylaşımını desteklemiyor.');return}
+    setSending(true);setSendMsg('');
+    navigator.geolocation.getCurrentPosition(async pos=>{
+      const c=pos.coords;
+      const {error:e}=await supabase.rpc('record_dilara_location',{p_latitude:c.latitude,p_longitude:c.longitude,p_accuracy_m:c.accuracy??null,p_altitude_m:c.altitude??null,p_speed_mps:c.speed??null,p_source:'ios-pwa'});
+      setSending(false);
+      if(e){setSendMsg('Konum kaydedilemedi.');return}
+      setSendMsg('Konum kaydedildi ✓');
+      const {data}=await supabase.from('location_history').select('id, recorded_at, latitude, longitude, accuracy_m, source').order('recorded_at',{ascending:false}).limit(1).maybeSingle();
+      if(data){setRow(data);setError('')}
+    },err=>{setSending(false);setSendMsg(err.code===1?'Konum izni verilmedi.':'Konum alınamadı. Tekrar dene.')},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+  }
+
   return (
     <>
       <TopActions goHome={goHome} />
       <SectionTitle title="Dilara'nın Konumu" />
       <div className="location-page-card">
         <div className="location-big-pin">📍</div>
+        <button className="location-share-now" onClick={shareThisPhone} disabled={sending}>{sending?'Konum alınıyor…':'Bu telefonun konumunu paylaş'}</button>
+        {sendMsg&&<div className="location-send-msg">{sendMsg}</div>}
         {loading && <p>Son konum okunuyor...</p>}
-        {!loading && error && <div className="location-info-note">Konum altyapısı henüz etkin değil. Supabase konum tablosunu kurduğumuzda burada otomatik görünecek.</div>}
+        {!loading && error && <div className="location-info-note">Konum geçmişi yalnız yetkili görünümde açılacak. Bu telefondan konum göndermek için yukarıdaki düğmeyi kullan.</div>}
         {!loading && !error && !row && <div className="location-info-note">Henüz konum kaydı yok.</div>}
         {row && <>
           <h2>Son konum</h2>
