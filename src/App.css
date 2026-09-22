@@ -3446,3 +3446,14 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
 /* v66 ortak veri senkronizasyonu */
 .shared-sync-card{display:grid;gap:7px;margin:0 0 14px;padding:13px;border:1px solid #bfdbfe;background:#eff6ff;border-radius:14px;color:#172033}
 .shared-sync-card strong{font-size:15px}.shared-sync-card small{color:#475569;line-height:1.35}.shared-sync-card button{justify-self:start;border:0;border-radius:10px;padding:9px 12px;background:#162033;color:#fff;font-weight:900}
+
+
+/* v67 aylik + egitim yili takvimi */
+.schedule-cell.lesson-pick:not([style]){background:#f8fafc!important;color:#64748b!important}
+.single-month-calendar{width:100%;max-width:100%;overflow:hidden}
+.single-month-calendar .calendar-month-section-title{display:none}
+.school-year-open-button{border:0;border-radius:10px;padding:8px 10px;background:#e0f2fe;color:#075985;font-weight:900;white-space:nowrap}
+.full-year-calendar-overlay{position:fixed;inset:0;z-index:90;background:#fff;overflow:hidden;padding:10px;display:flex;flex-direction:column}
+.full-year-calendar-overlay>.full-year-close{flex:0 0 auto;align-self:flex-start;margin:2px 0 8px;border:0;border-radius:10px;padding:9px 12px;background:#162033;color:#fff;font-weight:900}
+.full-year-calendar-overlay>.calendar-screen{flex:1;min-height:0;max-height:none!important}
+@media(max-width:700px){.calendar-toolbar{grid-template-columns:auto auto minmax(0,1fr)!important;gap:5px!important}.school-year-open-button,.exam-add-button{font-size:10px!important;padding:8px 7px!important}.full-year-calendar-overlay{padding:6px}}
