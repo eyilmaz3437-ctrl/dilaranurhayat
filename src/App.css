@@ -3487,3 +3487,7 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
     height:calc(100dvh - 184px)!important;
   }
 }
+
+/* v67.3 takvim tek ekran: yillik görünüm yeni katman acmaz */
+.calendar-screen .school-year-calendar-scroll{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important}
+.calendar-screen .calendar-toolbar{position:sticky!important;top:0!important;z-index:15!important;background:#fff!important}
