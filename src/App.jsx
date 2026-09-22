@@ -19,26 +19,42 @@ function cleanPrayerTime(value) {
   return String(value || '').match(/\d{1,2}:\d{2}/)?.[0] || '';
 }
 
+function prayerDateParam(date) {
+  const d = new Date(date);
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  return `${dd}-${mm}-${d.getFullYear()}`;
+}
+
 function useIstanbulPrayerTimes() {
-  const [prayers, setPrayers] = useState(FALLBACK_PRAYERS);
+  const [data, setData] = useState({ today: FALLBACK_PRAYERS, tomorrow: FALLBACK_PRAYERS });
   useEffect(() => {
     let active = true;
     async function load() {
       try {
-        const res = await fetch('https://api.aladhan.com/v1/timingsByCity?city=Istanbul&country=Turkey&method=13');
-        if (!res.ok) throw new Error('Prayer API');
-        const json = await res.json();
-        const t = json?.data?.timings;
-        if (!t || !active) return;
-        const next = [
-          { key: 'imsak', title: 'İmsak', time: cleanPrayerTime(t.Fajr) },
-          { key: 'gunes', title: 'Güneş', time: cleanPrayerTime(t.Sunrise) },
-          { key: 'ogle', title: 'Öğle', time: cleanPrayerTime(t.Dhuhr) },
-          { key: 'ikindi', title: 'İkindi', time: cleanPrayerTime(t.Asr) },
-          { key: 'aksam', title: 'Akşam', time: cleanPrayerTime(t.Maghrib) },
-          { key: 'yatsi', title: 'Yatsı', time: cleanPrayerTime(t.Isha) },
-        ];
-        if (next.every(p => p.time)) setPrayers(next);
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        async function fetchDay(date) {
+          const url = `https://api.aladhan.com/v1/timingsByCity/${prayerDateParam(date)}?city=Istanbul&country=Turkey&method=13&school=1`;
+          const res = await fetch(url);
+          if (!res.ok) throw new Error('Prayer API');
+          const json = await res.json();
+          const t = json?.data?.timings;
+          if (!t) throw new Error('Prayer data');
+          return [
+            { key: 'imsak', title: 'İmsak', time: cleanPrayerTime(t.Fajr) },
+            { key: 'gunes', title: 'Güneş', time: cleanPrayerTime(t.Sunrise) },
+            { key: 'ogle', title: 'Öğle', time: cleanPrayerTime(t.Dhuhr) },
+            { key: 'ikindi', title: 'İkindi', time: cleanPrayerTime(t.Asr) },
+            { key: 'aksam', title: 'Akşam', time: cleanPrayerTime(t.Maghrib) },
+            { key: 'yatsi', title: 'Yatsı', time: cleanPrayerTime(t.Isha) },
+          ];
+        }
+        const [todayPrayers, tomorrowPrayers] = await Promise.all([fetchDay(today), fetchDay(tomorrow)]);
+        if (active && todayPrayers.every(p => p.time) && tomorrowPrayers.every(p => p.time)) {
+          setData({ today: todayPrayers, tomorrow: tomorrowPrayers });
+        }
       } catch (err) {
         console.warn('Namaz vakitleri alınamadı; yedek vakitler kullanılıyor.', err);
       }
@@ -46,7 +62,7 @@ function useIstanbulPrayerTimes() {
     load();
     return () => { active = false; };
   }, []);
-  return prayers;
+  return data;
 }
 
 const menuItems = [
@@ -1399,7 +1415,7 @@ function CareerCard({ icon, title, text }) {
 
 
 function CompactPrayerBar() {
-  const prayers = useIstanbulPrayerTimes();
+  const { today: prayers, tomorrow: tomorrowPrayers } = useIstanbulPrayerTimes();
   const [now, setNow] = useState(new Date());
   const [open, setOpen] = useState(false);
 
@@ -1408,7 +1424,7 @@ function CompactPrayerBar() {
     return () => clearInterval(id);
   }, []);
 
-  const next = useMemo(() => getNextPrayer(now, prayers), [now, prayers]);
+  const next = useMemo(() => getNextPrayer(now, prayers, tomorrowPrayers), [now, prayers, tomorrowPrayers]);
 
   return (
     <>
@@ -1440,18 +1456,17 @@ function CompactPrayerBar() {
   );
 }
 
-function getNextPrayer(now, prayers) {
-  const today = new Date(now);
-  const list = prayers.map((p) => {
+function getNextPrayer(now, prayers, tomorrowPrayers = prayers) {
+  const makeList = (items, dayOffset = 0) => items.map((p) => {
     const [h, m] = p.time.split(':').map(Number);
-    const d = new Date(today);
+    const d = new Date(now);
+    d.setDate(d.getDate() + dayOffset);
     d.setHours(h, m, 0, 0);
     return { ...p, date: d };
   });
-  let next = list.find(p => p.date > now);
-  if (!next) {
-    next = { ...list[0], date: new Date(list[0].date.getTime() + 24 * 60 * 60 * 1000) };
-  }
+  const todayList = makeList(prayers, 0);
+  let next = todayList.find(p => p.date > now);
+  if (!next) next = makeList(tomorrowPrayers, 1)[0];
   const diff = Math.max(0, next.date - now);
   const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
   const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
