@@ -980,7 +980,7 @@ export default function App() {
         {page === 'kutuphane' && <SimplePage title="Kütüphane" text="Kitaplar ve kaynaklar daha sonra temiz içeriklerle eklenecek." goHome={goHome} />}
         {page === 'kitap-takip' && <ReadingTrackerPage goHome={goHome} currentUser={sessionUser} onLogout={logoutApp} />}
         {page === 'araclar' && <ToolsPage goHome={goHome} openLocationHistory={() => changePage('konum-gecmisi')} openUsers={() => changePage('kullanicilar')} openSchool={() => changePage('okul-tanimlari')} currentUser={sessionUser} />}
-        {page === 'konum' && <LatestLocationPage goHome={goHome} openHistory={() => changePage('konum-gecmisi')} />}
+        {page === 'konum' && <LatestLocationPage goHome={goHome} openHistory={() => changePage('konum-gecmisi')} currentUser={sessionUser} />}
         {page === 'konum-gecmisi' && <LocationHistoryPage goHome={goHome} />}
         {page === 'kullanicilar' && <UserSettingsPage goHome={goHome} currentUser={sessionUser} onLogout={logoutApp} />}
         {page === 'okul-tanimlari' && <SchoolSettingsPage goHome={goHome} />}
@@ -1054,7 +1054,7 @@ function ToolsPage({ goHome, openLocationHistory, openUsers, openSchool, current
   );
 }
 
-function LatestLocationPage({ goHome, openHistory }) {
+function LatestLocationPage({ goHome, openHistory, currentUser }) {
   const [row, setRow] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -1093,19 +1093,20 @@ function LatestLocationPage({ goHome, openHistory }) {
     },err=>{setSending(false);setSendMsg(err.code===1?'Konum izni verilmedi.':'Konum alınamadı. Tekrar dene.')},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
   }
 
+  const isDilara=(currentUser?.username||currentUser?.id||'').toString().toLocaleLowerCase('tr-TR')==='dilara';
   return (
     <>
       <TopActions goHome={goHome} />
-      <SectionTitle title="Dilara'nın Konumu" />
+      <SectionTitle title={isDilara?"Konumumu Paylaş":"Dilara'nın Konumu"} />
       <div className="location-page-card">
         <div className="location-big-pin">📍</div>
-        <button className="location-share-now" onClick={shareThisPhone} disabled={sending}>{sending?'Konum alınıyor…':'Bu telefonun konumunu paylaş'}</button>
-        {sendMsg&&<div className="location-send-msg">{sendMsg}</div>}
+        {isDilara&&<button className="location-share-now" onClick={shareThisPhone} disabled={sending}>{sending?'Konum alınıyor…':'Konumumu şimdi paylaş'}</button>}
+        {isDilara&&sendMsg&&<div className="location-send-msg">{sendMsg}</div>}
         {loading && <p>Son konum okunuyor...</p>}
-        {!loading && error && <div className="location-info-note">Konum geçmişi yalnız yetkili görünümde açılacak. Bu telefondan konum göndermek için yukarıdaki düğmeyi kullan.</div>}
+        {!loading && error && <div className="location-info-note">{isDilara?'Konumunu göndermek için yukarıdaki düğmeyi kullan.':'Konum kaydı okunamadı.'}</div>}
         {!loading && !error && !row && <div className="location-info-note">Henüz konum kaydı yok.</div>}
         {row && <>
-          <h2>Son konum</h2>
+          <h2>{isDilara?'Son paylaştığım konum':'Dilara’nın son konumu'}</h2>
           <strong className="location-age">{locationAgeText(row.recorded_at)}</strong>
           <p>{new Date(row.recorded_at).toLocaleString('tr-TR')}</p>
           {row.accuracy_m != null && <small>Yaklaşık doğruluk: ±{Math.round(row.accuracy_m)} m</small>}
