@@ -701,9 +701,9 @@ async function getAppUsers() {
   localStorage.setItem('dnh_users',JSON.stringify(users)); return users;
 }
 function LoginGate({ onLogin }) {
-  const [username,setUsername]=useState(''); const [password,setPassword]=useState(''); const [error,setError]=useState('');
-  async function submit(e){e.preventDefault();setError('');const users=await getAppUsers();const hash=await appHash(password);const user=users.find(x=>x.username.toLocaleLowerCase('tr-TR')===username.trim().toLocaleLowerCase('tr-TR')&&x.passwordHash===hash);if(!user){setError('Kullanıcı adı veya şifre hatalı.');return;}const session={id:user.id,username:user.username,displayName:user.displayName,role:user.role};sessionStorage.setItem('dnh_session_user',JSON.stringify(session));onLogin(session);}
-  return <div className="login-gate"><form className="login-card" onSubmit={submit}><div className="login-flower">🌷</div><h1>Dilara Nur Hayat</h1><p>Devam etmek için giriş yap.</p><label>Kullanıcı<input autoComplete="username" value={username} onChange={e=>setUsername(e.target.value)}/></label><label>Şifre<input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)}/></label>{error&&<div className="login-error">{error}</div>}<button>Giriş Yap</button></form></div>;
+  const [username,setUsername]=useState(''); const [password,setPassword]=useState(''); const [remember,setRemember]=useState(true); const [error,setError]=useState('');
+  async function submit(e){e.preventDefault();setError('');const users=await getAppUsers();const hash=await appHash(password);const user=users.find(x=>x.username.toLocaleLowerCase('tr-TR')===username.trim().toLocaleLowerCase('tr-TR')&&x.passwordHash===hash);if(!user){setError('Kullanıcı adı veya şifre hatalı.');return;}const session={id:user.id,username:user.username,displayName:user.displayName,role:user.role};if(remember){localStorage.setItem('dnh_remembered_user',JSON.stringify(session));sessionStorage.removeItem('dnh_session_user')}else{sessionStorage.setItem('dnh_session_user',JSON.stringify(session));localStorage.removeItem('dnh_remembered_user')}onLogin(session);}
+  return <div className="login-gate"><form className="login-card" onSubmit={submit}><div className="login-flower">🌷</div><h1>Dilara Nur Hayat</h1><p>Devam etmek için giriş yap.</p><label>Kullanıcı<input autoComplete="username" value={username} onChange={e=>setUsername(e.target.value)}/></label><label>Şifre<input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)}/></label><label className="remember-row"><input type="checkbox" checked={remember} onChange={e=>setRemember(e.target.checked)}/><span>Beni bu cihazda hatırla</span></label>{error&&<div className="login-error">{error}</div>}<button>Giriş Yap</button></form></div>;
 }
 function UserSettingsPage({goHome,currentUser,onLogout}) {
  const [users,setUsers]=useState([]),[oldPass,setOldPass]=useState(''),[newPass,setNewPass]=useState(''),[newPass2,setNewPass2]=useState(''),[msg,setMsg]=useState('');
@@ -717,7 +717,7 @@ function UserSettingsPage({goHome,currentUser,onLogout}) {
 }
 
 export default function App() {
-  const [sessionUser,setSessionUser]=useState(()=>{try{return JSON.parse(sessionStorage.getItem('dnh_session_user')||'null')}catch{return null}});
+  const [sessionUser,setSessionUser]=useState(()=>{try{return JSON.parse(localStorage.getItem('dnh_remembered_user')||sessionStorage.getItem('dnh_session_user')||'null')}catch{return null}});
   const [menuOpen, setMenuOpen] = useState(window.innerWidth > 700);
   const [page, setPage] = useState('home');
   const [subPage, setSubPage] = useState('');
@@ -935,7 +935,7 @@ export default function App() {
   }
 
   if(!sessionUser) return <LoginGate onLogin={setSessionUser}/>;
-  function logoutApp(){sessionStorage.removeItem('dnh_session_user');setSessionUser(null);}
+  function logoutApp(){sessionStorage.removeItem('dnh_session_user');localStorage.removeItem('dnh_remembered_user');setSessionUser(null);}
 
   return (
     <div className="app notranslate" translate="no">
@@ -955,10 +955,11 @@ export default function App() {
         {page === 'hedefler' && <SimplePage title="Hedeflerim" text="Hedef takibi hazırlanıyor." goHome={goHome} />}
         {page === 'gunluk' && <SimplePage title="Günlüğüm" text="Günlük notlar ve Rabbime mektuplarım burada olacak." goHome={goHome} />}
         {page === 'kutuphane' && <SimplePage title="Kütüphane" text="Kitaplar ve kaynaklar daha sonra temiz içeriklerle eklenecek." goHome={goHome} />}
-        {page === 'araclar' && <ToolsPage goHome={goHome} openLocationHistory={() => changePage('konum-gecmisi')} openUsers={() => changePage('kullanicilar')} currentUser={sessionUser} />}
+        {page === 'araclar' && <ToolsPage goHome={goHome} openLocationHistory={() => changePage('konum-gecmisi')} openUsers={() => changePage('kullanicilar')} openSchool={() => changePage('okul-tanimlari')} currentUser={sessionUser} />}
         {page === 'konum' && <LatestLocationPage goHome={goHome} openHistory={() => changePage('konum-gecmisi')} />}
         {page === 'konum-gecmisi' && <LocationHistoryPage goHome={goHome} />}
         {page === 'kullanicilar' && <UserSettingsPage goHome={goHome} currentUser={sessionUser} onLogout={logoutApp} />}
+        {page === 'okul-tanimlari' && <SchoolSettingsPage goHome={goHome} />}
       </main>
     </div>
   );
@@ -981,13 +982,36 @@ function locationAgeText(iso) {
   return Math.floor(h / 24) + ' gün önce';
 }
 
-function ToolsPage({ goHome, openLocationHistory, openUsers, currentUser }) {
+
+function SchoolSettingsPage({goHome}) {
+ const [subjects,setSubjects]=useState(loadSubjects); const [settings,setSettings]=useState(loadSchoolSettings);
+ function saveSubjects(next){setSubjects(next);localStorage.setItem('dnh_subjects',JSON.stringify(next));window.dispatchEvent(new Event('dnh-settings'))}
+ function patch(k,v){const next={...settings,[k]:v};setSettings(next);localStorage.setItem('dnh_school_settings',JSON.stringify(next));window.dispatchEvent(new Event('dnh-settings'))}
+ function addSubject(){const name=prompt('Ders adı:');if(!name?.trim())return;const color=prompt('Renk (#RRGGBB):','#e2e8f0')||'#e2e8f0';saveSubjects([...subjects,{id:'s_'+Date.now(),name:name.trim(),color}])}
+ function editSubject(s){const name=prompt('Ders adı:',s.name);if(!name?.trim())return;const color=prompt('Renk:',s.color)||s.color;saveSubjects(subjects.map(x=>x.id===s.id?{...x,name:name.trim(),color}:x))}
+ function delSubject(s){if(confirm(s.name+' silinsin mi?'))saveSubjects(subjects.filter(x=>x.id!==s.id))}
+ return <><TopActions goHome={goHome}/><SectionTitle title="Dersler ve Ders Saatleri"/><div className="school-settings-wrap">
+  <section className="school-time-card"><h3>⏱️ Günlük Zaman Düzeni</h3><div className="school-settings-grid">
+   <label>İlk ders başlangıcı<input type="time" value={settings.start} onChange={e=>patch('start',e.target.value)}/></label>
+   <label>Ders süresi (dk)<input type="number" min="20" max="90" value={settings.lessonMinutes} onChange={e=>patch('lessonMinutes',Number(e.target.value))}/></label>
+   <label>Teneffüs (dk)<input type="number" min="5" max="60" value={settings.breakMinutes} onChange={e=>patch('breakMinutes',Number(e.target.value))}/></label>
+   <label>Günlük ders sayısı<input type="number" min="1" max="14" value={settings.lessonCount} onChange={e=>patch('lessonCount',Number(e.target.value))}/></label>
+   <label>Öğle arası kaçıncı dersten sonra?<input type="number" min="1" max="12" value={settings.lunchAfter} onChange={e=>patch('lunchAfter',Number(e.target.value))}/></label>
+   <label>Öğle arası (dk)<input type="number" min="10" max="120" value={settings.lunchMinutes} onChange={e=>patch('lunchMinutes',Number(e.target.value))}/></label>
+  </div><label className="block-toggle"><input type="checkbox" checked={!!settings.blockMode} onChange={e=>patch('blockMode',e.target.checked)}/><span>Blok ders kullanılıyor</span></label><small>Blok ders seçeneğini şimdiden tanımladım; okulun gerçek düzeni belli olduğunda aradaki teneffüs kuralını buna bağlayacağız.</small>
+  </section>
+  <section className="subjects-card"><div className="subjects-head"><div><h3>📚 Ders Tanımları</h3><small>Ders planında bu listeden seçim yapılır.</small></div><button onClick={addSubject}>＋ Ders</button></div><div className="subject-definition-list">{subjects.map(s=><div className="subject-definition-row" key={s.id}><i style={{background:s.color}}></i><strong>{s.name}</strong><button onClick={()=>editSubject(s)}>Düzenle</button><button className="danger" onClick={()=>delSubject(s)}>Sil</button></div>)}</div></section>
+ </div></>;
+}
+
+function ToolsPage({ goHome, openLocationHistory, openUsers, openSchool, currentUser }) {
   return (
     <>
       <TopActions goHome={goHome} />
-      <SectionTitle title="Araçlar" />
+      <SectionTitle title="Ayarlar ve Tanımlar" />
       <div className="tools-grid">
         <button className="tool-card user-tool-card" onClick={openUsers}><span>👥</span><div><strong>Kullanıcı Tanımları</strong><small>{currentUser?.role==='admin'?'Kullanıcı ekle, düzelt, sil ve şifre yönet.':'Hesabım ve şifre değiştirme.'}</small></div><b>›</b></button>
+        <button className="tool-card school-tool-card" onClick={openSchool}><span>🎓</span><div><strong>Dersler ve Ders Saatleri</strong><small>Ders renkleri, başlangıç, ders/teneffüs/öğle arası ve blok ayarları.</small></div><b>›</b></button>
         <button className="tool-card location-tool-card" onClick={openLocationHistory}>
           <span>🗺️</span>
           <div><strong>Konum Geçmişi</strong><small>20 dakikalık kayıtlar, gün ve saat bazında.</small></div>
@@ -1374,7 +1398,7 @@ function HomePage({ tasks, tasksLoading, goTasks, reloadTasks, goLocation }) {
     const endX = e.changedTouches?.[0]?.clientX ?? touchStart.current;
     const diff = endX - touchStart.current;
     touchStart.current = null;
-    if (Math.abs(diff) < 55) return;
+    if (Math.abs(diff) < 45) return;
     setScreen(x => diff < 0 ? Math.min(screens.length - 1, x + 1) : Math.max(0, x - 1));
   }
 
@@ -1387,11 +1411,14 @@ function HomePage({ tasks, tasksLoading, goTasks, reloadTasks, goLocation }) {
       <div className="home-screen-dots" aria-label="Ana ekranlar">
         {screens.map((name, i) => <button key={name} className={screen === i ? 'active' : ''} onClick={() => setScreen(i)} title={name}></button>)}
       </div>
-      <div className="home-swipe-stage" onTouchStart={swipeStart} onTouchEnd={swipeEnd}>
+      <div className="home-swipe-stage">
         {screen === 0 && <HomeworkHome tasks={tasks} tasksLoading={tasksLoading} goTasks={goTasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
-        {screen === 1 && <WeeklySchedule />}
+        {screen === 1 && <WeeklySchedule goTasks={goTasks} />}
         {screen === 2 && <HomeworkCalendar tasks={tasks} onOpen={setSelectedTask} />}
         {screen === 3 && <DeliveredHomework tasks={tasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
+      </div>
+      <div className="home-page-swipe-handle" onTouchStart={swipeStart} onTouchEnd={swipeEnd}>
+        <span>‹</span><div><i></i><small>Sayfa değiştir</small></div><span>›</span>
       </div>
       {selectedTask && <TaskReadModal task={selectedTask} activeUser="D" reloadTasks={reloadTasks} onClose={() => setSelectedTask(null)} />}
     </>
@@ -1413,7 +1440,7 @@ function HomeworkHome({ tasks, tasksLoading, goTasks, reloadTasks, onOpen }) {
 
   return <section className="android-home-screen homework-screen">
     <div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 1</span><h2>Ödevler</h2></div><button onClick={goTasks}>＋ Ödev</button></div>
-    <div className="homework-list-full">
+    <div className="homework-list-full homework-horizontal">
       {tasksLoading && <div className="home-empty">Ödevler yükleniyor...</div>}
       {!tasksLoading && visible.length === 0 && <div className="home-empty">Şimdilik ödev görünmüyor.</div>}
       {visible.map(t => <article key={t.id} className={`homework-row ${t.completed ? 'is-completed' : ''} ${t.delivered ? 'is-delivered' : ''}`} onClick={() => onOpen(t)}>
@@ -1430,32 +1457,50 @@ function HomeworkHome({ tasks, tasksLoading, goTasks, reloadTasks, onOpen }) {
   </section>;
 }
 
-const defaultScheduleRows = [
-  { id: 1, type: 'lesson', start: '08:30', end: '09:10', cells: ['', '', '', '', '', '', ''] },
-  { id: 2, type: 'break', start: '09:10', end: '09:20', cells: ['Teneffüs','Teneffüs','Teneffüs','Teneffüs','Teneffüs','',''] },
-  { id: 3, type: 'lesson', start: '09:20', end: '10:00', cells: ['', '', '', '', '', '', ''] },
-];
 
-function WeeklySchedule() {
-  const days = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
-  const [editing, setEditing] = useState(false);
-  const [rows, setRows] = useState(() => { try { return JSON.parse(localStorage.getItem('dnh_weekly_schedule') || 'null') || defaultScheduleRows; } catch { return defaultScheduleRows; } });
-  useEffect(() => { localStorage.setItem('dnh_weekly_schedule', JSON.stringify(rows)); }, [rows]);
-  function patchRow(id, patch) { setRows(rows.map(r => r.id === id ? {...r, ...patch} : r)); }
-  function patchCell(id, i, value) { setRows(rows.map(r => r.id === id ? {...r, cells: r.cells.map((x,j) => j === i ? value : x)} : r)); }
-  function addRow(type='lesson') { setRows([...rows, {id: Date.now(), type, start:'', end:'', cells: Array(7).fill(type === 'break' ? 'Teneffüs' : type === 'lunch' ? 'Öğle Arası' : '')}]); }
-  function removeRow(id) { setRows(rows.filter(r => r.id !== id)); }
-  return <section className="android-home-screen schedule-screen">
-    <div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 2</span><h2>Haftalık Ders Planı</h2></div><button onClick={() => setEditing(!editing)}>{editing ? '✓ Bitti' : '✎ Düzenle'}</button></div>
-    <div className="schedule-scroll"><div className="schedule-grid" style={{gridTemplateColumns:'92px repeat(7, minmax(86px,1fr))'}}>
-      <div className="schedule-head">Saat</div>{days.map(d => <div className="schedule-head" key={d}>{d}</div>)}
-      {rows.map(r => <div className={`schedule-row-fragment type-${r.type}`} key={r.id} style={{display:'contents'}}>
-        <div className={`schedule-time type-${r.type}`}>{editing ? <><input value={r.start} onChange={e=>patchRow(r.id,{start:e.target.value})}/><input value={r.end} onChange={e=>patchRow(r.id,{end:e.target.value})}/><button onClick={()=>removeRow(r.id)}>×</button></> : <>{r.start}<br/>{r.end}</>}</div>
-        {r.cells.map((v,i) => <div className={`schedule-cell type-${r.type}`} key={i}>{editing ? <input value={v} onChange={e=>patchCell(r.id,i,e.target.value)} /> : (v || '—')}</div>)}
-      </div>)}
-    </div></div>
-    {editing && <div className="schedule-add-row"><button onClick={()=>addRow('lesson')}>＋ Ders</button><button onClick={()=>addRow('break')}>＋ Teneffüs</button><button onClick={()=>addRow('lunch')}>＋ Öğle Arası</button></div>}
-  </section>;
+const DEFAULT_SUBJECTS = [
+ {id:'edebiyat',name:'Türk Dili ve Edebiyatı',color:'#fee2e2'},{id:'matematik',name:'Matematik',color:'#dbeafe'},
+ {id:'fizik',name:'Fizik',color:'#e0e7ff'},{id:'kimya',name:'Kimya',color:'#dcfce7'},{id:'biyoloji',name:'Biyoloji',color:'#d1fae5'},
+ {id:'tarih',name:'Tarih',color:'#fef3c7'},{id:'cografya',name:'Coğrafya',color:'#ffedd5'},{id:'din',name:'Din Kültürü ve Ahlak Bilgisi',color:'#f3e8ff'},
+ {id:'ingilizce',name:'İngilizce',color:'#cffafe'},{id:'beden',name:'Beden Eğitimi ve Spor',color:'#ccfbf1'},
+ {id:'gorsel',name:'Görsel Sanatlar',color:'#fce7f3'},{id:'muzik',name:'Müzik',color:'#fae8ff'},
+ {id:'saglik',name:'Sağlık Bilgisi ve Trafik Kültürü',color:'#e2e8f0'},{id:'bilisim',name:'Bilişim Teknolojileri',color:'#e0f2fe'},
+ {id:'almanca',name:'Almanca / 2. Yabancı Dil',color:'#ede9fe'},{id:'rehberlik',name:'Rehberlik',color:'#f1f5f9'}
+];
+const DEFAULT_SCHOOL_SETTINGS={start:'08:30',lessonMinutes:40,breakMinutes:10,lunchAfter:4,lunchMinutes:40,lessonCount:8,blockMode:false,blockSize:2};
+function loadSubjects(){try{return JSON.parse(localStorage.getItem('dnh_subjects')||'null')||DEFAULT_SUBJECTS}catch{return DEFAULT_SUBJECTS}}
+function loadSchoolSettings(){try{return {...DEFAULT_SCHOOL_SETTINGS,...JSON.parse(localStorage.getItem('dnh_school_settings')||'{}')}}catch{return DEFAULT_SCHOOL_SETTINGS}}
+function addMinutes(hhmm,min){const [h,m]=hhmm.split(':').map(Number);const d=new Date(2000,0,1,h,m+min);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function buildScheduleRows(settings){
+ let time=settings.start,rows=[];
+ for(let n=1;n<=settings.lessonCount;n++){
+   const end=addMinutes(time,settings.lessonMinutes);rows.push({id:'lesson-'+n,type:'lesson',lessonNo:n,start:time,end});time=end;
+   if(n<settings.lessonCount){
+     const lunch=n===Number(settings.lunchAfter);const mins=lunch?Number(settings.lunchMinutes):Number(settings.breakMinutes);
+     const bend=addMinutes(time,mins);rows.push({id:(lunch?'lunch-':'break-')+n,type:lunch?'lunch':'break',start:time,end:bend});time=bend;
+   }
+ }
+ return rows;
+}
+function WeeklySchedule({ goTasks }) {
+ const days=['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+ const [subjects,setSubjects]=useState(loadSubjects);
+ const [settings,setSettings]=useState(loadSchoolSettings);
+ const [plan,setPlan]=useState(()=>{try{return JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}')}catch{return {}}});
+ const [menu,setMenu]=useState(null);
+ useEffect(()=>{const sync=()=>{setSubjects(loadSubjects());setSettings(loadSchoolSettings())};window.addEventListener('dnh-settings',sync);return()=>window.removeEventListener('dnh-settings',sync)},[]);
+ useEffect(()=>localStorage.setItem('dnh_schedule_plan',JSON.stringify(plan)),[plan]);
+ const rows=buildScheduleRows(settings);
+ function setLesson(day,rowId,value){setPlan({...plan,[day+'|'+rowId]:value})}
+ function chooseSubject(day,rowId){const current=plan[day+'|'+rowId]||'';const names=subjects.map((s,i)=>(i+1)+' - '+s.name).join('\n');const ans=prompt('Ders seç:\n'+names,current?String(Math.max(1,subjects.findIndex(s=>s.id===current)+1)):'');if(ans===null)return;const idx=Number(ans)-1;if(subjects[idx])setLesson(day,rowId,subjects[idx].id)}
+ function action(day,row){const key=day+'|'+row.id,sub=subjects.find(s=>s.id===plan[key]);if(!sub){chooseSubject(day,row.id);return}setMenu({day,row,sub})}
+ function addNote(calendar=false){const txt=prompt(calendar?'Takvime eklenecek not:':'Ders notu:');if(!txt)return;const k='dnh_subject_notes';let a=[];try{a=JSON.parse(localStorage.getItem(k)||'[]')}catch{}a.push({id:Date.now(),subject:menu.sub.name,note:txt,calendar,createdAt:new Date().toISOString()});localStorage.setItem(k,JSON.stringify(a));setMenu(null);alert(calendar?'Takvim notu kaydedildi.':'Not kaydedildi.')}
+ return <section className="android-home-screen schedule-screen"><div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 2</span><h2>Haftalık Ders Planı</h2></div><small>{settings.start} başlangıç · {settings.lessonMinutes} dk ders</small></div>
+  <div className="schedule-scroll"><div className="schedule-grid" style={{gridTemplateColumns:'92px repeat(7,minmax(105px,1fr))'}}><div className="schedule-head">Saat</div>{days.map(d=><div className="schedule-head" key={d}>{d}</div>)}
+   {rows.map(r=><div key={r.id} style={{display:'contents'}}><div className={'schedule-time type-'+r.type}>{r.start}<br/>{r.end}</div>{days.map(d=>{if(r.type!=='lesson')return <div key={d} className={'schedule-cell type-'+r.type}>{r.type==='lunch'?'Öğle Arası':'Teneffüs'}</div>;const sid=plan[d+'|'+r.id],sub=subjects.find(x=>x.id===sid);return <button key={d} className="schedule-cell lesson-pick" style={sub?{background:sub.color}:undefined} onClick={()=>action(d,r)}>{sub?sub.name:'＋ Ders seç'}</button>})}</div>)}
+  </div></div>
+  {menu&&<div className="modal-backdrop" onClick={()=>setMenu(null)}><div className="lesson-action-menu" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>{menu.sub.name} · {menu.day}</strong><button onClick={()=>setMenu(null)}>×</button></div><button onClick={()=>{chooseSubject(menu.day,menu.row.id);setMenu(null)}}>🔄 Dersi değiştir</button><button onClick={()=>addNote(false)}>📝 Not ekle</button><button onClick={()=>addNote(true)}>📅 Takvime not ekle</button><button onClick={()=>{setMenu(null);goTasks()}}>📚 Ödev ekle</button><button onClick={()=>{setLesson(menu.day,menu.row.id,'');setMenu(null)}}>🗑️ Dersi kaldır</button></div></div>}
+ </section>;
 }
 
 function HomeworkCalendar({ tasks, onOpen }) {
