@@ -1585,7 +1585,10 @@ function WeeklySchedule({ goTasks }) {
 }
 
 function HomeworkCalendar({ tasks, onOpen }) {
-  const [cursor,setCursor]=useState(()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),1)});
+  const now=new Date();
+  const schoolStart=new Date(2026,8,1), schoolEnd=new Date(2027,5,30);
+  const initial=(now>=schoolStart&&now<=schoolEnd)?new Date(now.getFullYear(),now.getMonth(),1):new Date(2026,8,1);
+  const [cursor,setCursor]=useState(initial);
   const [events,setEvents]=useState(loadCalendarEvents);
   const [holidays,setHolidays]=useState(loadHolidays);
   const [examOpen,setExamOpen]=useState(false);
@@ -1594,22 +1597,58 @@ function HomeworkCalendar({ tasks, onOpen }) {
   const subjects=loadSubjects();
   const [exam,setExam]=useState({subject:'',date:localDateISO(),note:''});
   const colors=loadCalendarColors();
+  const scrollRef=useRef(null);
+  const monthRefs=useRef({});
+  const schoolMonths=Array.from({length:10},(_,i)=>new Date(2026,8+i,1));
+  const mebEvents=[
+    {start:'2026-09-01',end:'2026-09-11',name:'Öğretmenlerin mesleki çalışmaları',kind:'school'},
+    {start:'2026-09-07',end:'2026-09-11',name:'Uyum / rehberlik haftası',kind:'school'},
+    {start:'2026-09-14',end:'2026-09-14',name:'1. dönem başlangıcı',kind:'school'},
+    {start:'2026-09-19',end:'2026-09-19',name:'Gaziler Günü',kind:'special'},
+    {start:'2026-10-28',end:'2026-10-29',name:'Cumhuriyet Bayramı',kind:'holiday'},
+    {start:'2026-11-10',end:'2026-11-10',name:"Atatürk'ü Anma Günü",kind:'special'},
+    {start:'2026-11-16',end:'2026-11-20',name:'1. dönem ara tatili',kind:'holiday'},
+    {start:'2026-11-24',end:'2026-11-24',name:'Öğretmenler Günü',kind:'special'},
+    {start:'2027-01-01',end:'2027-01-01',name:'Yılbaşı',kind:'holiday'},
+    {start:'2027-01-22',end:'2027-01-22',name:'1. dönem sonu / karne',kind:'school'},
+    {start:'2027-01-25',end:'2027-02-05',name:'Yarıyıl tatili',kind:'holiday'},
+    {start:'2027-02-08',end:'2027-02-08',name:'2. dönem başlangıcı',kind:'school'},
+    {start:'2027-03-08',end:'2027-03-12',name:'2. dönem ara tatili',kind:'holiday'},
+    {start:'2027-03-08',end:'2027-03-11',name:'Ramazan Bayramı',kind:'holiday'},
+    {start:'2027-03-12',end:'2027-03-12',name:'İstiklal Marşı’nın Kabulü ve Mehmet Akif Ersoy’u Anma Günü',kind:'special'},
+    {start:'2027-03-18',end:'2027-03-18',name:'Çanakkale Zaferi ve Şehitleri Anma Günü',kind:'special'},
+    {start:'2027-04-23',end:'2027-04-23',name:'23 Nisan Ulusal Egemenlik ve Çocuk Bayramı',kind:'holiday'},
+    {start:'2027-05-01',end:'2027-05-01',name:'Emek ve Dayanışma Günü',kind:'holiday'},
+    {start:'2027-05-15',end:'2027-05-19',name:'Kurban Bayramı',kind:'holiday'},
+    {start:'2027-05-19',end:'2027-05-19',name:"19 Mayıs Atatürk'ü Anma, Gençlik ve Spor Bayramı",kind:'holiday'},
+    {start:'2027-06-25',end:'2027-06-25',name:'Eğitim öğretim yılı sonu / karne',kind:'school'},
+    {start:'2027-06-28',end:'2027-06-30',name:'Öğretmenlerin yıl sonu mesleki çalışmaları',kind:'school'}
+  ];
   useEffect(()=>{const sync=()=>{setEvents(loadCalendarEvents());setHolidays(loadHolidays())};window.addEventListener('dnh-calendar',sync);window.addEventListener('dnh-settings',sync);return()=>{window.removeEventListener('dnh-calendar',sync);window.removeEventListener('dnh-settings',sync)}},[]);
-  const y=cursor.getFullYear(),m=cursor.getMonth(),first=(new Date(y,m,1).getDay()+6)%7,count=new Date(y,m+1,0).getDate();
-  const cells=[...Array(first).fill(null),...Array.from({length:count},(_,i)=>i+1)];while(cells.length%7)cells.push(null);
+  useEffect(()=>{const key=cursor.getFullYear()+'-'+String(cursor.getMonth()+1).padStart(2,'0');requestAnimationFrame(()=>monthRefs.current[key]?.scrollIntoView({behavior:'smooth',block:'start'}))},[cursor]);
   const monthName=cursor.toLocaleDateString('tr-TR',{month:'long',year:'numeric'});
-  function iso(day){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(day).padStart(2,'0')}
+  function moveMonth(delta){const next=new Date(cursor.getFullYear(),cursor.getMonth()+delta,1);if(next<schoolStart||next>schoolEnd)return;setCursor(next)}
   function saveExam(){if(!exam.subject||!exam.date)return;addCalendarEvent({type:'exam',date:exam.date,subject:exam.subject,note:exam.note});setExam({subject:'',date:localDateISO(),note:''});setExamOpen(false);setEvents(loadCalendarEvents())}
   function beginEditEvent(){setEventEdit({...eventDetail});setEventDetail(null)}
   function saveEventEdit(){if(!eventEdit?.date)return;const next=loadCalendarEvents().map(e=>e.id===eventEdit.id?{...e,...eventEdit}:e);saveCalendarEvents(next);setEvents(next);setEventEdit(null)}
-  function deleteEvent(){if(!eventDetail)return;if(!confirm((eventDetail.type==='exam'?'Bu sınav':'Bu takvim notu')+' silinsin mi?'))return;const next=loadCalendarEvents().filter(e=>e.id!==eventDetail.id);saveCalendarEvents(next);setEvents(next);setEventDetail(null)}
-  return <section className="android-home-screen calendar-screen">
-    <div className="screen-title-row"><div><span className="screen-kicker">3. EKRAN</span><h2>Takvim</h2></div><div className="calendar-nav"><button onClick={()=>setCursor(new Date(y,m-1,1))}>‹</button><strong>{monthName}</strong><button onClick={()=>setCursor(new Date(y,m+1,1))}>›</button></div></div>
-    <div className="calendar-toolbar"><button className="exam-add-button" onClick={()=>setExamOpen(true)}>📝 Yazılı / Sınav Ekle</button><span><i className="legend-dot exam"></i>Sınav <i className="legend-dot task"></i>Ödev <i className="legend-dot note"></i>Not</span></div>
-    <div className="calendar-grid">{['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'].map((d,i)=><div className={'calendar-head '+(i>4?'weekend':'')} key={d}>{d}</div>)}
-      {cells.map((day,i)=>{if(!day)return <div className="calendar-day empty" key={i}/>;const date=iso(day),dayTasks=tasks.filter(t=>t.task_date===date),dayEvents=events.filter(e=>e.date===date),holiday=holidays.find(h=>date>=h.start&&date<=h.end),weekend=i%7>4;const hasExam=dayEvents.some(e=>e.type==='exam'),hasNote=dayEvents.some(e=>e.type!=='exam'),hasTask=dayTasks.length>0;let bg=weekend?colors.weekendBg:'#fff',fg=weekend?colors.weekendText:'#172033';if(hasTask){bg=colors.taskBg;fg=colors.taskText}if(hasNote){bg=colors.noteBg;fg=colors.noteText}if(hasExam){bg=colors.examBg;fg=colors.examText}if(holiday){bg=colors.holidayBg;fg=colors.holidayText}return <div className={'calendar-day '+(weekend?'weekend ':'')+(holiday?'holiday':'')} style={{background:bg,color:fg}} key={i}><b style={{color:fg}}>{day}</b>{holiday&&<small className="holiday-name" style={{color:fg}}>{holiday.name}</small>}<div className="calendar-task-stack">{dayEvents.filter(e=>e.type==='exam').map(e=><button key={e.id} className="calendar-exam" onClick={()=>setEventDetail(e)}>{e.subject}</button>)}{dayTasks.map(t=><button key={t.id} className={'calendar-homework '+(t.delivered?'delivered':'')} onClick={()=>onOpen(t)}>{t.title}</button>)}{dayEvents.filter(e=>e.type!=='exam').map(e=><button key={e.id} className="calendar-note" onClick={()=>setEventDetail(e)}>{e.subject||'Not'}</button>)}</div></div>})}
+  function deleteEvent(){if(!eventDetail||eventDetail.fixed)return;if(!confirm((eventDetail.type==='exam'?'Bu sınav':'Bu takvim notu')+' silinsin mi?'))return;const next=loadCalendarEvents().filter(e=>e.id!==eventDetail.id);saveCalendarEvents(next);setEvents(next);setEventDetail(null)}
+  function renderMonth(md){
+    const y=md.getFullYear(),m=md.getMonth(),first=(new Date(y,m,1).getDay()+6)%7,count=new Date(y,m+1,0).getDate();
+    const cells=[...Array(first).fill(null),...Array.from({length:count},(_,i)=>i+1)];while(cells.length%7)cells.push(null);
+    const key=y+'-'+String(m+1).padStart(2,'0');
+    const iso=day=>key+'-'+String(day).padStart(2,'0');
+    return <div className="calendar-month-block" key={key} ref={el=>monthRefs.current[key]=el}>
+      <h3 className="calendar-month-section-title">{md.toLocaleDateString('tr-TR',{month:'long',year:'numeric'})}</h3>
+      <div className="calendar-grid">{['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'].map((d,i)=><div className={'calendar-head '+(i>4?'weekend':'')} key={d}>{d}</div>)}
+      {cells.map((day,i)=>{if(!day)return <div className="calendar-day empty" key={i}/>;const date=iso(day),dayTasks=tasks.filter(t=>t.task_date===date),dayEvents=events.filter(e=>e.date===date),manualHoliday=holidays.find(h=>date>=h.start&&date<=h.end),official=mebEvents.filter(e=>date>=e.start&&date<=e.end),officialHoliday=official.find(e=>e.kind==='holiday'),weekend=i%7>4;const hasExam=dayEvents.some(e=>e.type==='exam'),hasNote=dayEvents.some(e=>e.type!=='exam'),hasTask=dayTasks.length>0;let bg=weekend?colors.weekendBg:'#fff',fg=weekend?colors.weekendText:'#172033';if(hasTask){bg=colors.taskBg;fg=colors.taskText}if(hasNote){bg=colors.noteBg;fg=colors.noteText}if(hasExam){bg=colors.examBg;fg=colors.examText}if(officialHoliday||manualHoliday){bg=colors.holidayBg;fg=colors.holidayText}return <div className={'calendar-day '+(weekend?'weekend ':'')+((officialHoliday||manualHoliday)?'holiday':'')} style={{background:bg,color:fg}} key={i}><b style={{color:fg}}>{day}</b><div className="calendar-task-stack">{official.map((e,j)=><button key={'meb-'+j} className={'calendar-meb '+e.kind} onClick={()=>setEventDetail({type:'meb',date,subject:e.name,note:'MEB 2026-2027 çalışma takvimi / belirli gün ve hafta',fixed:true})}>{e.name}</button>)}{manualHoliday&&<button className="calendar-meb holiday" onClick={()=>setEventDetail({type:'meb',date,subject:manualHoliday.name,note:'Kullanıcı tarafından tanımlanan tatil',fixed:true})}>{manualHoliday.name}</button>}{dayEvents.filter(e=>e.type==='exam').map(e=><button key={e.id} className="calendar-exam" onClick={()=>setEventDetail(e)}>{e.subject}</button>)}{dayTasks.map(t=><button key={t.id} className={'calendar-homework '+(t.delivered?'delivered':'')} onClick={()=>onOpen(t)}>{t.title}</button>)}{dayEvents.filter(e=>e.type!=='exam').map(e=><button key={e.id} className="calendar-note" onClick={()=>setEventDetail(e)}>{e.subject||'Not'}</button>)}</div></div>})}
+      </div>
     </div>
-    {eventDetail&&<div className="modal-backdrop" onClick={()=>setEventDetail(null)}><div className="calendar-detail-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>{eventDetail.type==='exam'?'Sınav':'Takvim Notu'}</strong><button onClick={()=>setEventDetail(null)}>×</button></div><div className="calendar-detail-body"><span className="calendar-detail-date">{formatShortDate(eventDetail.date)}</span><h2>{eventDetail.subject||'Not'}</h2><p>{eventDetail.note||'Açıklama girilmemiş.'}</p><div className="calendar-detail-actions"><button onClick={beginEditEvent}>Düzenle</button><button className="danger" onClick={deleteEvent}>Sil</button></div></div></div></div>}
+  }
+  return <section className="android-home-screen calendar-screen">
+    <div className="screen-title-row"><div><span className="screen-kicker">3. EKRAN</span><h2>Takvim</h2></div><div className="calendar-nav"><button onClick={()=>moveMonth(-1)}>‹</button><strong>{monthName}</strong><button onClick={()=>moveMonth(1)}>›</button></div></div>
+    <div className="calendar-toolbar"><button className="exam-add-button" onClick={()=>setExamOpen(true)}>📝 Yazılı / Sınav Ekle</button><span><i className="legend-dot exam"></i>Sınav <i className="legend-dot task"></i>Ödev <i className="legend-dot note"></i>Not</span></div>
+    <div className="school-year-calendar-scroll" ref={scrollRef}>{schoolMonths.map(renderMonth)}</div>
+    {eventDetail&&<div className="modal-backdrop" onClick={()=>setEventDetail(null)}><div className="calendar-detail-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>{eventDetail.type==='exam'?'Sınav':eventDetail.type==='meb'?'MEB Takvimi':'Takvim Notu'}</strong><button onClick={()=>setEventDetail(null)}>×</button></div><div className="calendar-detail-body"><span className="calendar-detail-date">{formatShortDate(eventDetail.date)}</span><h2>{eventDetail.subject||'Not'}</h2><p>{eventDetail.note||'Açıklama girilmemiş.'}</p>{!eventDetail.fixed&&<div className="calendar-detail-actions"><button onClick={beginEditEvent}>Düzenle</button><button className="danger" onClick={deleteEvent}>Sil</button></div>}</div></div></div>}
     {eventEdit&&<div className="modal-backdrop" onClick={()=>setEventEdit(null)}><div className="exam-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>{eventEdit.type==='exam'?'Sınavı Düzenle':'Takvim Notunu Düzenle'}</strong><button onClick={()=>setEventEdit(null)}>×</button></div><label>Ders<select value={eventEdit.subject||''} onChange={e=>setEventEdit({...eventEdit,subject:e.target.value})}><option value="">Ders seç</option>{subjects.map(s=><option key={s.id}>{s.name}</option>)}</select></label><label>Tarih<input type="date" value={eventEdit.date||''} onChange={e=>setEventEdit({...eventEdit,date:e.target.value})}/></label><label>{eventEdit.type==='exam'?'Konular / Not':'Not'}<textarea value={eventEdit.note||''} onChange={e=>setEventEdit({...eventEdit,note:e.target.value})}/></label><button className="exam-save" onClick={saveEventEdit}>Değişiklikleri kaydet</button></div></div>}
     {examOpen&&<div className="modal-backdrop" onClick={()=>setExamOpen(false)}><div className="exam-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>Yazılı / Sınav Ekle</strong><button onClick={()=>setExamOpen(false)}>×</button></div><label>Ders<select value={exam.subject} onChange={e=>setExam({...exam,subject:e.target.value})}><option value="">Ders seç</option>{subjects.map(s=><option key={s.id}>{s.name}</option>)}</select></label><div className="quick-date-row"><button onClick={()=>setExam({...exam,date:localDateISO()})}>Bugün</button><button onClick={()=>setExam({...exam,date:shiftDate(1)})}>Yarın</button><button onClick={()=>setExam({...exam,date:nextWeekdayDate()})}>Gelecek hafta</button></div><label>Tarih<input type="date" value={exam.date} onChange={e=>setExam({...exam,date:e.target.value})}/></label><label>Konular / Not<textarea value={exam.note} onChange={e=>setExam({...exam,note:e.target.value})} placeholder="Sınav konuları, hatırlatma..."/></label><button className="exam-save" onClick={saveExam}>Sınavı kaydet</button></div></div>}
   </section>;
