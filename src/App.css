@@ -3495,3 +3495,35 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
 /* v68 konum izin testi */
 .location-share-now{display:block;width:min(100%,360px);margin:4px auto 10px;border:0;border-radius:12px;padding:12px 14px;background:#162033;color:#fff!important;font-weight:900;font-size:15px}
 .location-share-now:disabled{opacity:.65}.location-send-msg{text-align:center;margin:0 auto 10px;font-weight:800;color:#334155}
+
+
+/* v64.7 ders saatleri basligi ve namaz vakitleri mobil sigdirma */
+.schedule-head.schedule-sticky-time.schedule-time-heading{
+  background:#162033!important;
+  color:#fff!important;
+  font-size:10px!important;
+  line-height:1.05!important;
+  white-space:normal!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+.prayer-modal{width:min(420px,calc(100vw - 24px))!important;}
+.modal-prayer-list{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+.modal-prayer-list div{
+  min-width:0!important;
+  padding:10px 7px!important;
+  gap:3px!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  font-size:12px!important;
+}
+.modal-prayer-list div span,.modal-prayer-list div strong{white-space:nowrap!important;}
+@media(max-width:390px){
+  .modal-backdrop{padding-left:8px!important;padding-right:8px!important;}
+  .prayer-modal{width:100%!important;}
+  .modal-prayer-list div{padding:9px 3px!important;font-size:11px!important;}
+}
