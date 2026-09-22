@@ -3491,3 +3491,7 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
 /* v67.3 takvim tek ekran: yillik görünüm yeni katman acmaz */
 .calendar-screen .school-year-calendar-scroll{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important}
 .calendar-screen .calendar-toolbar{position:sticky!important;top:0!important;z-index:15!important;background:#fff!important}
+
+/* v68 konum izin testi */
+.location-share-now{display:block;width:min(100%,360px);margin:4px auto 10px;border:0;border-radius:12px;padding:12px 14px;background:#162033;color:#fff!important;font-weight:900;font-size:15px}
+.location-share-now:disabled{opacity:.65}.location-send-msg{text-align:center;margin:0 auto 10px;font-weight:800;color:#334155}
