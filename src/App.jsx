@@ -1424,7 +1424,7 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
   const touchStart = useRef(null);
   const screens = ['Ödevler', 'Haftalık Ders Planı', 'Takvim', 'Teslim Edilenler', 'Notlar', 'Kitap Okuma'];
   const [calendarEvents,setCalendarEvents]=useState(loadCalendarEvents);
-  useEffect(()=>{const sync=()=>setCalendarEvents(loadCalendarEvents());window.addEventListener('dnh-calendar',sync);return()=>window.removeEventListener('dnh-calendar',sync)},[]);
+  useEffect(()=>{const sync=()=>setCalendarEvents(loadCalendarEvents());window.addEventListener('dnh-calendar',sync);window.addEventListener('dnh-shared',sync);return()=>{window.removeEventListener('dnh-calendar',sync);window.removeEventListener('dnh-shared',sync)}},[]);
   const todayISO=localDateISO();
   const [upcomingOpen,setUpcomingOpen]=useState(false);
   const upcoming=[...tasks.filter(t=>!t.delivered&&t.task_date>=todayISO&&t.title.startsWith('Proje (')).map(t=>({date:t.task_date,label:'📗 '+t.title,type:'project'})),...calendarEvents.filter(e=>e.date>=todayISO&&e.type==='exam').map(e=>({date:e.date,label:'📝 Sınav ('+e.subject+')',type:'exam',note:e.note}))].sort((a,b)=>a.date.localeCompare(b.date));
@@ -1569,7 +1569,7 @@ function WeeklySchedule({ goTasks }) {
  const [plan,setPlan]=useState(()=>{try{return JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}')}catch{return {}}});
  const [menu,setMenu]=useState(null);
  const [subjectPick,setSubjectPick]=useState(null);
- useEffect(()=>{const sync=()=>{setSubjects(loadSubjects());setSettings(loadSchoolSettings())};window.addEventListener('dnh-settings',sync);return()=>window.removeEventListener('dnh-settings',sync)},[]);
+ useEffect(()=>{const sync=()=>{setSubjects(loadSubjects());setSettings(loadSchoolSettings());try{setPlan(JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}'))}catch{}};window.addEventListener('dnh-settings',sync);window.addEventListener('dnh-shared',sync);return()=>{window.removeEventListener('dnh-settings',sync);window.removeEventListener('dnh-shared',sync)}},[]);
  useEffect(()=>{localStorage.setItem('dnh_schedule_plan',JSON.stringify(plan));sharedPush('schedule_plan',plan)},[plan]);
  useEffect(()=>{const sync=()=>{try{setPlan(JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}'))}catch{}};window.addEventListener('dnh-shared',sync);return()=>window.removeEventListener('dnh-shared',sync)},[]);
  const rows=buildScheduleRows(settings);
@@ -2878,7 +2878,7 @@ async function seedSharedFromThisDevice(){
  return !error;
 }
 function SharedSyncBoot(){
- useEffect(()=>{sharedPull();const id=setInterval(sharedPull,15000);return()=>clearInterval(id)},[]);
+ useEffect(()=>{sharedPull();const id=setInterval(sharedPull,5000);const wake=()=>sharedPull();window.addEventListener('focus',wake);document.addEventListener('visibilitychange',wake);return()=>{clearInterval(id);window.removeEventListener('focus',wake);document.removeEventListener('visibilitychange',wake)}},[]);
  return null;
 }
 function loadCalendarEvents(){try{return JSON.parse(localStorage.getItem('dnh_calendar_events')||'[]')}catch{return []}}
