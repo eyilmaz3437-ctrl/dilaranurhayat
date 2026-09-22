@@ -3441,3 +3441,8 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
   .calendar-screen .calendar-nav strong{font-size:17px!important}
   .exam-add-button{padding:8px 9px!important;font-size:11px!important}
 }
+
+
+/* v66 ortak veri senkronizasyonu */
+.shared-sync-card{display:grid;gap:7px;margin:0 0 14px;padding:13px;border:1px solid #bfdbfe;background:#eff6ff;border-radius:14px;color:#172033}
+.shared-sync-card strong{font-size:15px}.shared-sync-card small{color:#475569;line-height:1.35}.shared-sync-card button{justify-self:start;border:0;border-radius:10px;padding:9px 12px;background:#162033;color:#fff;font-weight:900}
