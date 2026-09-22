@@ -26,7 +26,7 @@ const menuItems = [
   { key: 'gunluk', title: 'Günlüğüm', icon: '📝' },
   { key: 'kutuphane', title: 'Kütüphane', icon: '📖' },
   { key: 'kitap-takip', title: 'Kitap Okuma', icon: '📚' },
-  { key: 'araclar', title: 'Araçlar', icon: '🧰' },
+  { key: 'araclar', title: 'Ayarlar - Tanımlar', icon: '⚙️' },
 ];
 
 const elifbaLessons = [
@@ -978,7 +978,7 @@ export default function App() {
         {page === 'hedefler' && <SimplePage title="Hedeflerim" text="Hedef takibi hazırlanıyor." goHome={goHome} />}
         {page === 'gunluk' && <SimplePage title="Günlüğüm" text="Günlük notlar ve Rabbime mektuplarım burada olacak." goHome={goHome} />}
         {page === 'kutuphane' && <SimplePage title="Kütüphane" text="Kitaplar ve kaynaklar daha sonra temiz içeriklerle eklenecek." goHome={goHome} />}
-        {page === 'kitap-takip' && <ReadingTrackerPage goHome={goHome} currentUser={sessionUser} />}
+        {page === 'kitap-takip' && <ReadingTrackerPage goHome={goHome} currentUser={sessionUser} onLogout={logoutApp} />}
         {page === 'araclar' && <ToolsPage goHome={goHome} openLocationHistory={() => changePage('konum-gecmisi')} openUsers={() => changePage('kullanicilar')} openSchool={() => changePage('okul-tanimlari')} currentUser={sessionUser} />}
         {page === 'konum' && <LatestLocationPage goHome={goHome} openHistory={() => changePage('konum-gecmisi')} />}
         {page === 'konum-gecmisi' && <LocationHistoryPage goHome={goHome} />}
@@ -1030,15 +1030,16 @@ function SchoolSettingsPage({goHome}) {
   </section>
   <section className="subjects-card calendar-color-settings"><div className="subjects-head"><div><h3>🎨 Takvim Renkleri</h3><small>Zemin ve metin renklerini değiştirebilirsin.</small></div></div><div className="calendar-color-grid">{[['exam','Sınav'],['project','Proje'],['task','Ödev'],['note','Not'],['weekend','Hafta sonu'],['holiday','Tatil']].map(([k,n])=><div key={k}><strong>{n}</strong><label>Zemin<input type="color" value={calendarColors[k+'Bg']} onChange={e=>setCalColor(k+'Bg',e.target.value)}/></label><label>Metin<input type="color" value={calendarColors[k+'Text']} onChange={e=>setCalColor(k+'Text',e.target.value)}/></label></div>)}</div></section>
   <section className="subjects-card holiday-settings"><div className="subjects-head"><div><h3>🏖️ Tatiller / Okul Kapalı Günler</h3><small>Takvimde belirgin gösterilir.</small></div><button onClick={addHoliday}>＋ Tatil</button></div><div className="holiday-list">{holidays.length===0&&<small>Henüz özel tatil tanımı yok.</small>}{holidays.map(h=><div key={h.id}><strong>{h.name}</strong><span>{formatShortDate(h.start)} – {formatShortDate(h.end)}</span><button onClick={()=>delHoliday(h.id)}>Sil</button></div>)}</div></section>
-  <section className="subjects-card"><div className="subjects-head"><div><h3>📚 Ders Tanımları</h3><small>Ders planında bu listeden seçim yapılır.</small></div><button onClick={addSubject}>＋ Ders</button></div><div className="subject-definition-list">{subjects.map(s=><div className="subject-definition-row" key={s.id}><label className="subject-color-picker" title="Renk seç"><i style={{background:s.color}}></i><input type="color" value={s.color} onChange={e=>setSubjectColor(s.id,e.target.value)}/></label><strong>{s.name}</strong><button onClick={()=>renameSubject(s)}>Adı</button><button className="danger" onClick={()=>delSubject(s)}>Sil</button></div>)}</div></section>
+  <section className="subjects-card"><div className="subjects-head"><div><h3>📚 Ders Tanımları</h3><small>Ders planında bu listeden seçim yapılır.</small></div><button onClick={addSubject}>＋ Ders</button></div><div className="subject-definition-list">{subjects.map(s=><div className="subject-definition-row" key={s.id}><label className="subject-color-picker" title="Renk seç"><i style={{background:s.color}}></i><input type="color" value={s.color} onChange={e=>setSubjectColor(s.id,e.target.value)}/></label><strong>{s.name}</strong><button className="settings-edit-button" onClick={()=>renameSubject(s)}>Düzenle</button><button className="danger" onClick={()=>delSubject(s)}>Sil</button></div>)}</div></section>
  </div></>;
 }
 
-function ToolsPage({ goHome, openLocationHistory, openUsers, openSchool, currentUser }) {
+function ToolsPage({ goHome, openLocationHistory, openUsers, openSchool, currentUser, onLogout }) {
   return (
     <>
       <TopActions goHome={goHome} />
       <SectionTitle title="Ayarlar ve Tanımlar" />
+      <div className="settings-session-bar"><div><small>Giriş yapan</small><strong>{currentUser?.displayName || currentUser?.username}</strong></div><button onClick={onLogout}>⇄ Kullanıcı Değiştir / Çıkış</button></div>
       <div className="tools-grid">
         <button className="tool-card user-tool-card" onClick={openUsers}><span>👥</span><div><strong>Kullanıcı Tanımları</strong><small>{currentUser?.role==='admin'?'Kullanıcı ekle, düzelt, sil ve şifre yönet.':'Hesabım ve şifre değiştirme.'}</small></div><b>›</b></button>
         <button className="tool-card school-tool-card" onClick={openSchool}><span>🎓</span><div><strong>Dersler ve Ders Saatleri</strong><small>Ders renkleri, başlangıç, ders/teneffüs/öğle arası ve blok ayarları.</small></div><b>›</b></button>
