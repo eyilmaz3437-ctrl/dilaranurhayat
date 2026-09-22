@@ -25,6 +25,7 @@ const menuItems = [
   { key: 'hedefler', title: 'Hedeflerim', icon: '🎯' },
   { key: 'gunluk', title: 'Günlüğüm', icon: '📝' },
   { key: 'kutuphane', title: 'Kütüphane', icon: '📖' },
+  { key: 'kitap-takip', title: 'Kitap Okuma', icon: '📚' },
   { key: 'araclar', title: 'Araçlar', icon: '🧰' },
 ];
 
@@ -946,7 +947,7 @@ export default function App() {
         <nav className="main-menu">{menuItems.map((item) => <button key={item.key} className={page === item.key ? 'menu-item active' : 'menu-item'} onClick={() => changePage(item.key)}><span>{item.icon}</span>{menuOpen && <span>{item.title}</span>}</button>)}</nav>
       </aside>
       <main className="content">
-        {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} goLocation={() => changePage('konum')} memorization={memorization} goEzber={() => changePage('ezber')} shortcuts={shortcuts} openShortcut={openShortcut} removeShortcut={removeShortcut} renameShortcut={renameShortcut} />}
+        {page === 'home' && <HomePage currentUser={sessionUser} tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} goLocation={() => changePage('konum')} memorization={memorization} goEzber={() => changePage('ezber')} shortcuts={shortcuts} openShortcut={openShortcut} removeShortcut={removeShortcut} renameShortcut={renameShortcut} />}
         {page === 'islam' && <IslamPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} returnToEzber={returnToEzber} goEzber={() => { setPage('ezber'); setSubPage(''); setDetailKey(''); setReturnToEzber(false); }} />}
         {page === 'egitim' && <EgitimPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} toggleShortcut={toggleShortcut} isShortcutActive={isShortcutActive} />}
         {page === 'kariyer' && <CareerPage goHome={goHome} />}
@@ -955,6 +956,7 @@ export default function App() {
         {page === 'hedefler' && <SimplePage title="Hedeflerim" text="Hedef takibi hazırlanıyor." goHome={goHome} />}
         {page === 'gunluk' && <SimplePage title="Günlüğüm" text="Günlük notlar ve Rabbime mektuplarım burada olacak." goHome={goHome} />}
         {page === 'kutuphane' && <SimplePage title="Kütüphane" text="Kitaplar ve kaynaklar daha sonra temiz içeriklerle eklenecek." goHome={goHome} />}
+        {page === 'kitap-takip' && <ReadingTrackerPage goHome={goHome} currentUser={sessionUser} />}
         {page === 'araclar' && <ToolsPage goHome={goHome} openLocationHistory={() => changePage('konum-gecmisi')} openUsers={() => changePage('kullanicilar')} openSchool={() => changePage('okul-tanimlari')} currentUser={sessionUser} />}
         {page === 'konum' && <LatestLocationPage goHome={goHome} openHistory={() => changePage('konum-gecmisi')} />}
         {page === 'konum-gecmisi' && <LocationHistoryPage goHome={goHome} />}
@@ -1386,11 +1388,11 @@ function getNextPrayer(now) {
   return { title: next.title, remaining: `${h}:${m}:${s}` };
 }
 
-function HomePage({ tasks, tasksLoading, goTasks, reloadTasks, goLocation }) {
+function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLocation }) {
   const [screen, setScreen] = useState(0);
   const [selectedTask, setSelectedTask] = useState(null);
   const touchStart = useRef(null);
-  const screens = ['Ödevler', 'Haftalık Ders Planı', 'Takvim', 'Teslim Edilenler'];
+  const screens = ['Ödevler', 'Haftalık Ders Planı', 'Takvim', 'Teslim Edilenler', 'Notlar', 'Kitap Okuma'];
 
   function swipeStart(e) { touchStart.current = e.touches?.[0]?.clientX ?? null; }
   function swipeEnd(e) {
@@ -1416,6 +1418,8 @@ function HomePage({ tasks, tasksLoading, goTasks, reloadTasks, goLocation }) {
         {screen === 1 && <WeeklySchedule goTasks={goTasks} />}
         {screen === 2 && <HomeworkCalendar tasks={tasks} onOpen={setSelectedTask} />}
         {screen === 3 && <DeliveredHomework tasks={tasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
+        {screen === 4 && <FamilyNotes currentUser={currentUser} />}
+        {screen === 5 && <ReadingTrackerPage embedded currentUser={currentUser} />}
       </div>
       <div className="home-page-swipe-handle" onTouchStart={swipeStart} onTouchEnd={swipeEnd}>
         <span>‹</span><div><i></i><small>Sayfa değiştir</small></div><span>›</span>
@@ -1423,6 +1427,35 @@ function HomePage({ tasks, tasksLoading, goTasks, reloadTasks, goLocation }) {
       {selectedTask && <TaskReadModal task={selectedTask} activeUser="D" reloadTasks={reloadTasks} onClose={() => setSelectedTask(null)} />}
     </>
   );
+}
+
+
+function FamilyNotes({currentUser}) {
+ const [notes,setNotes]=useState(()=>{try{return JSON.parse(localStorage.getItem('dnh_family_notes')||'[]')}catch{return []}});
+ const canAssign=['erdal','naze','admin'].includes(currentUser?.id);
+ const author=currentUser?.id==='erdal'?'Baba':currentUser?.id==='naze'?'Naze':currentUser?.displayName||'Kullanıcı';
+ function save(next){setNotes(next);localStorage.setItem('dnh_family_notes',JSON.stringify(next))}
+ function addNote(){const text=prompt(canAssign?'Dilara için not / görevlendirme:':'Not:');if(!text?.trim())return;save([{id:Date.now(),text:text.trim(),author,createdAt:new Date().toISOString(),urgent:false},...notes])}
+ function toggleUrgent(id){save(notes.map(n=>n.id===id?{...n,urgent:!n.urgent}:n))}
+ function remove(id){if(confirm('Not silinsin mi?'))save(notes.filter(n=>n.id!==id))}
+ return <section className="android-home-screen family-notes-screen"><div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 5</span><h2>Notlar</h2></div><button onClick={addNote}>＋ Not</button></div>
+  {canAssign&&<div className="family-note-info">Dilara'ya yazdığın notlarda görevlendiren <strong>{author}</strong> olarak görünür.</div>}
+  <div className="family-notes-list">{notes.length===0&&<div className="home-empty">Henüz not yok.</div>}{notes.map(n=><article key={n.id} className={'family-note-card '+(n.urgent?'urgent':'')}><div><strong>{n.urgent?'🔴 ':''}{n.text}</strong><small>Görevlendiren: {n.author} · {new Date(n.createdAt).toLocaleString('tr-TR')}</small></div><div>{canAssign&&<button onClick={()=>toggleUrgent(n.id)}>{n.urgent?'Acili kaldır':'Acil'}</button>}<button onClick={()=>remove(n.id)}>×</button></div></article>)}</div>
+ </section>
+}
+
+function ReadingTrackerPage({goHome,currentUser,embedded=false}) {
+ const today=new Date().toISOString().slice(0,10);
+ const [rows,setRows]=useState(()=>{try{return JSON.parse(localStorage.getItem('dnh_reading_log')||'[]')}catch{return []}});
+ const [book,setBook]=useState(''); const [pages,setPages]=useState('');
+ function save(next){setRows(next);localStorage.setItem('dnh_reading_log',JSON.stringify(next))}
+ function add(){if(!book.trim()||!pages.trim())return alert('Kitap adı ve okunan sayfa bilgisini gir.');save([{id:Date.now(),date:today,book:book.trim(),pages:pages.trim(),by:currentUser?.displayName||'Dilara'},...rows]);setBook('');setPages('')}
+ const byDate={};for(const r of rows)(byDate[r.date]??=[]).push(r);
+ const dates=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));if(!dates.includes(today))dates.unshift(today);
+ return <>{!embedded&&<><TopActions goHome={goHome}/><SectionTitle title="Kitap Okuma Takibi"/></>}<section className={embedded?'android-home-screen reading-screen':'reading-page'}>{embedded&&<div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 6</span><h2>Kitap Okuma</h2></div></div>}
+  <div className="reading-entry"><input value={book} onChange={e=>setBook(e.target.value)} placeholder="Kitap adı"/><input value={pages} onChange={e=>setPages(e.target.value)} placeholder="Okunan sayfa (örn. 24–38)"/><button onClick={add}>＋ Kaydet</button></div>
+  <div className="reading-days">{dates.map(date=><section className="reading-day" key={date}><div className="reading-date"><strong>{date===today?'Bugün':new Date(date+'T12:00:00').toLocaleDateString('tr-TR',{weekday:'long'})}</strong><span>{new Date(date+'T12:00:00').toLocaleDateString('tr-TR')}</span></div>{(byDate[date]||[]).length===0?<div className="reading-empty">Henüz okuma kaydı yok.</div>:(byDate[date]||[]).map(r=><div className="reading-row" key={r.id}><span>📖</span><strong>{r.book}</strong><b>{r.pages}</b><button onClick={()=>save(rows.filter(x=>x.id!==r.id))}>×</button></div>)}</section>)}</div>
+ </section></>
 }
 
 function HomeworkHome({ tasks, tasksLoading, goTasks, reloadTasks, onOpen }) {
@@ -1440,10 +1473,10 @@ function HomeworkHome({ tasks, tasksLoading, goTasks, reloadTasks, onOpen }) {
 
   return <section className="android-home-screen homework-screen">
     <div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 1</span><h2>Ödevler</h2></div><button onClick={goTasks}>＋ Ödev</button></div>
-    <div className="homework-list-full homework-horizontal">
+    <div className="homework-list-full homework-vertical">
       {tasksLoading && <div className="home-empty">Ödevler yükleniyor...</div>}
       {!tasksLoading && visible.length === 0 && <div className="home-empty">Şimdilik ödev görünmüyor.</div>}
-      {visible.map(t => <article key={t.id} className={`homework-row ${t.completed ? 'is-completed' : ''} ${t.delivered ? 'is-delivered' : ''}`} onClick={() => onOpen(t)}>
+      {visible.map(t => <div className="homework-row-scroll" key={t.id}><article className={`homework-row ${t.completed ? 'is-completed' : ''} ${t.delivered ? 'is-delivered' : ''}`} onClick={() => onOpen(t)}>
         <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
         <span className="homework-date">{formatShortDate(t.task_date)}</span>
         <div className="homework-copy"><strong>{t.title}</strong><span>{t.content || 'Açıklama yok.'}</span></div>
@@ -1452,7 +1485,7 @@ function HomeworkHome({ tasks, tasksLoading, goTasks, reloadTasks, onOpen }) {
           {!t.delivered && <button onClick={(e) => markDelivered(e, t)}>📤 Teslim</button>}
           {t.delivered && <span className="status-pill delivered">📤 Teslim edildi</span>}
         </div>
-      </article>)}
+      </article></div>)}
     </div>
   </section>;
 }
