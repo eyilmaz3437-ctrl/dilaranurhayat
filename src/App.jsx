@@ -721,6 +721,7 @@ export default function App() {
   const [sessionUser,setSessionUser]=useState(()=>{try{return JSON.parse(localStorage.getItem('dnh_remembered_user')||sessionStorage.getItem('dnh_session_user')||'null')}catch{return null}});
   const [menuOpen, setMenuOpen] = useState(window.innerWidth > 700);
   const [page, setPage] = useState('home');
+  const [navHistory, setNavHistory] = useState([]);
   const [subPage, setSubPage] = useState('');
   const [detailKey, setDetailKey] = useState('');
   const [tasks, setTasks] = useState([]);
@@ -929,6 +930,7 @@ export default function App() {
   }
 
   function goHome() {
+    setNavHistory([]);
     setPage('home');
     setSubPage('');
     setDetailKey('');
@@ -942,6 +944,7 @@ export default function App() {
     <div className="app notranslate" translate="no">
       {menuOpen && <div className="mobile-overlay" onClick={() => setMenuOpen(false)}></div>}
       <button className="mobile-menu-button" onClick={() => setMenuOpen(true)}>☰</button>
+      {page !== 'home' && <button className="global-back-button" onClick={goBack}>← Geri</button>}
       <aside className={menuOpen ? 'sidebar open' : 'sidebar'}>
         <div className="topbar"><div className="brand">🌷 Dilara Nur Hayat</div><button className="toggle" onClick={() => setMenuOpen(!menuOpen)}>☰</button></div>
         <nav className="main-menu">{menuItems.map((item) => <button key={item.key} className={page === item.key ? 'menu-item active' : 'menu-item'} onClick={() => changePage(item.key)}><span>{item.icon}</span>{menuOpen && <span>{item.title}</span>}</button>)}</nav>
@@ -1394,10 +1397,13 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
   const touchStart = useRef(null);
   const screens = ['Ödevler', 'Haftalık Ders Planı', 'Takvim', 'Teslim Edilenler', 'Notlar', 'Kitap Okuma'];
 
-  function swipeStart(e) { touchStart.current = e.touches?.[0]?.clientX ?? null; }
+  function swipeStart(e) {
+    if (e.target.closest('button,input,select,textarea,a,.schedule-scroll,.homework-row-scroll,.calendar-grid,.reading-entry,.family-notes-list')) return;
+    touchStart.current = e.touches?.[0]?.clientX ?? e.clientX ?? null;
+  }
   function swipeEnd(e) {
     if (touchStart.current == null) return;
-    const endX = e.changedTouches?.[0]?.clientX ?? touchStart.current;
+    const endX = e.changedTouches?.[0]?.clientX ?? e.clientX ?? touchStart.current;
     const diff = endX - touchStart.current;
     touchStart.current = null;
     if (Math.abs(diff) < 45) return;
@@ -1406,14 +1412,16 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
 
   return (
     <>
+      <div className="home-free-swipe-zone" onTouchStart={swipeStart} onTouchEnd={swipeEnd} onPointerDown={swipeStart} onPointerUp={swipeEnd}>
       <div className="home-top-strip">
         <CompactPrayerBar />
         <button className="home-location-button" onClick={goLocation} title="Dilara'nın son konumu" aria-label="Son konum">📍</button>
       </div>
+      </div>
       <div className="home-screen-dots" aria-label="Ana ekranlar">
         {screens.map((name, i) => <button key={name} className={screen === i ? 'active' : ''} onClick={() => setScreen(i)} title={name}></button>)}
       </div>
-      <div className="home-swipe-stage">
+      <div className="home-swipe-stage" onTouchStart={swipeStart} onTouchEnd={swipeEnd} onPointerDown={swipeStart} onPointerUp={swipeEnd}>
         {screen === 0 && <HomeworkHome tasks={tasks} tasksLoading={tasksLoading} goTasks={goTasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
         {screen === 1 && <WeeklySchedule goTasks={goTasks} />}
         {screen === 2 && <HomeworkCalendar tasks={tasks} onOpen={setSelectedTask} />}
@@ -1477,9 +1485,10 @@ function HomeworkHome({ tasks, tasksLoading, goTasks, reloadTasks, onOpen }) {
       {tasksLoading && <div className="home-empty">Ödevler yükleniyor...</div>}
       {!tasksLoading && visible.length === 0 && <div className="home-empty">Şimdilik ödev görünmüyor.</div>}
       {visible.map(t => <div className="homework-row-scroll" key={t.id}><article className={`homework-row ${t.completed ? 'is-completed' : ''} ${t.delivered ? 'is-delivered' : ''}`} onClick={() => onOpen(t)}>
-        <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
         <span className="homework-date">{formatShortDate(t.task_date)}</span>
-        <div className="homework-copy"><strong>{t.title}</strong><span>{t.content || 'Açıklama yok.'}</span></div>
+        <strong className="homework-title-box">{t.title}</strong>
+        <span className="homework-content-box">{t.content || 'Açıklama yok.'}</span>
+        <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
         <div className="homework-statuses">
           <span className={t.completed ? 'status-pill done' : 'status-pill'}>{t.completed ? '✓ Tamamlandı' : '○ Yapılacak'}</span>
           {!t.delivered && <button onClick={(e) => markDelivered(e, t)}>📤 Teslim</button>}
@@ -2855,6 +2864,14 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
     reloadTasks();
   }
 
+  async function deleteTask(task) {
+    if (!confirm('Bu kayıt tamamen silinsin mi?')) return;
+    const { error } = await supabase.from('tasks').delete().eq('id', task.id);
+    if (error) { alert('Kayıt silinemedi: ' + error.message); return; }
+    if (detailTask?.id === task.id) setDetailTask(null);
+    reloadTasks();
+  }
+
   async function undoComplete(task) {
     const { error } = await supabase
       .from('tasks')
@@ -2905,6 +2922,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
               <span>{formatShortDate(t.task_date)}</span>
               <strong>{t.title}</strong>
               <p>{t.content}</p>
+              <button className="task-delete-button" onClick={() => deleteTask(t)}>🗑 Sil</button>
             </article>
           ))}
         </div>
@@ -2922,6 +2940,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
               <p className="task-completion-note">Yaptı: {t.completed_note || 'Tamamlanma açıklaması yok.'}</p>
               <span className="completed-by" title={t.completed_at ? formatDateTime(t.completed_at) : ''}>✓ {t.completed_by || '?'} {t.completed_at ? formatShortDate(t.completed_at.slice(0, 10)) : ''}</span>
               <button className="undo-task" onClick={(e) => { e.stopPropagation(); undoComplete(t); }}>Geri</button>
+              <button className="task-delete-button" onClick={(e) => { e.stopPropagation(); deleteTask(t); }}>🗑 Sil</button>
             </article>
           ))}
         </div>
