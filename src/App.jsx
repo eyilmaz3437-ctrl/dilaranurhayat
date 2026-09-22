@@ -1480,7 +1480,7 @@ function FamilyNotes({currentUser}) {
  function addNote(){const text=prompt(canAssign?'Dilara için not / görevlendirme:':'Not:');if(!text?.trim())return;save([{id:Date.now(),text:text.trim(),author,createdAt:new Date().toISOString(),urgent:false},...notes])}
  function toggleUrgent(id){save(notes.map(n=>n.id===id?{...n,urgent:!n.urgent}:n))}
  function remove(id){if(confirm('Not silinsin mi?'))save(notes.filter(n=>n.id!==id))}
- return <section className="android-home-screen family-notes-screen"><div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 5</span><h2>Notlar</h2></div><button onClick={addNote}>＋ Not</button></div>
+ return <section className="android-home-screen family-notes-screen"><div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 5</span><h2>Notlar</h2></div><button className="compact-title-action" onClick={addNote}>＋ Not</button></div>
   {canAssign&&<div className="family-note-info">Dilara'ya yazdığın notlarda görevlendiren <strong>{author}</strong> olarak görünür.</div>}
   <div className="family-notes-list">{notes.length===0&&<div className="home-empty">Henüz not yok.</div>}{notes.map(n=><article key={n.id} className={'family-note-card '+(n.urgent?'urgent':'')}><div><strong>{n.urgent?'🔴 ':''}{n.text}</strong><small>Görevlendiren: {n.author} · {new Date(n.createdAt).toLocaleString('tr-TR')}</small></div><div>{canAssign&&<button onClick={()=>toggleUrgent(n.id)}>{n.urgent?'Acili kaldır':'Acil'}</button>}<button onClick={()=>remove(n.id)}>×</button></div></article>)}</div>
  </section>
@@ -1495,7 +1495,7 @@ function ReadingTrackerPage({goHome,currentUser,embedded=false}) {
  const byDate={};for(const r of rows)(byDate[r.date]??=[]).push(r);
  const dates=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));if(!dates.includes(today))dates.unshift(today);
  return <>{!embedded&&<><TopActions goHome={goHome}/><SectionTitle title="Kitap Okuma Takibi"/></>}<section className={embedded?'android-home-screen reading-screen':'reading-page'}>{embedded&&<div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 6</span><h2>Kitap Okuma</h2></div></div>}
-  <div className="reading-entry"><input value={book} onChange={e=>setBook(e.target.value)} placeholder="Kitap adı"/><input value={pages} onChange={e=>setPages(e.target.value)} placeholder="Okunan sayfa (örn. 24–38)"/><button onClick={add}>＋ Kaydet</button></div>
+  <div className="reading-entry"><input value={book} onChange={e=>setBook(e.target.value)} placeholder="Kitap adı"/><input value={pages} onChange={e=>setPages(e.target.value)} placeholder="Okunan sayfa (örn. 24–38)"/><button className="reading-save-button" onClick={add}>＋ Kaydet</button></div>
   <div className="reading-days">{dates.map(date=><section className="reading-day" key={date}><div className="reading-date"><strong>{date===today?'Bugün':new Date(date+'T12:00:00').toLocaleDateString('tr-TR',{weekday:'long'})}</strong><span>{new Date(date+'T12:00:00').toLocaleDateString('tr-TR')}</span></div>{(byDate[date]||[]).length===0?<div className="reading-empty">Henüz okuma kaydı yok.</div>:(byDate[date]||[]).map(r=><div className="reading-row" key={r.id}><span>📖</span><strong>{r.book}</strong><b>{r.pages}</b><button onClick={()=>save(rows.filter(x=>x.id!==r.id))}>×</button></div>)}</section>)}</div>
  </section></>
 }
@@ -1516,7 +1516,7 @@ function HomeworkHome({ tasks, tasksLoading, goTasks, reloadTasks, onOpen }) {
   }
 
   return <section className="android-home-screen homework-screen">
-    <div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN</span><h2>Ödevler</h2></div><button onClick={goTasks}>＋ Ödev</button></div>
+    <div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN</span><h2>Ödevler</h2></div><button className="compact-title-action" onClick={goTasks}>＋ Ödev</button></div>
     <div className="homework-list-full homework-vertical">
       {events.filter(e=>e.type==='exam'&&e.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).map(e=><div className="homework-row-scroll" key={'exam-'+e.id}><article className="homework-row exam-home-row"><span className="homework-date">{formatShortDate(e.date)}</span><strong className="homework-title-box">Sınav ({e.subject})</strong><span className="homework-content-box">{e.note||'Sınav'}</span><span className="status-pill exam-pill">📝 Sınav</span></article></div>)}
       {tasksLoading && <div className="home-empty">Ödevler yükleniyor...</div>}
@@ -1575,7 +1575,7 @@ function WeeklySchedule({ goTasks }) {
  function chooseSubject(day,rowId){setSubjectPick({day,rowId})}
  function action(day,row){const key=day+'|'+row.id,sub=subjects.find(s=>s.id===plan[key]);if(!sub){chooseSubject(day,row.id);return}setMenu({day,row,sub})}
  function addNote(calendar=false){const txt=prompt(calendar?'Takvime eklenecek not:':'Ders notu:');if(!txt)return;if(calendar){const date=prompt('Tarih (YYYY-AA-GG):',localDateISO());if(!date)return;addCalendarEvent({type:'note',date,subject:menu.sub.name,note:txt});}else{const k='dnh_subject_notes';let a=[];try{a=JSON.parse(localStorage.getItem(k)||'[]')}catch{}a.push({id:Date.now(),subject:menu.sub.name,note:txt,createdAt:new Date().toISOString()});localStorage.setItem(k,JSON.stringify(a));}setMenu(null);alert(calendar?'Takvime eklendi.':'Not kaydedildi.')}
- return <section className="android-home-screen schedule-screen"><div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 2</span><h2>Haftalık Ders Planı</h2></div><small>{settings.start} başlangıç · {settings.lessonMinutes} dk ders</small></div>
+ return <section className="android-home-screen schedule-screen"><div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 2</span><h2>Haftalık Ders Planı</h2></div><small className="schedule-summary">{settings.start} · {settings.lessonMinutes} dk</small></div>
   <div className="schedule-scroll"><div className="schedule-grid" style={{gridTemplateColumns:'92px repeat(7,minmax(105px,1fr))'}}><div className="schedule-head schedule-sticky-time">Saat</div>{days.map(d=><div className="schedule-head" key={d}>{d}</div>)}
    {rows.map(r=><div key={r.id} style={{display:'contents'}}><div className={'schedule-time schedule-sticky-time type-'+r.type}>{r.start}–{r.end}</div>{days.map(d=>{if(r.type!=='lesson')return <div key={d} className={'schedule-cell type-'+r.type}>{r.type==='lunch'?'Öğle Arası':'Teneffüs'}</div>;const sid=plan[d+'|'+r.id],sub=subjects.find(x=>x.id===sid);return <button key={d} className="schedule-cell lesson-pick" style={sub?{background:sub.color}:undefined} onClick={()=>action(d,r)}>{sub?sub.name:'＋ Ders seç'}</button>})}</div>)}
   </div></div>
@@ -1649,7 +1649,7 @@ function DeliveredHomework({ tasks, reloadTasks, onOpen }) {
   }
 
   return <section className="android-home-screen delivered-screen">
-    <div className="screen-title-row"><div><span className="screen-kicker">4. EKRAN</span><h2>Teslim Edilenler</h2></div><span className="delivered-count">{delivered.length} ödev</span></div>
+    <div className="screen-title-row"><div><span className="screen-kicker">4. EKRAN</span><h2>Teslim Edilenler</h2></div><span className="delivered-count">{delivered.length}</span></div>
     <div className="homework-list-full homework-vertical">{delivered.length===0&&<div className="home-empty">Henüz teslim edilmiş ödev yok.</div>}{delivered.map(t=><div className="homework-row-scroll" key={t.id}><article className="homework-row delivered-single-row" onClick={()=>onOpen(t)}><span className="homework-date">{formatShortDate(t.task_date)}</span><strong className="homework-title-box">{t.title}</strong><span className="homework-content-box">{t.content||'Açıklama yok.'}</span><span className="status-pill delivered">📤 {t.delivered_at?formatShortDate(t.delivered_at.slice(0,10)):'Teslim'}</span><select value={t.teacher_status||'Bekliyor'} onClick={e=>e.stopPropagation()} onChange={e=>saveReview(e,t,{teacher_status:e.target.value})}><option>Bekliyor</option><option>Kontrol edildi</option><option>Düzeltme istedi</option><option>Tekrar teslim edilecek</option></select><button className="undo-delivery" onClick={e=>undoDelivery(e,t)}>↩ Geri al</button></article></div>)}</div>
   </section>;
 }
