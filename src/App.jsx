@@ -678,7 +678,46 @@ const egitimDersleri = {
   ayt: ['Edebiyat', 'Tarih-1', 'Coğrafya-1', 'Matematik', 'Geometri'],
 };
 
+
+const DEFAULT_APP_USERS = [
+  { id: 'erdal', username: 'Erdal', passwordHash: '6e7dc10b', role: 'user', displayName: 'Erdal' },
+  { id: 'naze', username: 'Naze', passwordHash: 'df8b0e13', role: 'user', displayName: 'Naze' },
+  { id: 'aras', username: 'Aras', passwordHash: '6b8f4a27', role: 'user', displayName: 'Aras' },
+  { id: 'dilara', username: 'Dilara', passwordHash: '901bbbf2', role: 'user', displayName: 'Dilara' },
+  { id: 'admin', username: 'admin', passwordHash: 'e34aa2bd', role: 'admin', displayName: 'Admin' },
+];
+const INITIAL_PASSWORDS = { erdal:'1074', naze:'1076', aras:'1003', dilara:'1012', admin:'minda' };
+
+async function appHash(value) {
+  const bytes = new TextEncoder().encode('dnh-app-v1|' + value);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest)).map(x => x.toString(16).padStart(2, '0')).join('');
+}
+async function getAppUsers() {
+  let saved=[]; try{saved=JSON.parse(localStorage.getItem('dnh_users')||'[]')}catch{}
+  if(saved.length) return saved;
+  const users=[];
+  for(const base of DEFAULT_APP_USERS) users.push({...base,passwordHash:await appHash(INITIAL_PASSWORDS[base.id])});
+  localStorage.setItem('dnh_users',JSON.stringify(users)); return users;
+}
+function LoginGate({ onLogin }) {
+  const [username,setUsername]=useState(''); const [password,setPassword]=useState(''); const [error,setError]=useState('');
+  async function submit(e){e.preventDefault();setError('');const users=await getAppUsers();const hash=await appHash(password);const user=users.find(x=>x.username.toLocaleLowerCase('tr-TR')===username.trim().toLocaleLowerCase('tr-TR')&&x.passwordHash===hash);if(!user){setError('Kullanıcı adı veya şifre hatalı.');return;}const session={id:user.id,username:user.username,displayName:user.displayName,role:user.role};sessionStorage.setItem('dnh_session_user',JSON.stringify(session));onLogin(session);}
+  return <div className="login-gate"><form className="login-card" onSubmit={submit}><div className="login-flower">🌷</div><h1>Dilara Nur Hayat</h1><p>Devam etmek için giriş yap.</p><label>Kullanıcı<input autoComplete="username" value={username} onChange={e=>setUsername(e.target.value)}/></label><label>Şifre<input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)}/></label>{error&&<div className="login-error">{error}</div>}<button>Giriş Yap</button></form></div>;
+}
+function UserSettingsPage({goHome,currentUser,onLogout}) {
+ const [users,setUsers]=useState([]),[oldPass,setOldPass]=useState(''),[newPass,setNewPass]=useState(''),[newPass2,setNewPass2]=useState(''),[msg,setMsg]=useState('');
+ useEffect(()=>{getAppUsers().then(setUsers)},[]);
+ async function changePassword(e){e.preventDefault();setMsg('');const list=await getAppUsers(),me=list.find(x=>x.id===currentUser.id);if(!me||me.passwordHash!==await appHash(oldPass)){setMsg('Mevcut şifre yanlış.');return;}if(newPass.length<4){setMsg('Yeni şifre en az 4 karakter olmalı.');return;}if(newPass!==newPass2){setMsg('Yeni şifreler aynı değil.');return;}const next=[];for(const x of list)next.push(x.id===me.id?{...x,passwordHash:await appHash(newPass)}:x);localStorage.setItem('dnh_users',JSON.stringify(next));setUsers(next);setOldPass('');setNewPass('');setNewPass2('');setMsg('Şifre değiştirildi.');}
+ async function editUser(u){if(currentUser.role!=='admin')return;const name=prompt('Kullanıcı adı:',u.username);if(!name?.trim())return;const displayName=prompt('Görünen ad:',u.displayName||u.username);if(displayName===null)return;const list=await getAppUsers(),next=list.map(x=>x.id===u.id?{...x,username:name.trim(),displayName:displayName.trim()||name.trim()}:x);localStorage.setItem('dnh_users',JSON.stringify(next));setUsers(next);}
+ async function resetPassword(u){if(currentUser.role!=='admin')return;const p=prompt(u.username+' için yeni şifre:');if(p===null)return;if(p.length<4)return alert('Şifre en az 4 karakter olmalı.');const list=await getAppUsers(),next=[];for(const x of list)next.push(x.id===u.id?{...x,passwordHash:await appHash(p)}:x);localStorage.setItem('dnh_users',JSON.stringify(next));setUsers(next);alert('Şifre yenilendi.');}
+ async function deleteUser(u){if(currentUser.role!=='admin'||u.id==='admin')return;if(!confirm(u.username+' kullanıcısı silinsin mi?'))return;const list=await getAppUsers(),next=list.filter(x=>x.id!==u.id);localStorage.setItem('dnh_users',JSON.stringify(next));setUsers(next);}
+ async function addUser(){if(currentUser.role!=='admin')return;const username=prompt('Yeni kullanıcı adı:');if(!username?.trim())return;const password=prompt('İlk şifre (en az 4 karakter):');if(!password||password.length<4)return alert('Şifre en az 4 karakter olmalı.');const list=await getAppUsers();if(list.some(x=>x.username.toLocaleLowerCase('tr-TR')===username.trim().toLocaleLowerCase('tr-TR')))return alert('Bu kullanıcı zaten var.');const u={id:'u_'+Date.now(),username:username.trim(),displayName:username.trim(),role:'user',passwordHash:await appHash(password)},next=[...list,u];localStorage.setItem('dnh_users',JSON.stringify(next));setUsers(next);}
+ return <><TopActions goHome={goHome}/><SectionTitle title="Kullanıcı Tanımları"/><div className="user-settings-wrap"><div className="current-user-card"><span>👤</span><div><small>Oturum</small><strong>{currentUser.displayName}</strong></div><button onClick={onLogout}>Çıkış</button></div><form className="password-card" onSubmit={changePassword}><h3>Şifremi Değiştir</h3><input type="password" placeholder="Mevcut şifre" value={oldPass} onChange={e=>setOldPass(e.target.value)}/><input type="password" placeholder="Yeni şifre" value={newPass} onChange={e=>setNewPass(e.target.value)}/><input type="password" placeholder="Yeni şifre tekrar" value={newPass2} onChange={e=>setNewPass2(e.target.value)}/><button>Şifreyi değiştir</button>{msg&&<small className="password-message">{msg}</small>}</form>{currentUser.role==='admin'&&<div className="admin-users-card"><div className="admin-users-head"><h3>Kullanıcı Yönetimi</h3><button onClick={addUser}>＋ Kullanıcı</button></div>{users.map(u=><div className="admin-user-row" key={u.id}><div><strong>{u.username}</strong><small>{u.role==='admin'?'Yönetici':'Kullanıcı'}</small></div><div className="admin-user-actions"><button onClick={()=>editUser(u)}>Düzenle</button><button onClick={()=>resetPassword(u)}>Şifre</button>{u.id!=='admin'&&<button className="danger" onClick={()=>deleteUser(u)}>Sil</button>}</div></div>)}</div>}</div></>;
+}
+
 export default function App() {
+  const [sessionUser,setSessionUser]=useState(()=>{try{return JSON.parse(sessionStorage.getItem('dnh_session_user')||'null')}catch{return null}});
   const [menuOpen, setMenuOpen] = useState(window.innerWidth > 700);
   const [page, setPage] = useState('home');
   const [subPage, setSubPage] = useState('');
@@ -895,6 +934,9 @@ export default function App() {
     if (window.innerWidth < 700) setMenuOpen(false);
   }
 
+  if(!sessionUser) return <LoginGate onLogin={setSessionUser}/>;
+  function logoutApp(){sessionStorage.removeItem('dnh_session_user');setSessionUser(null);}
+
   return (
     <div className="app notranslate" translate="no">
       {menuOpen && <div className="mobile-overlay" onClick={() => setMenuOpen(false)}></div>}
@@ -913,9 +955,10 @@ export default function App() {
         {page === 'hedefler' && <SimplePage title="Hedeflerim" text="Hedef takibi hazırlanıyor." goHome={goHome} />}
         {page === 'gunluk' && <SimplePage title="Günlüğüm" text="Günlük notlar ve Rabbime mektuplarım burada olacak." goHome={goHome} />}
         {page === 'kutuphane' && <SimplePage title="Kütüphane" text="Kitaplar ve kaynaklar daha sonra temiz içeriklerle eklenecek." goHome={goHome} />}
-        {page === 'araclar' && <ToolsPage goHome={goHome} openLocationHistory={() => changePage('konum-gecmisi')} />}
+        {page === 'araclar' && <ToolsPage goHome={goHome} openLocationHistory={() => changePage('konum-gecmisi')} openUsers={() => changePage('kullanicilar')} currentUser={sessionUser} />}
         {page === 'konum' && <LatestLocationPage goHome={goHome} openHistory={() => changePage('konum-gecmisi')} />}
         {page === 'konum-gecmisi' && <LocationHistoryPage goHome={goHome} />}
+        {page === 'kullanicilar' && <UserSettingsPage goHome={goHome} currentUser={sessionUser} onLogout={logoutApp} />}
       </main>
     </div>
   );
@@ -938,12 +981,13 @@ function locationAgeText(iso) {
   return Math.floor(h / 24) + ' gün önce';
 }
 
-function ToolsPage({ goHome, openLocationHistory }) {
+function ToolsPage({ goHome, openLocationHistory, openUsers, currentUser }) {
   return (
     <>
       <TopActions goHome={goHome} />
       <SectionTitle title="Araçlar" />
       <div className="tools-grid">
+        <button className="tool-card user-tool-card" onClick={openUsers}><span>👥</span><div><strong>Kullanıcı Tanımları</strong><small>{currentUser?.role==='admin'?'Kullanıcı ekle, düzelt, sil ve şifre yönet.':'Hesabım ve şifre değiştirme.'}</small></div><b>›</b></button>
         <button className="tool-card location-tool-card" onClick={openLocationHistory}>
           <span>🗺️</span>
           <div><strong>Konum Geçmişi</strong><small>20 dakikalık kayıtlar, gün ve saat bazında.</small></div>
