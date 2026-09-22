@@ -1184,28 +1184,202 @@ function getNextPrayer(now) {
   return { title: next.title, remaining: `${h}:${m}:${s}` };
 }
 
-function HomePage({ tasks, tasksLoading, goTasks, prayerLogs, saveTodayPrayer, activeUser, reloadTasks, memorization, goEzber, shortcuts, openShortcut, removeShortcut, renameShortcut }) {
+function HomePage({ tasks, tasksLoading, goTasks, reloadTasks }) {
+  const [screen, setScreen] = useState(0);
   const [selectedTask, setSelectedTask] = useState(null);
-  const upcoming = [...tasks].filter(t => !t.completed).sort((a, b) => a.task_date.localeCompare(b.task_date)).slice(0, 7);
+  const touchStart = useRef(null);
+  const screens = ['Ödevler', 'Haftalık Ders Planı', 'Takvim', 'Teslim Edilenler'];
+
+  function swipeStart(e) { touchStart.current = e.touches?.[0]?.clientX ?? null; }
+  function swipeEnd(e) {
+    if (touchStart.current == null) return;
+    const endX = e.changedTouches?.[0]?.clientX ?? touchStart.current;
+    const diff = endX - touchStart.current;
+    touchStart.current = null;
+    if (Math.abs(diff) < 55) return;
+    setScreen(x => diff < 0 ? Math.min(screens.length - 1, x + 1) : Math.max(0, x - 1));
+  }
 
   return (
     <>
-      <CompactPrayerBar />
-      <MemorizationSummary memorization={memorization} goEzber={goEzber} />
-      <PrayerChecklist logs={prayerLogs} onToggle={saveTodayPrayer} />
-      <HomeShortcuts shortcuts={shortcuts} openShortcut={openShortcut} removeShortcut={removeShortcut} renameShortcut={renameShortcut} />
-      <button className="task-open-button" onClick={goTasks}>✅ Yeni görev ekle / görevleri aç</button>
-      <div className="home-task-list">
-        {tasksLoading && <div className="home-empty">Görevler yükleniyor...</div>}
-        {!tasksLoading && upcoming.length === 0 && <div className="home-empty">Henüz görev yok.</div>}
-        {upcoming.map(t => <CompactTaskRow key={t.id} task={t} onOpen={() => setSelectedTask(t)} />)}
-
+      <div className="home-top-strip">
+        <CompactPrayerBar />
+        <button className="home-add-screen" onClick={() => alert('Yeni ekran ekleme altyapısı hazır. Sonraki ekranda içeriğini birlikte seçeriz.')} title="Ekran ekle">⊕</button>
       </div>
-      {selectedTask && <TaskReadModal task={selectedTask} activeUser={activeUser} reloadTasks={reloadTasks} onClose={() => setSelectedTask(null)} />}
+      <div className="home-screen-dots" aria-label="Ana ekranlar">
+        {screens.map((name, i) => <button key={name} className={screen === i ? 'active' : ''} onClick={() => setScreen(i)} title={name}></button>)}
+      </div>
+      <div className="home-swipe-stage" onTouchStart={swipeStart} onTouchEnd={swipeEnd}>
+        {screen === 0 && <HomeworkHome tasks={tasks} tasksLoading={tasksLoading} goTasks={goTasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
+        {screen === 1 && <WeeklySchedule />}
+        {screen === 2 && <HomeworkCalendar tasks={tasks} onOpen={setSelectedTask} />}
+        {screen === 3 && <DeliveredHomework tasks={tasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
+      </div>
+      {selectedTask && <TaskReadModal task={selectedTask} activeUser="D" reloadTasks={reloadTasks} onClose={() => setSelectedTask(null)} />}
     </>
   );
 }
 
+function HomeworkHome({ tasks, tasksLoading, goTasks, reloadTasks, onOpen }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const visible = [...tasks]
+    .filter(t => !t.delivered || (t.delivered_at || '').slice(0, 10) === today)
+    .sort((a, b) => (a.task_date || '').localeCompare(b.task_date || ''));
+
+  async function markDelivered(e, task) {
+    e.stopPropagation();
+    const { error } = await supabase.from('tasks').update({ delivered: true, delivered_at: new Date().toISOString() }).eq('id', task.id);
+    if (error) { alert('Teslim bilgisi kaydedilemedi: ' + error.message); return; }
+    reloadTasks();
+  }
+
+  return <section className="android-home-screen homework-screen">
+    <div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 1</span><h2>Ödevler</h2></div><button onClick={goTasks}>＋ Ödev</button></div>
+    <div className="homework-list-full">
+      {tasksLoading && <div className="home-empty">Ödevler yükleniyor...</div>}
+      {!tasksLoading && visible.length === 0 && <div className="home-empty">Şimdilik ödev görünmüyor.</div>}
+      {visible.map(t => <article key={t.id} className={`homework-row ${t.completed ? 'is-completed' : ''} ${t.delivered ? 'is-delivered' : ''}`} onClick={() => onOpen(t)}>
+        <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
+        <span className="homework-date">{formatShortDate(t.task_date)}</span>
+        <div className="homework-copy"><strong>{t.title}</strong><span>{t.content || 'Açıklama yok.'}</span></div>
+        <div className="homework-statuses">
+          <span className={t.completed ? 'status-pill done' : 'status-pill'}>{t.completed ? '✓ Tamamlandı' : '○ Yapılacak'}</span>
+          {!t.delivered && <button onClick={(e) => markDelivered(e, t)}>📤 Teslim</button>}
+          {t.delivered && <span className="status-pill delivered">📤 Teslim edildi</span>}
+        </div>
+      </article>)}
+    </div>
+  </section>;
+}
+
+const defaultScheduleRows = [
+  { id: 1, type: 'lesson', start: '08:30', end: '09:10', cells: ['', '', '', '', '', '', ''] },
+  { id: 2, type: 'break', start: '09:10', end: '09:20', cells: ['Teneffüs','Teneffüs','Teneffüs','Teneffüs','Teneffüs','',''] },
+  { id: 3, type: 'lesson', start: '09:20', end: '10:00', cells: ['', '', '', '', '', '', ''] },
+];
+
+function WeeklySchedule() {
+  const days = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+  const [editing, setEditing] = useState(false);
+  const [rows, setRows] = useState(() => { try { return JSON.parse(localStorage.getItem('dnh_weekly_schedule') || 'null') || defaultScheduleRows; } catch { return defaultScheduleRows; } });
+  useEffect(() => { localStorage.setItem('dnh_weekly_schedule', JSON.stringify(rows)); }, [rows]);
+  function patchRow(id, patch) { setRows(rows.map(r => r.id === id ? {...r, ...patch} : r)); }
+  function patchCell(id, i, value) { setRows(rows.map(r => r.id === id ? {...r, cells: r.cells.map((x,j) => j === i ? value : x)} : r)); }
+  function addRow(type='lesson') { setRows([...rows, {id: Date.now(), type, start:'', end:'', cells: Array(7).fill(type === 'break' ? 'Teneffüs' : type === 'lunch' ? 'Öğle Arası' : '')}]); }
+  function removeRow(id) { setRows(rows.filter(r => r.id !== id)); }
+  return <section className="android-home-screen schedule-screen">
+    <div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 2</span><h2>Haftalık Ders Planı</h2></div><button onClick={() => setEditing(!editing)}>{editing ? '✓ Bitti' : '✎ Düzenle'}</button></div>
+    <div className="schedule-scroll"><div className="schedule-grid" style={{gridTemplateColumns:'92px repeat(7, minmax(86px,1fr))'}}>
+      <div className="schedule-head">Saat</div>{days.map(d => <div className="schedule-head" key={d}>{d}</div>)}
+      {rows.map(r => <div className={`schedule-row-fragment type-${r.type}`} key={r.id} style={{display:'contents'}}>
+        <div className={`schedule-time type-${r.type}`}>{editing ? <><input value={r.start} onChange={e=>patchRow(r.id,{start:e.target.value})}/><input value={r.end} onChange={e=>patchRow(r.id,{end:e.target.value})}/><button onClick={()=>removeRow(r.id)}>×</button></> : <>{r.start}<br/>{r.end}</>}</div>
+        {r.cells.map((v,i) => <div className={`schedule-cell type-${r.type}`} key={i}>{editing ? <input value={v} onChange={e=>patchCell(r.id,i,e.target.value)} /> : (v || '—')}</div>)}
+      </div>)}
+    </div></div>
+    {editing && <div className="schedule-add-row"><button onClick={()=>addRow('lesson')}>＋ Ders</button><button onClick={()=>addRow('break')}>＋ Teneffüs</button><button onClick={()=>addRow('lunch')}>＋ Öğle Arası</button></div>}
+  </section>;
+}
+
+function HomeworkCalendar({ tasks, onOpen }) {
+  const [cursor, setCursor] = useState(() => { const d=new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
+  const y=cursor.getFullYear(), m=cursor.getMonth();
+  const first=(new Date(y,m,1).getDay()+6)%7, count=new Date(y,m+1,0).getDate();
+  const cells=[...Array(first).fill(null), ...Array.from({length:count},(_,i)=>i+1)]; while(cells.length%7) cells.push(null);
+  const monthName=cursor.toLocaleDateString('tr-TR',{month:'long',year:'numeric'});
+  function iso(day){ return `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`; }
+  return <section className="android-home-screen calendar-screen">
+    <div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 3</span><h2>Takvim</h2></div><div className="calendar-nav"><button onClick={()=>setCursor(new Date(y,m-1,1))}>‹</button><strong>{monthName}</strong><button onClick={()=>setCursor(new Date(y,m+1,1))}>›</button></div></div>
+    <div className="calendar-grid">{['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'].map(d=><div className="calendar-head" key={d}>{d}</div>)}
+      {cells.map((day,i)=>{ const dayTasks=day?tasks.filter(t=>t.task_date===iso(day)):[]; return <div className={`calendar-day ${day?'':'empty'}`} key={i}>{day&&<><b>{day}</b><div className="calendar-task-stack">{dayTasks.slice(0,4).map(t=><button key={t.id} className={t.delivered?'delivered':''} onClick={()=>onOpen(t)}>{t.title}</button>)}{dayTasks.length>4&&<small>+{dayTasks.length-4} ödev</small>}</div></>}</div>})}
+    </div>
+  </section>;
+}
+
+
+function DeliveredHomework({ tasks, reloadTasks, onOpen }) {
+  const delivered = [...tasks]
+    .filter(t => t.delivered)
+    .sort((a, b) => (b.delivered_at || '').localeCompare(a.delivered_at || ''));
+
+  async function saveReview(e, task, patch) {
+    e.stopPropagation();
+    const { error } = await supabase.from('tasks').update(patch).eq('id', task.id);
+    if (error) {
+      alert('Öğretmen değerlendirmesi kaydedilemedi: ' + error.message);
+      return;
+    }
+    await reloadTasks();
+  }
+
+  async function undoDelivery(e, task) {
+    e.stopPropagation();
+    if (!window.confirm('Bu ödevi yeniden aktif ödevler listesine almak istiyor musun?')) return;
+    const { error } = await supabase.from('tasks').update({ delivered: false, delivered_at: null }).eq('id', task.id);
+    if (error) {
+      alert('Teslim durumu geri alınamadı: ' + error.message);
+      return;
+    }
+    await reloadTasks();
+  }
+
+  return <section className="android-home-screen delivered-screen">
+    <div className="screen-title-row">
+      <div><span className="screen-kicker">ANA EKRAN 4</span><h2>Teslim Edilenler</h2></div>
+      <span className="delivered-count">{delivered.length} ödev</span>
+    </div>
+
+    <div className="delivered-homework-list">
+      {delivered.length === 0 && <div className="home-empty">Henüz teslim edilmiş ödev yok.</div>}
+      {delivered.map(t => (
+        <article key={t.id} className="delivered-homework-card" onClick={() => onOpen(t)}>
+          <div className="delivered-card-main">
+            <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
+            <div className="delivered-card-copy">
+              <strong>{t.title}</strong>
+              <span>{t.content || 'Açıklama yok.'}</span>
+              <small>Veriliş: {formatShortDate(t.task_date)} · Teslim: {t.delivered_at ? new Date(t.delivered_at).toLocaleDateString('tr-TR') : '—'}</small>
+            </div>
+          </div>
+
+          <div className="teacher-review" onClick={e => e.stopPropagation()}>
+            <label>
+              <span>Öğretmen</span>
+              <select value={t.teacher_status || 'Bekliyor'} onChange={e => saveReview(e, t, { teacher_status: e.target.value })}>
+                <option>Bekliyor</option>
+                <option>Kontrol edildi</option>
+                <option>Düzeltme istedi</option>
+                <option>Tekrar teslim edilecek</option>
+              </select>
+            </label>
+            <label className="grade-field">
+              <span>Not / Puan</span>
+              <input
+                value={t.grade || ''}
+                placeholder="—"
+                onChange={e => {
+                  const value = e.target.value;
+                  saveReview(e, t, { grade: value });
+                }}
+              />
+            </label>
+            <label className="teacher-note-field">
+              <span>Öğretmen notu</span>
+              <input
+                value={t.teacher_note || ''}
+                placeholder="Değerlendirme notu..."
+                onChange={e => {
+                  const value = e.target.value;
+                  saveReview(e, t, { teacher_note: value });
+                }}
+              />
+            </label>
+            <button className="undo-delivery" onClick={e => undoDelivery(e, t)} title="Aktif ödevlere geri al">↩ Geri al</button>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>;
+}
 
 function HomeShortcuts({ shortcuts, openShortcut, removeShortcut, renameShortcut }) {
   if (!shortcuts || shortcuts.length === 0) {
