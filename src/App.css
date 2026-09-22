@@ -3392,3 +3392,16 @@ button,input,select,textarea{font-family:inherit} input,select,textarea{opacity:
 .calendar-meb.special{color:#854d0e!important;border-color:rgba(133,77,14,.16)!important}
 .calendar-meb.holiday{color:#b91c1c!important;border-color:rgba(185,28,28,.18)!important}
 @media(max-width:420px){.calendar-screen .calendar-nav strong{font-size:18px!important}.calendar-month-section-title{font-size:15px}.school-year-calendar-scroll{height:calc(100vh - 195px)}}
+
+
+/* v65.1 MEB takvim etiketleri en fazla 3 satir */
+.calendar-task-stack .calendar-meb{
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical!important;
+  -webkit-line-clamp:3!important;
+  line-clamp:3!important;
+  white-space:normal!important;
+  overflow:hidden!important;
+  line-height:1.08!important;
+  max-height:3.24em!important;
+}
