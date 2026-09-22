@@ -904,7 +904,7 @@ export default function App() {
         <nav className="main-menu">{menuItems.map((item) => <button key={item.key} className={page === item.key ? 'menu-item active' : 'menu-item'} onClick={() => changePage(item.key)}><span>{item.icon}</span>{menuOpen && <span>{item.title}</span>}</button>)}</nav>
       </aside>
       <main className="content">
-        {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} memorization={memorization} goEzber={() => changePage('ezber')} shortcuts={shortcuts} openShortcut={openShortcut} removeShortcut={removeShortcut} renameShortcut={renameShortcut} />}
+        {page === 'home' && <HomePage tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} goLocation={() => changePage('konum')} memorization={memorization} goEzber={() => changePage('ezber')} shortcuts={shortcuts} openShortcut={openShortcut} removeShortcut={removeShortcut} renameShortcut={renameShortcut} />}
         {page === 'islam' && <IslamPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} returnToEzber={returnToEzber} goEzber={() => { setPage('ezber'); setSubPage(''); setDetailKey(''); setReturnToEzber(false); }} />}
         {page === 'egitim' && <EgitimPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} toggleShortcut={toggleShortcut} isShortcutActive={isShortcutActive} />}
         {page === 'kariyer' && <CareerPage goHome={goHome} />}
@@ -913,9 +913,143 @@ export default function App() {
         {page === 'hedefler' && <SimplePage title="Hedeflerim" text="Hedef takibi hazırlanıyor." goHome={goHome} />}
         {page === 'gunluk' && <SimplePage title="Günlüğüm" text="Günlük notlar ve Rabbime mektuplarım burada olacak." goHome={goHome} />}
         {page === 'kutuphane' && <SimplePage title="Kütüphane" text="Kitaplar ve kaynaklar daha sonra temiz içeriklerle eklenecek." goHome={goHome} />}
-        {page === 'araclar' && <SimplePage title="Araçlar" text="Bildirim, ezber ve çalışma araçları hazırlanıyor." goHome={goHome} />}
+        {page === 'araclar' && <ToolsPage goHome={goHome} openLocationHistory={() => changePage('konum-gecmisi')} />}
+        {page === 'konum' && <LatestLocationPage goHome={goHome} openHistory={() => changePage('konum-gecmisi')} />}
+        {page === 'konum-gecmisi' && <LocationHistoryPage goHome={goHome} />}
       </main>
     </div>
+  );
+}
+
+
+function mapsLink(lat, lng) {
+  return 'https://www.google.com/maps?q=' + encodeURIComponent(lat + ',' + lng);
+}
+
+function locationAgeText(iso) {
+  if (!iso) return 'Bilinmiyor';
+  const ms = Date.now() - new Date(iso).getTime();
+  if (!Number.isFinite(ms)) return 'Bilinmiyor';
+  const min = Math.max(0, Math.floor(ms / 60000));
+  if (min < 1) return 'Şimdi';
+  if (min < 60) return min + ' dk önce';
+  const h = Math.floor(min / 60);
+  if (h < 24) return h + ' sa ' + (min % 60) + ' dk önce';
+  return Math.floor(h / 24) + ' gün önce';
+}
+
+function ToolsPage({ goHome, openLocationHistory }) {
+  return (
+    <>
+      <TopActions goHome={goHome} />
+      <SectionTitle title="Araçlar" />
+      <div className="tools-grid">
+        <button className="tool-card location-tool-card" onClick={openLocationHistory}>
+          <span>🗺️</span>
+          <div><strong>Konum Geçmişi</strong><small>20 dakikalık kayıtlar, gün ve saat bazında.</small></div>
+          <b>›</b>
+        </button>
+      </div>
+    </>
+  );
+}
+
+function LatestLocationPage({ goHome, openHistory }) {
+  const [row, setRow] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      setLoading(true);
+      const { data, error: e } = await supabase
+        .from('location_history')
+        .select('id, recorded_at, latitude, longitude, accuracy_m, source')
+        .order('recorded_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!alive) return;
+      setLoading(false);
+      if (e) setError(e.message);
+      else setRow(data || null);
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  return (
+    <>
+      <TopActions goHome={goHome} />
+      <SectionTitle title="Dilara'nın Konumu" />
+      <div className="location-page-card">
+        <div className="location-big-pin">📍</div>
+        {loading && <p>Son konum okunuyor...</p>}
+        {!loading && error && <div className="location-info-note">Konum altyapısı henüz etkin değil. Supabase konum tablosunu kurduğumuzda burada otomatik görünecek.</div>}
+        {!loading && !error && !row && <div className="location-info-note">Henüz konum kaydı yok.</div>}
+        {row && <>
+          <h2>Son konum</h2>
+          <strong className="location-age">{locationAgeText(row.recorded_at)}</strong>
+          <p>{new Date(row.recorded_at).toLocaleString('tr-TR')}</p>
+          {row.accuracy_m != null && <small>Yaklaşık doğruluk: ±{Math.round(row.accuracy_m)} m</small>}
+          <div className="location-actions">
+            <a href={mapsLink(row.latitude, row.longitude)} target="_blank" rel="noreferrer">Haritada aç</a>
+            <button onClick={openHistory}>Konum geçmişi</button>
+          </div>
+        </>}
+      </div>
+    </>
+  );
+}
+
+function LocationHistoryPage({ goHome }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const [date, setDate] = useState(today);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      setLoading(true); setError('');
+      const start = new Date(date + 'T00:00:00');
+      const end = new Date(date + 'T23:59:59.999');
+      const { data, error: e } = await supabase
+        .from('location_history')
+        .select('id, recorded_at, latitude, longitude, accuracy_m, source')
+        .gte('recorded_at', start.toISOString())
+        .lte('recorded_at', end.toISOString())
+        .order('recorded_at', { ascending: false });
+      if (!alive) return;
+      setLoading(false);
+      if (e) { setError(e.message); setRows([]); }
+      else setRows(data || []);
+    })();
+    return () => { alive = false; };
+  }, [date]);
+
+  return (
+    <>
+      <TopActions goHome={goHome} />
+      <SectionTitle title="Konum Geçmişi" />
+      <div className="location-history-wrap">
+        <div className="location-history-toolbar">
+          <label><span>Gün</span><input type="date" value={date} onChange={e => setDate(e.target.value)} /></label>
+          <strong>{rows.length} kayıt</strong>
+        </div>
+        {loading && <div className="home-empty">Konum kayıtları yükleniyor...</div>}
+        {!loading && error && <div className="location-info-note">Konum altyapısı henüz etkin değil. Supabase kurulumundan sonra kayıtlar burada görünecek.</div>}
+        {!loading && !error && rows.length === 0 && <div className="home-empty">Bu gün için konum kaydı yok.</div>}
+        <div className="location-timeline">
+          {rows.map(r => <a key={r.id} className="location-history-row" href={mapsLink(r.latitude, r.longitude)} target="_blank" rel="noreferrer">
+            <time>{new Date(r.recorded_at).toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'})}</time>
+            <span className="location-dot">📍</span>
+            <div><strong>Konum kaydı</strong><small>{r.accuracy_m != null ? '±' + Math.round(r.accuracy_m) + ' m' : 'Doğruluk bilgisi yok'} · Haritada aç</small></div>
+            <b>›</b>
+          </a>)}
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -1184,7 +1318,7 @@ function getNextPrayer(now) {
   return { title: next.title, remaining: `${h}:${m}:${s}` };
 }
 
-function HomePage({ tasks, tasksLoading, goTasks, reloadTasks }) {
+function HomePage({ tasks, tasksLoading, goTasks, reloadTasks, goLocation }) {
   const [screen, setScreen] = useState(0);
   const [selectedTask, setSelectedTask] = useState(null);
   const touchStart = useRef(null);
@@ -1204,7 +1338,7 @@ function HomePage({ tasks, tasksLoading, goTasks, reloadTasks }) {
     <>
       <div className="home-top-strip">
         <CompactPrayerBar />
-        <button className="home-add-screen" onClick={() => alert('Yeni ekran ekleme altyapısı hazır. Sonraki ekranda içeriğini birlikte seçeriz.')} title="Ekran ekle">⊕</button>
+        <button className="home-location-button" onClick={goLocation} title="Dilara'nın son konumu" aria-label="Son konum">📍</button>
       </div>
       <div className="home-screen-dots" aria-label="Ana ekranlar">
         {screens.map((name, i) => <button key={name} className={screen === i ? 'active' : ''} onClick={() => setScreen(i)} title={name}></button>)}
