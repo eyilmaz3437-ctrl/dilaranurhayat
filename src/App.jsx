@@ -1011,8 +1011,9 @@ function SchoolSettingsPage({goHome}) {
  const [subjects,setSubjects]=useState(loadSubjects); const [settings,setSettings]=useState(loadSchoolSettings);
  function saveSubjects(next){setSubjects(next);localStorage.setItem('dnh_subjects',JSON.stringify(next));window.dispatchEvent(new Event('dnh-settings'))}
  function patch(k,v){const next={...settings,[k]:v};setSettings(next);localStorage.setItem('dnh_school_settings',JSON.stringify(next));window.dispatchEvent(new Event('dnh-settings'))}
- function addSubject(){const name=prompt('Ders adı:');if(!name?.trim())return;const color=prompt('Renk (#RRGGBB):','#e2e8f0')||'#e2e8f0';saveSubjects([...subjects,{id:'s_'+Date.now(),name:name.trim(),color}])}
- function editSubject(s){const name=prompt('Ders adı:',s.name);if(!name?.trim())return;const color=prompt('Renk:',s.color)||s.color;saveSubjects(subjects.map(x=>x.id===s.id?{...x,name:name.trim(),color}:x))}
+ function addSubject(){const name=prompt('Ders adı:');if(!name?.trim())return;saveSubjects([...subjects,{id:'s_'+Date.now(),name:name.trim(),color:'#e2e8f0'}])}
+ function renameSubject(s){const name=prompt('Ders adı:',s.name);if(!name?.trim())return;saveSubjects(subjects.map(x=>x.id===s.id?{...x,name:name.trim()}:x))}
+ function setSubjectColor(id,color){saveSubjects(subjects.map(x=>x.id===id?{...x,color}:x))}
  function delSubject(s){if(confirm(s.name+' silinsin mi?'))saveSubjects(subjects.filter(x=>x.id!==s.id))}
  return <><TopActions goHome={goHome}/><SectionTitle title="Dersler ve Ders Saatleri"/><div className="school-settings-wrap">
   <section className="school-time-card"><h3>⏱️ Günlük Zaman Düzeni</h3><div className="school-settings-grid">
@@ -1024,7 +1025,7 @@ function SchoolSettingsPage({goHome}) {
    <label>Öğle arası (dk)<input type="number" min="10" max="120" value={settings.lunchMinutes} onChange={e=>patch('lunchMinutes',Number(e.target.value))}/></label>
   </div><label className="block-toggle"><input type="checkbox" checked={!!settings.blockMode} onChange={e=>patch('blockMode',e.target.checked)}/><span>Blok ders kullanılıyor</span></label><small>Blok ders seçeneğini şimdiden tanımladım; okulun gerçek düzeni belli olduğunda aradaki teneffüs kuralını buna bağlayacağız.</small>
   </section>
-  <section className="subjects-card"><div className="subjects-head"><div><h3>📚 Ders Tanımları</h3><small>Ders planında bu listeden seçim yapılır.</small></div><button onClick={addSubject}>＋ Ders</button></div><div className="subject-definition-list">{subjects.map(s=><div className="subject-definition-row" key={s.id}><i style={{background:s.color}}></i><strong>{s.name}</strong><button onClick={()=>editSubject(s)}>Düzenle</button><button className="danger" onClick={()=>delSubject(s)}>Sil</button></div>)}</div></section>
+  <section className="subjects-card"><div className="subjects-head"><div><h3>📚 Ders Tanımları</h3><small>Ders planında bu listeden seçim yapılır.</small></div><button onClick={addSubject}>＋ Ders</button></div><div className="subject-definition-list">{subjects.map(s=><div className="subject-definition-row" key={s.id}><label className="subject-color-picker" title="Renk seç"><i style={{background:s.color}}></i><input type="color" value={s.color} onChange={e=>setSubjectColor(s.id,e.target.value)}/></label><strong>{s.name}</strong><button onClick={()=>renameSubject(s)}>Adı</button><button className="danger" onClick={()=>delSubject(s)}>Sil</button></div>)}</div></section>
  </div></>;
 }
 
@@ -1433,6 +1434,7 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
     <>
       <div className="home-free-swipe-zone" onTouchStart={swipeStart} onTouchEnd={swipeEnd} onPointerDown={swipeStart} onPointerUp={swipeEnd}>
       <div className="home-top-strip">
+        {screen > 0 && <button className="home-first-screen-button" onClick={()=>setScreen(0)}>⌂ Ana ekran</button>}
         <CompactPrayerBar />
         <button className="home-location-button" onClick={goLocation} title="Dilara'nın son konumu" aria-label="Son konum">📍</button>
       </div>
@@ -1499,21 +1501,21 @@ function HomeworkHome({ tasks, tasksLoading, goTasks, reloadTasks, onOpen }) {
   }
 
   return <section className="android-home-screen homework-screen">
-    <div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 1</span><h2>Ödevler</h2></div><button onClick={goTasks}>＋ Ödev</button></div>
+    <div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN</span><h2>Ödevler</h2></div><button onClick={goTasks}>＋ Ödev</button></div>
     <div className="homework-list-full homework-vertical">
       {tasksLoading && <div className="home-empty">Ödevler yükleniyor...</div>}
       {!tasksLoading && visible.length === 0 && <div className="home-empty">Şimdilik ödev görünmüyor.</div>}
-      {visible.map(t => <div className="homework-row-scroll" key={t.id}><article className={`homework-row ${t.completed ? 'is-completed' : ''} ${t.delivered ? 'is-delivered' : ''}`} onClick={() => onOpen(t)}>
+      {visible.map(t => {const correction=t.teacher_status==='Düzeltme istedi'||t.teacher_status==='Tekrar teslim edilecek';return <div className="homework-row-scroll" key={t.id}><article className={`homework-row ${t.completed ? 'is-completed' : ''} ${t.delivered ? 'is-delivered' : ''} ${correction?'needs-correction':''}`} onClick={() => onOpen(t)}>
         <span className="homework-date">{formatShortDate(t.task_date)}</span>
         <strong className="homework-title-box">{t.title}</strong>
-        <span className="homework-content-box">{t.content || 'Açıklama yok.'}</span>
+        <span className="homework-content-box">{correction ? ('Düzeltme: '+(t.teacher_note||'Öğretmen düzeltme istedi.')) : (t.content || 'Açıklama yok.')}</span>
         <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
         <div className="homework-statuses">
-          <span className={t.completed ? 'status-pill done' : 'status-pill'}>{t.completed ? '✓ Tamamlandı' : '○ Yapılacak'}</span>
+          {correction ? <span className="status-pill correction">✎ Düzeltme · yeni teslim {formatShortDate(t.task_date)}</span> : <span className={t.completed ? 'status-pill done' : 'status-pill'}>{t.completed ? '✓ Tamamlandı' : '○ Yapılacak'}</span>}
           {!t.delivered && <button onClick={(e) => markDelivered(e, t)}>📤 Teslim</button>}
           {t.delivered && <span className="status-pill delivered">📤 Teslim edildi</span>}
         </div>
-      </article></div>)}
+      </article></div>})}
     </div>
   </section>;
 }
@@ -1558,7 +1560,7 @@ function WeeklySchedule({ goTasks }) {
  function addNote(calendar=false){const txt=prompt(calendar?'Takvime eklenecek not:':'Ders notu:');if(!txt)return;const k='dnh_subject_notes';let a=[];try{a=JSON.parse(localStorage.getItem(k)||'[]')}catch{}a.push({id:Date.now(),subject:menu.sub.name,note:txt,calendar,createdAt:new Date().toISOString()});localStorage.setItem(k,JSON.stringify(a));setMenu(null);alert(calendar?'Takvim notu kaydedildi.':'Not kaydedildi.')}
  return <section className="android-home-screen schedule-screen"><div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 2</span><h2>Haftalık Ders Planı</h2></div><small>{settings.start} başlangıç · {settings.lessonMinutes} dk ders</small></div>
   <div className="schedule-scroll"><div className="schedule-grid" style={{gridTemplateColumns:'92px repeat(7,minmax(105px,1fr))'}}><div className="schedule-head">Saat</div>{days.map(d=><div className="schedule-head" key={d}>{d}</div>)}
-   {rows.map(r=><div key={r.id} style={{display:'contents'}}><div className={'schedule-time type-'+r.type}>{r.start}<br/>{r.end}</div>{days.map(d=>{if(r.type!=='lesson')return <div key={d} className={'schedule-cell type-'+r.type}>{r.type==='lunch'?'Öğle Arası':'Teneffüs'}</div>;const sid=plan[d+'|'+r.id],sub=subjects.find(x=>x.id===sid);return <button key={d} className="schedule-cell lesson-pick" style={sub?{background:sub.color}:undefined} onClick={()=>action(d,r)}>{sub?sub.name:'＋ Ders seç'}</button>})}</div>)}
+   {rows.map(r=><div key={r.id} style={{display:'contents'}}><div className={'schedule-time type-'+r.type}>{r.start}–{r.end}</div>{days.map(d=>{if(r.type!=='lesson')return <div key={d} className={'schedule-cell type-'+r.type}>{r.type==='lunch'?'Öğle Arası':'Teneffüs'}</div>;const sid=plan[d+'|'+r.id],sub=subjects.find(x=>x.id===sid);return <button key={d} className="schedule-cell lesson-pick" style={sub?{background:sub.color}:undefined} onClick={()=>action(d,r)}>{sub?sub.name:'＋ Ders seç'}</button>})}</div>)}
   </div></div>
   {menu&&<div className="modal-backdrop" onClick={()=>setMenu(null)}><div className="lesson-action-menu" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>{menu.sub.name} · {menu.day}</strong><button onClick={()=>setMenu(null)}>×</button></div><button onClick={()=>{chooseSubject(menu.day,menu.row.id);setMenu(null)}}>🔄 Dersi değiştir</button><button onClick={()=>addNote(false)}>📝 Not ekle</button><button onClick={()=>addNote(true)}>📅 Takvime not ekle</button><button onClick={()=>{setMenu(null);goTasks()}}>📚 Ödev ekle</button><button onClick={()=>{setLesson(menu.day,menu.row.id,'');setMenu(null)}}>🗑️ Dersi kaldır</button></div></div>}
  </section>;
@@ -1587,7 +1589,14 @@ function DeliveredHomework({ tasks, reloadTasks, onOpen }) {
 
   async function saveReview(e, task, patch) {
     e.stopPropagation();
-    const { error } = await supabase.from('tasks').update(patch).eq('id', task.id);
+    let finalPatch={...patch};
+    if(patch.teacher_status==='Düzeltme istedi' || patch.teacher_status==='Tekrar teslim edilecek'){
+      const due=prompt('Yeni teslim tarihi (YYYY-AA-GG):', task.task_date || new Date().toISOString().slice(0,10));
+      if(due===null)return;
+      const teacherNote=prompt('Düzeltme notu:', task.teacher_note || '');
+      finalPatch={...finalPatch,teacher_note:teacherNote||'',task_date:due||task.task_date,completed:false,completed_at:null,completed_by:null,delivered:false,delivered_at:null};
+    }
+    const { error } = await supabase.from('tasks').update(finalPatch).eq('id', task.id);
     if (error) {
       alert('Öğretmen değerlendirmesi kaydedilemedi: ' + error.message);
       return;
@@ -2823,6 +2832,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
   const [showCompleted, setShowCompleted] = useState(false);
   const [completeTarget, setCompleteTarget] = useState(null);
   const [detailTask, setDetailTask] = useState(null);
+  const [subjects] = useState(loadSubjects);
 
   const activeTasks = [...tasks].filter(t => !t.completed).sort((a, b) => a.task_date.localeCompare(b.task_date));
   const completedTasks = [...tasks].filter(t => t.completed).sort((a, b) => (b.completed_at || '').localeCompare(a.completed_at || ''));
@@ -2917,7 +2927,10 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
           <option value="B">B - Baba</option>
           <option value="A">A - Anne</option>
         </select>
-        <input placeholder="Ana başlık" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
+        <select className="task-subject-select" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })}>
+          <option value="">Ders seç</option>
+          {subjects.map(s=><option key={s.id} value={s.name}>{s.name}</option>)}
+        </select>
         <textarea placeholder="İçerik" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })}></textarea>
         <button type="submit" disabled={saving}>{saving ? 'Ekleniyor...' : 'Görev Ekle'}</button>
       </form>
