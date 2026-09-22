@@ -1116,31 +1116,24 @@ function LatestLocationPage({ goHome, openHistory, currentUser }) {
 }
 
 function LocationHistoryPage({ goHome }) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDateISO();
   const [date, setDate] = useState(today);
-  const [rows, setRows] = useState([]);
+  const [allRows, setAllRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    let alive = true;
-    (async () => {
-      setLoading(true); setError('');
-      const start = new Date(date + 'T00:00:00');
-      const end = new Date(date + 'T23:59:59.999');
-      const { data, error: e } = await supabase
-        .from('location_history')
-        .select('id, recorded_at, latitude, longitude, accuracy_m, source')
-        .gte('recorded_at', start.toISOString())
-        .lte('recorded_at', end.toISOString())
-        .order('recorded_at', { ascending: false });
-      if (!alive) return;
+    let alive=true;
+    (async()=>{
+      setLoading(true);setError('');
+      const {data,error:e}=await supabase.rpc('get_dilara_location_history',{p_limit:500});
+      if(!alive)return;
       setLoading(false);
-      if (e) { setError(e.message); setRows([]); }
-      else setRows(data || []);
+      if(e){setError(e.message);setAllRows([])} else setAllRows(data||[]);
     })();
-    return () => { alive = false; };
-  }, [date]);
+    return()=>{alive=false};
+  },[]);
+  const rows=allRows.filter(r=>localDateISO(new Date(r.recorded_at))===date);
 
   return (
     <>
@@ -1148,17 +1141,17 @@ function LocationHistoryPage({ goHome }) {
       <SectionTitle title="Konum Geçmişi" />
       <div className="location-history-wrap">
         <div className="location-history-toolbar">
-          <label><span>Gün</span><input type="date" value={date} onChange={e => setDate(e.target.value)} /></label>
+          <label><span>Gün</span><input type="date" value={date} onChange={e=>setDate(e.target.value)} /></label>
           <strong>{rows.length} kayıt</strong>
         </div>
-        {loading && <div className="home-empty">Konum kayıtları yükleniyor...</div>}
-        {!loading && error && <div className="location-info-note">Konum altyapısı henüz etkin değil. Supabase kurulumundan sonra kayıtlar burada görünecek.</div>}
-        {!loading && !error && rows.length === 0 && <div className="home-empty">Bu gün için konum kaydı yok.</div>}
+        {loading&&<div className="home-empty">Konum kayıtları yükleniyor...</div>}
+        {!loading&&error&&<div className="location-info-note">Konum geçmişi okunamadı.</div>}
+        {!loading&&!error&&rows.length===0&&<div className="home-empty">Bu gün için konum kaydı yok.</div>}
         <div className="location-timeline">
-          {rows.map(r => <a key={r.id} className="location-history-row" href={mapsLink(r.latitude, r.longitude)} target="_blank" rel="noreferrer">
-            <time>{new Date(r.recorded_at).toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'})}</time>
-            <span className="location-dot">📍</span>
-            <div><strong>Konum kaydı</strong><small>{r.accuracy_m != null ? '±' + Math.round(r.accuracy_m) + ' m' : 'Doğruluk bilgisi yok'} · Haritada aç</small></div>
+          {rows.map(r=><a key={r.id} className="location-history-row" href={mapsLink(r.latitude,r.longitude)} target="_blank" rel="noreferrer">
+            <time>{new Date(r.recorded_at).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}</time>
+            <span className="location-dot">{r.place_name==='Ev'?'🏠':'📍'}</span>
+            <div><strong>{r.place_name||'Konum kaydı'}</strong><small>{r.accuracy_m!=null?'±'+Math.round(r.accuracy_m)+' m':'Doğruluk bilgisi yok'} · Haritada aç</small></div>
             <b>›</b>
           </a>)}
         </div>
@@ -1166,7 +1159,6 @@ function LocationHistoryPage({ goHome }) {
     </>
   );
 }
-
 
 const engineeringAcademyTracks = [
   {
