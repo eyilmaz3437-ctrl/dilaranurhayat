@@ -1065,16 +1065,11 @@ function LatestLocationPage({ goHome, openHistory, currentUser }) {
     let alive = true;
     (async () => {
       setLoading(true);
-      const { data, error: e } = await supabase
-        .from('location_history')
-        .select('id, recorded_at, latitude, longitude, accuracy_m, source')
-        .order('recorded_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const { data, error: e } = await supabase.rpc('get_dilara_latest_location');
       if (!alive) return;
       setLoading(false);
       if (e) setError(e.message);
-      else setRow(data || null);
+      else setRow(Array.isArray(data)?(data[0]||null):(data||null));
     })();
     return () => { alive = false; };
   }, []);
@@ -1088,8 +1083,8 @@ function LatestLocationPage({ goHome, openHistory, currentUser }) {
       setSending(false);
       if(e){setSendMsg('Konum kaydedilemedi.');return}
       setSendMsg('Konum kaydedildi ✓');
-      const {data}=await supabase.from('location_history').select('id, recorded_at, latitude, longitude, accuracy_m, source').order('recorded_at',{ascending:false}).limit(1).maybeSingle();
-      if(data){setRow(data);setError('')}
+      const {data}=await supabase.rpc('get_dilara_latest_location');
+      const latest=Array.isArray(data)?data[0]:data;if(latest){setRow(latest);setError('')}
     },err=>{setSending(false);setSendMsg(err.code===1?'Konum izni verilmedi.':'Konum alınamadı. Tekrar dene.')},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
   }
 
