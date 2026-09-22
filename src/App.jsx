@@ -1008,13 +1008,15 @@ function locationAgeText(iso) {
 
 
 function SchoolSettingsPage({goHome}) {
- const [subjects,setSubjects]=useState(loadSubjects); const [settings,setSettings]=useState(loadSchoolSettings);
+ const [subjects,setSubjects]=useState(loadSubjects); const [settings,setSettings]=useState(loadSchoolSettings); const [holidays,setHolidays]=useState(loadHolidays);
  function saveSubjects(next){setSubjects(next);localStorage.setItem('dnh_subjects',JSON.stringify(next));window.dispatchEvent(new Event('dnh-settings'))}
  function patch(k,v){const next={...settings,[k]:v};setSettings(next);localStorage.setItem('dnh_school_settings',JSON.stringify(next));window.dispatchEvent(new Event('dnh-settings'))}
  function addSubject(){const name=prompt('Ders adı:');if(!name?.trim())return;saveSubjects([...subjects,{id:'s_'+Date.now(),name:name.trim(),color:'#e2e8f0'}])}
  function renameSubject(s){const name=prompt('Ders adı:',s.name);if(!name?.trim())return;saveSubjects(subjects.map(x=>x.id===s.id?{...x,name:name.trim()}:x))}
  function setSubjectColor(id,color){saveSubjects(subjects.map(x=>x.id===id?{...x,color}:x))}
  function delSubject(s){if(confirm(s.name+' silinsin mi?'))saveSubjects(subjects.filter(x=>x.id!==s.id))}
+ function addHoliday(){const name=prompt('Tatil / özel gün adı:');if(!name)return;const start=prompt('Başlangıç (YYYY-AA-GG):',localDateISO());if(!start)return;const end=prompt('Bitiş (YYYY-AA-GG):',start)||start;const next=[...holidays,{id:Date.now(),name,start,end}];setHolidays(next);localStorage.setItem('dnh_holidays',JSON.stringify(next));window.dispatchEvent(new Event('dnh-settings'))}
+ function delHoliday(id){const next=holidays.filter(h=>h.id!==id);setHolidays(next);localStorage.setItem('dnh_holidays',JSON.stringify(next));window.dispatchEvent(new Event('dnh-settings'))}
  return <><TopActions goHome={goHome}/><SectionTitle title="Dersler ve Ders Saatleri"/><div className="school-settings-wrap">
   <section className="school-time-card"><h3>⏱️ Günlük Zaman Düzeni</h3><div className="school-settings-grid">
    <label>İlk ders başlangıcı<input type="time" value={settings.start} onChange={e=>patch('start',e.target.value)}/></label>
@@ -1025,6 +1027,7 @@ function SchoolSettingsPage({goHome}) {
    <label>Öğle arası (dk)<input type="number" min="10" max="120" value={settings.lunchMinutes} onChange={e=>patch('lunchMinutes',Number(e.target.value))}/></label>
   </div><label className="block-toggle"><input type="checkbox" checked={!!settings.blockMode} onChange={e=>patch('blockMode',e.target.checked)}/><span>Blok ders kullanılıyor</span></label><small>Blok ders seçeneğini şimdiden tanımladım; okulun gerçek düzeni belli olduğunda aradaki teneffüs kuralını buna bağlayacağız.</small>
   </section>
+  <section className="subjects-card holiday-settings"><div className="subjects-head"><div><h3>🏖️ Tatiller / Okul Kapalı Günler</h3><small>Takvimde belirgin gösterilir.</small></div><button onClick={addHoliday}>＋ Tatil</button></div><div className="holiday-list">{holidays.length===0&&<small>Henüz özel tatil tanımı yok.</small>}{holidays.map(h=><div key={h.id}><strong>{h.name}</strong><span>{formatShortDate(h.start)} – {formatShortDate(h.end)}</span><button onClick={()=>delHoliday(h.id)}>Sil</button></div>)}</div></section>
   <section className="subjects-card"><div className="subjects-head"><div><h3>📚 Ders Tanımları</h3><small>Ders planında bu listeden seçim yapılır.</small></div><button onClick={addSubject}>＋ Ders</button></div><div className="subject-definition-list">{subjects.map(s=><div className="subject-definition-row" key={s.id}><label className="subject-color-picker" title="Renk seç"><i style={{background:s.color}}></i><input type="color" value={s.color} onChange={e=>setSubjectColor(s.id,e.target.value)}/></label><strong>{s.name}</strong><button onClick={()=>renameSubject(s)}>Adı</button><button className="danger" onClick={()=>delSubject(s)}>Sil</button></div>)}</div></section>
  </div></>;
 }
@@ -1416,6 +1419,10 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
   const [selectedTask, setSelectedTask] = useState(null);
   const touchStart = useRef(null);
   const screens = ['Ödevler', 'Haftalık Ders Planı', 'Takvim', 'Teslim Edilenler', 'Notlar', 'Kitap Okuma'];
+  const [calendarEvents,setCalendarEvents]=useState(loadCalendarEvents);
+  useEffect(()=>{const sync=()=>setCalendarEvents(loadCalendarEvents());window.addEventListener('dnh-calendar',sync);return()=>window.removeEventListener('dnh-calendar',sync)},[]);
+  const todayISO=localDateISO();
+  const upcoming=[...tasks.filter(t=>!t.delivered&&t.task_date>=todayISO).map(t=>({date:t.task_date,label:'📚 '+t.title})),...calendarEvents.filter(e=>e.date>=todayISO).map(e=>({date:e.date,label:(e.type==='exam'?'📝 ':'📌 ')+(e.subject||e.note)}))].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,6);
 
   function swipeStart(e) {
     if (e.target.closest('button,input,select,textarea,a,.schedule-scroll,.homework-row-scroll,.calendar-grid,.reading-entry,.family-notes-list')) return;
@@ -1439,6 +1446,7 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
         <button className="home-location-button" onClick={goLocation} title="Dilara'nın son konumu" aria-label="Son konum">📍</button>
       </div>
       </div>
+      {upcoming.length>0&&<div className="upcoming-strip"><strong>Yaklaşan:</strong><div>{upcoming.map((u,i)=><span key={i}>{formatShortDate(u.date)} · {u.label}</span>)}</div></div>}
       <div className="home-screen-dots" aria-label="Ana ekranlar">
         {screens.map((name, i) => <button key={name} className={screen === i ? 'active' : ''} onClick={() => setScreen(i)} title={name}></button>)}
       </div>
@@ -1557,7 +1565,7 @@ function WeeklySchedule({ goTasks }) {
  function setLesson(day,rowId,value){setPlan({...plan,[day+'|'+rowId]:value})}
  function chooseSubject(day,rowId){const current=plan[day+'|'+rowId]||'';const names=subjects.map((s,i)=>(i+1)+' - '+s.name).join('\n');const ans=prompt('Ders seç:\n'+names,current?String(Math.max(1,subjects.findIndex(s=>s.id===current)+1)):'');if(ans===null)return;const idx=Number(ans)-1;if(subjects[idx])setLesson(day,rowId,subjects[idx].id)}
  function action(day,row){const key=day+'|'+row.id,sub=subjects.find(s=>s.id===plan[key]);if(!sub){chooseSubject(day,row.id);return}setMenu({day,row,sub})}
- function addNote(calendar=false){const txt=prompt(calendar?'Takvime eklenecek not:':'Ders notu:');if(!txt)return;const k='dnh_subject_notes';let a=[];try{a=JSON.parse(localStorage.getItem(k)||'[]')}catch{}a.push({id:Date.now(),subject:menu.sub.name,note:txt,calendar,createdAt:new Date().toISOString()});localStorage.setItem(k,JSON.stringify(a));setMenu(null);alert(calendar?'Takvim notu kaydedildi.':'Not kaydedildi.')}
+ function addNote(calendar=false){const txt=prompt(calendar?'Takvime eklenecek not:':'Ders notu:');if(!txt)return;if(calendar){const date=prompt('Tarih (YYYY-AA-GG):',localDateISO());if(!date)return;addCalendarEvent({type:'note',date,subject:menu.sub.name,note:txt});}else{const k='dnh_subject_notes';let a=[];try{a=JSON.parse(localStorage.getItem(k)||'[]')}catch{}a.push({id:Date.now(),subject:menu.sub.name,note:txt,createdAt:new Date().toISOString()});localStorage.setItem(k,JSON.stringify(a));}setMenu(null);alert(calendar?'Takvime eklendi.':'Not kaydedildi.')}
  return <section className="android-home-screen schedule-screen"><div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 2</span><h2>Haftalık Ders Planı</h2></div><small>{settings.start} başlangıç · {settings.lessonMinutes} dk ders</small></div>
   <div className="schedule-scroll"><div className="schedule-grid" style={{gridTemplateColumns:'92px repeat(7,minmax(105px,1fr))'}}><div className="schedule-head">Saat</div>{days.map(d=><div className="schedule-head" key={d}>{d}</div>)}
    {rows.map(r=><div key={r.id} style={{display:'contents'}}><div className={'schedule-time type-'+r.type}>{r.start}–{r.end}</div>{days.map(d=>{if(r.type!=='lesson')return <div key={d} className={'schedule-cell type-'+r.type}>{r.type==='lunch'?'Öğle Arası':'Teneffüs'}</div>;const sid=plan[d+'|'+r.id],sub=subjects.find(x=>x.id===sid);return <button key={d} className="schedule-cell lesson-pick" style={sub?{background:sub.color}:undefined} onClick={()=>action(d,r)}>{sub?sub.name:'＋ Ders seç'}</button>})}</div>)}
@@ -1567,20 +1575,27 @@ function WeeklySchedule({ goTasks }) {
 }
 
 function HomeworkCalendar({ tasks, onOpen }) {
-  const [cursor, setCursor] = useState(() => { const d=new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
-  const y=cursor.getFullYear(), m=cursor.getMonth();
-  const first=(new Date(y,m,1).getDay()+6)%7, count=new Date(y,m+1,0).getDate();
-  const cells=[...Array(first).fill(null), ...Array.from({length:count},(_,i)=>i+1)]; while(cells.length%7) cells.push(null);
+  const [cursor,setCursor]=useState(()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),1)});
+  const [events,setEvents]=useState(loadCalendarEvents);
+  const [holidays,setHolidays]=useState(loadHolidays);
+  const [examOpen,setExamOpen]=useState(false);
+  const subjects=loadSubjects();
+  const [exam,setExam]=useState({subject:'',date:localDateISO(),note:''});
+  useEffect(()=>{const sync=()=>{setEvents(loadCalendarEvents());setHolidays(loadHolidays())};window.addEventListener('dnh-calendar',sync);window.addEventListener('dnh-settings',sync);return()=>{window.removeEventListener('dnh-calendar',sync);window.removeEventListener('dnh-settings',sync)}},[]);
+  const y=cursor.getFullYear(),m=cursor.getMonth(),first=(new Date(y,m,1).getDay()+6)%7,count=new Date(y,m+1,0).getDate();
+  const cells=[...Array(first).fill(null),...Array.from({length:count},(_,i)=>i+1)];while(cells.length%7)cells.push(null);
   const monthName=cursor.toLocaleDateString('tr-TR',{month:'long',year:'numeric'});
-  function iso(day){ return `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`; }
+  function iso(day){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(day).padStart(2,'0')}
+  function saveExam(){if(!exam.subject||!exam.date)return;addCalendarEvent({type:'exam',date:exam.date,subject:exam.subject,note:exam.note});setExam({subject:'',date:localDateISO(),note:''});setExamOpen(false);setEvents(loadCalendarEvents())}
   return <section className="android-home-screen calendar-screen">
-    <div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 3</span><h2>Takvim</h2></div><div className="calendar-nav"><button onClick={()=>setCursor(new Date(y,m-1,1))}>‹</button><strong>{monthName}</strong><button onClick={()=>setCursor(new Date(y,m+1,1))}>›</button></div></div>
-    <div className="calendar-grid">{['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'].map(d=><div className="calendar-head" key={d}>{d}</div>)}
-      {cells.map((day,i)=>{ const dayTasks=day?tasks.filter(t=>t.task_date===iso(day)):[]; return <div className={`calendar-day ${day?'':'empty'}`} key={i}>{day&&<><b>{day}</b><div className="calendar-task-stack">{dayTasks.slice(0,4).map(t=><button key={t.id} className={t.delivered?'delivered':''} onClick={()=>onOpen(t)}>{t.title}</button>)}{dayTasks.length>4&&<small>+{dayTasks.length-4} ödev</small>}</div></>}</div>})}
+    <div className="screen-title-row"><div><span className="screen-kicker">3. EKRAN</span><h2>Takvim</h2></div><div className="calendar-nav"><button onClick={()=>setCursor(new Date(y,m-1,1))}>‹</button><strong>{monthName}</strong><button onClick={()=>setCursor(new Date(y,m+1,1))}>›</button></div></div>
+    <div className="calendar-toolbar"><button className="exam-add-button" onClick={()=>setExamOpen(true)}>📝 Yazılı / Sınav Ekle</button><span><i className="legend-dot exam"></i>Sınav <i className="legend-dot task"></i>Ödev <i className="legend-dot note"></i>Not</span></div>
+    <div className="calendar-grid">{['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'].map((d,i)=><div className={'calendar-head '+(i>4?'weekend':'')} key={d}>{d}</div>)}
+      {cells.map((day,i)=>{if(!day)return <div className="calendar-day empty" key={i}/>;const date=iso(day),dayTasks=tasks.filter(t=>t.task_date===date),dayEvents=events.filter(e=>e.date===date),holiday=holidays.find(h=>date>=h.start&&date<=h.end),weekend=i%7>4;return <div className={'calendar-day '+(weekend?'weekend ':'')+(holiday?'holiday':'')} key={i}><b>{day}</b>{holiday&&<small className="holiday-name">{holiday.name}</small>}<div className="calendar-task-stack">{dayEvents.filter(e=>e.type==='exam').map(e=><button key={e.id} className="calendar-exam">📝 {e.subject}</button>)}{dayTasks.slice(0,2).map(t=><button key={t.id} className={'calendar-homework '+(t.delivered?'delivered':'')} onClick={()=>onOpen(t)}>📚 {t.title}</button>)}{dayEvents.filter(e=>e.type!=='exam').slice(0,2).map(e=><button key={e.id} className="calendar-note">● {e.subject||e.note}</button>)}</div></div>})}
     </div>
+    {examOpen&&<div className="modal-backdrop" onClick={()=>setExamOpen(false)}><div className="exam-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>Yazılı / Sınav Ekle</strong><button onClick={()=>setExamOpen(false)}>×</button></div><label>Ders<select value={exam.subject} onChange={e=>setExam({...exam,subject:e.target.value})}><option value="">Ders seç</option>{subjects.map(s=><option key={s.id}>{s.name}</option>)}</select></label><div className="quick-date-row"><button onClick={()=>setExam({...exam,date:localDateISO()})}>Bugün</button><button onClick={()=>setExam({...exam,date:shiftDate(1)})}>Yarın</button><button onClick={()=>setExam({...exam,date:nextWeekdayDate()})}>Gelecek hafta</button></div><label>Tarih<input type="date" value={exam.date} onChange={e=>setExam({...exam,date:e.target.value})}/></label><label>Konular / Not<textarea value={exam.note} onChange={e=>setExam({...exam,note:e.target.value})} placeholder="Sınav konuları, hatırlatma..."/></label><button className="exam-save" onClick={saveExam}>Sınavı kaydet</button></div></div>}
   </section>;
 }
-
 
 function DeliveredHomework({ tasks, reloadTasks, onOpen }) {
   const delivered = [...tasks]
@@ -2826,6 +2841,16 @@ function MemorizationPage({ memorization, saveMemorization, goHome, setPage, set
   );
 }
 
+
+function localDateISO(d=new Date()){const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')}
+function shiftDate(days){const d=new Date();d.setDate(d.getDate()+days);return localDateISO(d)}
+function nextWeekdayDate(){const d=new Date();const day=d.getDay();const add=day===0?1:8-day;d.setDate(d.getDate()+add);return localDateISO(d)}
+function nextMonthDate(){const d=new Date();d.setMonth(d.getMonth()+1);return localDateISO(d)}
+function loadCalendarEvents(){try{return JSON.parse(localStorage.getItem('dnh_calendar_events')||'[]')}catch{return []}}
+function saveCalendarEvents(rows){localStorage.setItem('dnh_calendar_events',JSON.stringify(rows));window.dispatchEvent(new Event('dnh-calendar'))}
+function loadHolidays(){try{return JSON.parse(localStorage.getItem('dnh_holidays')||'[]')}catch{return []}}
+function addCalendarEvent(event){const rows=loadCalendarEvents();saveCalendarEvents([{id:Date.now(),createdAt:new Date().toISOString(),...event},...rows])}
+
 function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActiveUser }) {
   const [form, setForm] = useState({ task_date: new Date().toISOString().slice(0, 10), owner: activeUser, title: '', content: '' });
   const [saving, setSaving] = useState(false);
@@ -2921,6 +2946,12 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
       <SectionTitle title="Görevler" />
 
       <form className="task-form compact" onSubmit={addTask}>
+        <div className="quick-date-row">
+          <button type="button" onClick={()=>setForm({...form,task_date:localDateISO()})}>Bugün</button>
+          <button type="button" onClick={()=>setForm({...form,task_date:shiftDate(1)})}>Yarın</button>
+          <button type="button" onClick={()=>setForm({...form,task_date:nextWeekdayDate()})}>Gelecek hafta</button>
+          <button type="button" onClick={()=>setForm({...form,task_date:nextMonthDate()})}>Gelecek ay</button>
+        </div>
         <input type="date" value={form.task_date} onChange={e => setForm({ ...form, task_date: e.target.value })} />
         <select value={form.owner} onChange={e => { setForm({ ...form, owner: e.target.value }); setActiveUser(e.target.value); }}>
           <option value="D">D - Dilara</option>
