@@ -1009,16 +1009,17 @@ function locationAgeText(iso) {
 
 function SchoolSettingsPage({goHome}) {
  const [subjects,setSubjects]=useState(loadSubjects); const [settings,setSettings]=useState(loadSchoolSettings); const [holidays,setHolidays]=useState(loadHolidays); const [calendarColors,setCalendarColors]=useState(loadCalendarColors);
- function saveSubjects(next){setSubjects(next);localStorage.setItem('dnh_subjects',JSON.stringify(next));window.dispatchEvent(new Event('dnh-settings'))}
- function patch(k,v){const next={...settings,[k]:v};setSettings(next);localStorage.setItem('dnh_school_settings',JSON.stringify(next));window.dispatchEvent(new Event('dnh-settings'))}
+ function saveSubjects(next){setSubjects(next);localStorage.setItem('dnh_subjects',JSON.stringify(next));sharedPush('subjects',next);window.dispatchEvent(new Event('dnh-settings'))}
+ function patch(k,v){const next={...settings,[k]:v};setSettings(next);localStorage.setItem('dnh_school_settings',JSON.stringify(next));sharedPush('school_settings',next);window.dispatchEvent(new Event('dnh-settings'))}
  function addSubject(){const name=prompt('Ders adı:');if(!name?.trim())return;saveSubjects([...subjects,{id:'s_'+Date.now(),name:name.trim(),color:'#e2e8f0'}])}
  function renameSubject(s){const name=prompt('Ders adı:',s.name);if(!name?.trim())return;saveSubjects(subjects.map(x=>x.id===s.id?{...x,name:name.trim()}:x))}
  function setSubjectColor(id,color){saveSubjects(subjects.map(x=>x.id===id?{...x,color}:x))}
  function delSubject(s){if(confirm(s.name+' silinsin mi?'))saveSubjects(subjects.filter(x=>x.id!==s.id))}
- function addHoliday(){const name=prompt('Tatil / özel gün adı:');if(!name)return;const start=prompt('Başlangıç (YYYY-AA-GG):',localDateISO());if(!start)return;const end=prompt('Bitiş (YYYY-AA-GG):',start)||start;const next=[...holidays,{id:Date.now(),name,start,end}];setHolidays(next);localStorage.setItem('dnh_holidays',JSON.stringify(next));window.dispatchEvent(new Event('dnh-settings'))}
+ function addHoliday(){const name=prompt('Tatil / özel gün adı:');if(!name)return;const start=prompt('Başlangıç (YYYY-AA-GG):',localDateISO());if(!start)return;const end=prompt('Bitiş (YYYY-AA-GG):',start)||start;const next=[...holidays,{id:Date.now(),name,start,end}];setHolidays(next);localStorage.setItem('dnh_holidays',JSON.stringify(next));sharedPush('holidays',next);window.dispatchEvent(new Event('dnh-settings'))}
  function delHoliday(id){const next=holidays.filter(h=>h.id!==id);setHolidays(next);localStorage.setItem('dnh_holidays',JSON.stringify(next));window.dispatchEvent(new Event('dnh-settings'))}
- function setCalColor(k,v){const next={...calendarColors,[k]:v};setCalendarColors(next);localStorage.setItem('dnh_calendar_colors',JSON.stringify(next));window.dispatchEvent(new Event('dnh-settings'))}
- return <><TopActions goHome={goHome}/><SectionTitle title="Dersler ve Ders Saatleri"/><div className="school-settings-wrap">
+ function setCalColor(k,v){const next={...calendarColors,[k]:v};setCalendarColors(next);localStorage.setItem('dnh_calendar_colors',JSON.stringify(next));sharedPush('calendar_colors',next);window.dispatchEvent(new Event('dnh-settings'))}
+ async function uploadThisDevice(){if(!confirm('Bu cihazdaki dersler, renkler, ders planı ve diğer ortak ayarlar aile verisi olarak kullanılsın mı?'))return;const ok=await seedSharedFromThisDevice();if(ok){await sharedPull();alert('Bu cihazdaki ayarlar ortak veriye aktarıldı. Diğer cihazlar da aynı veriyi kullanacak.')}else alert('Aktarım yapılamadı.')}
+ return <><TopActions goHome={goHome}/><SectionTitle title="Dersler ve Ders Saatleri"/><div className="shared-sync-card"><strong>☁️ Cihazlar arası senkronizasyon</strong><small>S21'deki mevcut ders renklerini ve ayarları ortak veri yapmak için bir kez kullan.</small><button onClick={uploadThisDevice}>Bu cihazdaki ayarları ortak yap</button></div><div className="school-settings-wrap">
   <section className="school-time-card"><h3>⏱️ Günlük Zaman Düzeni</h3><div className="school-settings-grid">
    <label>İlk ders başlangıcı<input type="time" value={settings.start} onChange={e=>patch('start',e.target.value)}/></label>
    <label>Ders süresi (dk)<input type="number" min="20" max="90" value={settings.lessonMinutes} onChange={e=>patch('lessonMinutes',Number(e.target.value))}/></label>
@@ -1476,7 +1477,7 @@ function FamilyNotes({currentUser}) {
  const [notes,setNotes]=useState(()=>{try{return JSON.parse(localStorage.getItem('dnh_family_notes')||'[]')}catch{return []}});
  const canAssign=['erdal','naze','admin'].includes(currentUser?.id);
  const author=currentUser?.id==='erdal'?'Baba':currentUser?.id==='naze'?'Naze':currentUser?.displayName||'Kullanıcı';
- function save(next){setNotes(next);localStorage.setItem('dnh_family_notes',JSON.stringify(next))}
+ function save(next){setNotes(next);localStorage.setItem('dnh_family_notes',JSON.stringify(next));sharedPush('family_notes',next)}
  function addNote(){const text=prompt(canAssign?'Dilara için not / görevlendirme:':'Not:');if(!text?.trim())return;save([{id:Date.now(),text:text.trim(),author,createdAt:new Date().toISOString(),urgent:false},...notes])}
  function toggleUrgent(id){save(notes.map(n=>n.id===id?{...n,urgent:!n.urgent}:n))}
  function remove(id){if(confirm('Not silinsin mi?'))save(notes.filter(n=>n.id!==id))}
@@ -1490,7 +1491,7 @@ function ReadingTrackerPage({goHome,currentUser,embedded=false}) {
  const today=new Date().toISOString().slice(0,10);
  const [rows,setRows]=useState(()=>{try{return JSON.parse(localStorage.getItem('dnh_reading_log')||'[]')}catch{return []}});
  const [book,setBook]=useState(''); const [pages,setPages]=useState('');
- function save(next){setRows(next);localStorage.setItem('dnh_reading_log',JSON.stringify(next))}
+ function save(next){setRows(next);localStorage.setItem('dnh_reading_log',JSON.stringify(next));sharedPush('reading_log',next)}
  function add(){if(!book.trim()||!pages.trim())return alert('Kitap adı ve okunan sayfa bilgisini gir.');save([{id:Date.now(),date:today,book:book.trim(),pages:pages.trim(),by:currentUser?.displayName||'Dilara'},...rows]);setBook('');setPages('')}
  const byDate={};for(const r of rows)(byDate[r.date]??=[]).push(r);
  const dates=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));if(!dates.includes(today))dates.unshift(today);
@@ -1569,7 +1570,8 @@ function WeeklySchedule({ goTasks }) {
  const [menu,setMenu]=useState(null);
  const [subjectPick,setSubjectPick]=useState(null);
  useEffect(()=>{const sync=()=>{setSubjects(loadSubjects());setSettings(loadSchoolSettings())};window.addEventListener('dnh-settings',sync);return()=>window.removeEventListener('dnh-settings',sync)},[]);
- useEffect(()=>localStorage.setItem('dnh_schedule_plan',JSON.stringify(plan)),[plan]);
+ useEffect(()=>{localStorage.setItem('dnh_schedule_plan',JSON.stringify(plan));sharedPush('schedule_plan',plan)},[plan]);
+ useEffect(()=>{const sync=()=>{try{setPlan(JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}'))}catch{}};window.addEventListener('dnh-shared',sync);return()=>window.removeEventListener('dnh-shared',sync)},[]);
  const rows=buildScheduleRows(settings);
  function setLesson(day,rowId,value){setPlan({...plan,[day+'|'+rowId]:value})}
  function chooseSubject(day,rowId){setSubjectPick({day,rowId})}
@@ -2850,8 +2852,37 @@ function localDateISO(d=new Date()){const x=new Date(d);return x.getFullYear()+'
 function shiftDate(days){const d=new Date();d.setDate(d.getDate()+days);return localDateISO(d)}
 function nextWeekdayDate(){const d=new Date();const day=d.getDay();const add=day===0?1:8-day;d.setDate(d.getDate()+add);return localDateISO(d)}
 function nextMonthDate(){const d=new Date();d.setMonth(d.getMonth()+1);return localDateISO(d)}
+const SHARED_MAP={subjects:'dnh_subjects',school_settings:'dnh_school_settings',schedule_plan:'dnh_schedule_plan',calendar_events:'dnh_calendar_events',holidays:'dnh_holidays',calendar_colors:'dnh_calendar_colors',family_notes:'dnh_family_notes',reading_log:'dnh_reading_log'};
+async function sharedPull(){
+ const {data,error}=await supabase.from('app_shared_state').select('key,value');
+ if(error)return false;
+ let changed=false;
+ for(const row of data||[]){if(row.value!==null&&SHARED_MAP[row.key]){localStorage.setItem(SHARED_MAP[row.key],JSON.stringify(row.value));changed=true}}
+ if(changed){window.dispatchEvent(new Event('dnh-settings'));window.dispatchEvent(new Event('dnh-calendar'));window.dispatchEvent(new Event('dnh-shared'))}
+ return true;
+}
+async function sharedPush(key,value){
+ if(!SHARED_MAP[key])return;
+ localStorage.setItem(SHARED_MAP[key],JSON.stringify(value));
+ await supabase.from('app_shared_state').upsert({key,value,updated_at:new Date().toISOString()},{onConflict:'key'});
+ window.dispatchEvent(new Event('dnh-shared'));
+}
+async function seedSharedFromThisDevice(){
+ const payload=[];
+ for(const [key,localKey] of Object.entries(SHARED_MAP)){
+   const raw=localStorage.getItem(localKey);
+   if(raw!==null){try{payload.push({key,value:JSON.parse(raw),updated_at:new Date().toISOString()})}catch{}}
+ }
+ if(!payload.length)return false;
+ const {error}=await supabase.from('app_shared_state').upsert(payload,{onConflict:'key'});
+ return !error;
+}
+function SharedSyncBoot(){
+ useEffect(()=>{sharedPull();const id=setInterval(sharedPull,15000);return()=>clearInterval(id)},[]);
+ return null;
+}
 function loadCalendarEvents(){try{return JSON.parse(localStorage.getItem('dnh_calendar_events')||'[]')}catch{return []}}
-function saveCalendarEvents(rows){localStorage.setItem('dnh_calendar_events',JSON.stringify(rows));window.dispatchEvent(new Event('dnh-calendar'))}
+function saveCalendarEvents(rows){localStorage.setItem('dnh_calendar_events',JSON.stringify(rows));sharedPush('calendar_events',rows);window.dispatchEvent(new Event('dnh-calendar'))}
 function loadHolidays(){try{return JSON.parse(localStorage.getItem('dnh_holidays')||'[]')}catch{return []}}
 const DEFAULT_CALENDAR_COLORS={examBg:'#ede9fe',examText:'#5b21b6',projectBg:'#dcfce7',projectText:'#166534',taskBg:'#eff6ff',taskText:'#1d4ed8',noteBg:'#fffbeb',noteText:'#92400e',weekendBg:'#fff7ed',weekendText:'#9a3412',holidayBg:'#fef2f2',holidayText:'#b91c1c'};
 function loadCalendarColors(){try{return {...DEFAULT_CALENDAR_COLORS,...JSON.parse(localStorage.getItem('dnh_calendar_colors')||'{}')}}catch{return DEFAULT_CALENDAR_COLORS}}
