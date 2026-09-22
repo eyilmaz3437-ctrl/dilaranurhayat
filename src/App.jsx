@@ -923,9 +923,28 @@ export default function App() {
   }
 
   function changePage(key) {
+    if (key !== page) setNavHistory(h => [...h.slice(-19), { page, subPage, detailKey }]);
     setPage(key);
     setSubPage('');
     setDetailKey('');
+    if (window.innerWidth < 700) setMenuOpen(false);
+  }
+
+  function goBack() {
+    setNavHistory(h => {
+      const next = [...h];
+      const prev = next.pop();
+      if (prev) {
+        setPage(prev.page);
+        setSubPage(prev.subPage || '');
+        setDetailKey(prev.detailKey || '');
+      } else {
+        setPage('home');
+        setSubPage('');
+        setDetailKey('');
+      }
+      return next;
+    });
     if (window.innerWidth < 700) setMenuOpen(false);
   }
 
