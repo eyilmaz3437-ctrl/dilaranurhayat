@@ -3405,3 +3405,11 @@ button,input,select,textarea{font-family:inherit} input,select,textarea{opacity:
   line-height:1.08!important;
   max-height:3.24em!important;
 }
+
+
+/* v65.2 takvim ust kumandalari sabit */
+.calendar-screen{display:flex!important;flex-direction:column!important;max-height:calc(100vh - 82px)!important}
+.calendar-screen>.screen-title-row,
+.calendar-screen>.calendar-toolbar{flex:0 0 auto;position:relative;z-index:6;background:#fff}
+.calendar-screen>.calendar-toolbar{padding-bottom:6px}
+.calendar-screen>.school-year-calendar-scroll{flex:1 1 auto!important;height:auto!important;min-height:0!important;overflow-y:auto!important}
