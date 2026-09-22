@@ -1469,7 +1469,7 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
         <span>‹</span><div><i></i><small>Sayfa değiştir</small></div><span>›</span>
       </div>
       {selectedTask && <TaskReadModal task={selectedTask} activeUser="D" reloadTasks={reloadTasks} onClose={() => setSelectedTask(null)} />}
-      {fullYearCalendar&&<div className="full-year-calendar-overlay"><button className="full-year-close" onClick={()=>setFullYearCalendar(false)}>← Aylık takvime dön</button><HomeworkCalendar tasks={tasks} onOpen={setSelectedTask} fullYear /></div>}
+      {fullYearCalendar&&<div className="full-year-calendar-overlay"><div className="full-year-topbar"><button className="full-year-close" onClick={()=>setFullYearCalendar(false)}>← Geri</button><strong>Eğitim Yılı Takvimi</strong><button className="full-year-x" onClick={()=>setFullYearCalendar(false)} aria-label="Kapat">×</button></div><HomeworkCalendar tasks={tasks} onOpen={setSelectedTask} fullYear /></div>}
     </>
   );
 }
