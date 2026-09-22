@@ -1570,7 +1570,9 @@ function WeeklySchedule({ goTasks }) {
  const [menu,setMenu]=useState(null);
  const [subjectPick,setSubjectPick]=useState(null);
  useEffect(()=>{const sync=()=>{setSubjects(loadSubjects());setSettings(loadSchoolSettings());try{setPlan(JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}'))}catch{}};window.addEventListener('dnh-settings',sync);window.addEventListener('dnh-shared',sync);return()=>{window.removeEventListener('dnh-settings',sync);window.removeEventListener('dnh-shared',sync)}},[]);
- useEffect(()=>{localStorage.setItem('dnh_schedule_plan',JSON.stringify(plan));sharedPush('schedule_plan',plan)},[plan]);
+ const planReady=useRef(false);
+ useEffect(()=>{let alive=true;(async()=>{await sharedPull();if(!alive)return;try{setPlan(JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}'))}catch{}planReady.current=true})();return()=>{alive=false}},[]);
+ useEffect(()=>{if(!planReady.current)return;localStorage.setItem('dnh_schedule_plan',JSON.stringify(plan));sharedPush('schedule_plan',plan)},[plan]);
  useEffect(()=>{const sync=()=>{try{setPlan(JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}'))}catch{}};window.addEventListener('dnh-shared',sync);return()=>window.removeEventListener('dnh-shared',sync)},[]);
  const rows=buildScheduleRows(settings);
  function setLesson(day,rowId,value){setPlan({...plan,[day+'|'+rowId]:value})}
