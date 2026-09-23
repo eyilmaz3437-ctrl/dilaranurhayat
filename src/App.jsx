@@ -1628,12 +1628,17 @@ function WeeklySchedule({ goTasks }) {
  const [menu,setMenu]=useState(null);
  const [subjectPick,setSubjectPick]=useState(null);
  useEffect(()=>{const sync=()=>{setSubjects(loadSubjects());setSettings(loadSchoolSettings());try{setPlan(JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}'))}catch{}};window.addEventListener('dnh-settings',sync);window.addEventListener('dnh-shared',sync);return()=>{window.removeEventListener('dnh-settings',sync);window.removeEventListener('dnh-shared',sync)}},[]);
- const planReady=useRef(false);
- useEffect(()=>{let alive=true;(async()=>{await sharedPull();if(!alive)return;try{setPlan(JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}'))}catch{}planReady.current=true})();return()=>{alive=false}},[]);
- useEffect(()=>{if(!planReady.current)return;localStorage.setItem('dnh_schedule_plan',JSON.stringify(plan));sharedPush('schedule_plan',plan)},[plan]);
+ useEffect(()=>{let alive=true;(async()=>{await sharedPull();if(!alive)return;try{setPlan(JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}'))}catch{}})();return()=>{alive=false}},[]);
  useEffect(()=>{const sync=()=>{try{setPlan(JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}'))}catch{}};window.addEventListener('dnh-shared',sync);return()=>window.removeEventListener('dnh-shared',sync)},[]);
  const rows=buildScheduleRows(settings);
- function setLesson(day,rowId,value){setPlan({...plan,[day+'|'+rowId]:value})}
+ function setLesson(day,rowId,value){
+   const key=day+'|'+rowId;
+   const next={...plan};
+   if(value)next[key]=value;else delete next[key];
+   setPlan(next);
+   localStorage.setItem('dnh_schedule_plan',JSON.stringify(next));
+   sharedPush('schedule_plan',next);
+ }
  function chooseSubject(day,rowId){setSubjectPick({day,rowId})}
  function action(day,row){const key=day+'|'+row.id,sub=subjects.find(s=>s.id===plan[key]);if(!sub){chooseSubject(day,row.id);return}setMenu({day,row,sub})}
  function addNote(calendar=false){const txt=prompt(calendar?'Takvime eklenecek not:':'Ders notu:');if(!txt)return;if(calendar){const date=prompt('Tarih (YYYY-AA-GG):',localDateISO());if(!date)return;addCalendarEvent({type:'note',date,subject:menu.sub.name,note:txt});}else{const k='dnh_subject_notes';let a=[];try{a=JSON.parse(localStorage.getItem(k)||'[]')}catch{}a.push({id:Date.now(),subject:menu.sub.name,note:txt,createdAt:new Date().toISOString()});localStorage.setItem(k,JSON.stringify(a));}setMenu(null);alert(calendar?'Takvime eklendi.':'Not kaydedildi.')}
