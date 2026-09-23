@@ -1,0 +1,16 @@
+{
+  "name": "Dilara Nur Hayat",
+  "short_name": "DNH",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff8f5",
+  "theme_color": "#7b1e60",
+  "icons": [
+    {
+      "src": "/dnh-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
