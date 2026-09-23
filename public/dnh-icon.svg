@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff8f5"/><stop offset="1" stop-color="#f9d9e7"/></linearGradient><linearGradient id="line" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#651452"/><stop offset="1" stop-color="#dc6d75"/></linearGradient></defs>
+<rect width="512" height="512" rx="108" fill="url(#bg)"/>
+<path d="M117 255c36-38 45-78 48-116 37-18 67-48 91-82 24 34 54 64 91 82 3 38 12 78 48 116" fill="none" stroke="url(#line)" stroke-width="14" stroke-linecap="round"/>
+<path d="M256 166c-29-29-74-30-111-10v125c41-16 78-7 111 19 33-26 70-35 111-19V156c-37-20-82-19-111 10Z" fill="#fff" stroke="#7b1e60" stroke-width="12" stroke-linejoin="round"/>
+<path d="M256 168v132M154 250c36-10 70-2 102 20m102-20c-36-10-70-2-102 20" fill="none" stroke="#e66e91" stroke-width="8" stroke-linecap="round"/>
+<path d="M301 105a45 45 0 1 0 31 74 38 38 0 1 1-31-74Z" fill="#f59a23"/><path d="m340 110 6 12 13 2-10 9 2 13-11-6-12 6 3-13-10-9 13-2Z" fill="#f59a23"/>
+<text x="256" y="390" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="82" fill="#5d164f">DNH</text>
+<text x="256" y="428" text-anchor="middle" font-family="Arial,sans-serif" font-size="23" letter-spacing="6" fill="#7b1e60">DİLARA NUR HAYAT</text>
+</svg>
