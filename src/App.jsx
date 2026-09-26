@@ -1015,7 +1015,7 @@ export default function App() {
       <button className="mobile-menu-button" onClick={() => setMenuOpen(true)}>☰</button>
       {page !== 'home' && <button className="global-back-button" onClick={goBack}>← Geri</button>}
       <aside className={menuOpen ? 'sidebar open' : 'sidebar'}>
-        <div className="topbar"><div className="brand"><img src="/dnh-icon.svg?v=20260926-1" alt="" /><span>Dilara Nur Hayat</span></div><button className="toggle" onClick={() => setMenuOpen(!menuOpen)}>☰</button></div>
+        <div className="topbar"><div className="brand"><img src="/dnh-icon.svg?v=20260926-1" alt="Dilara Nur Hayat" /></div><button className="toggle" onClick={() => setMenuOpen(!menuOpen)}>☰</button></div>
         <nav className="main-menu">{menuItems.map((item) => <button key={item.key} className={page === item.key ? 'menu-item active' : 'menu-item'} onClick={() => changePage(item.key)}><span>{item.icon}</span>{menuOpen && <span>{item.title}</span>}</button>)}</nav>
       </aside>
       <main className="content">
