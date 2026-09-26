@@ -3879,3 +3879,58 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
   .schedule-screen .schedule-week-nav small{font-size:12px}
   .schedule-screen .schedule-week-nav button{font-size:12px;padding:8px 10px}
 }
+
+
+/* Üst çubuk: tarih + kompakt namaz geri sayımı */
+.home-today-date{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:38px;
+  padding:0 8px;
+  color:#5d164f;
+  font-size:14px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.mini-prayer-countdown{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+}
+.mini-prayer-countdown .prayer-initial{
+  font-size:12px;
+  font-weight:900;
+}
+.mini-prayer-countdown .prayer-remaining{
+  font-variant-numeric:tabular-nums;
+  font-size:12px;
+  font-weight:900;
+}
+@media(max-width:700px){
+  .home-top-strip{
+    gap:5px;
+  }
+  .home-first-screen-button{
+    padding:6px 7px;
+    font-size:10px;
+  }
+  .home-today-date{
+    min-height:40px;
+    padding:0 4px;
+    font-size:13px;
+  }
+  .home-top-strip .top-countdown-row{
+    min-height:40px!important;
+  }
+  .home-top-strip .mini-prayer-countdown{
+    max-width:none;
+    padding:7px 8px;
+    font-size:10px;
+  }
+  .mini-prayer-countdown .prayer-initial,
+  .mini-prayer-countdown .prayer-remaining{
+    font-size:10px;
+  }
+}
