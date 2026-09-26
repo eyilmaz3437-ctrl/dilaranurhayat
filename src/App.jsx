@@ -1012,10 +1012,10 @@ export default function App() {
   return (
     <div className="app notranslate" translate="no">
       {menuOpen && <div className="mobile-overlay" onClick={() => setMenuOpen(false)}></div>}
-      <button className="mobile-menu-button" onClick={() => setMenuOpen(true)}>☰</button>
+      <button className="mobile-menu-button" onClick={() => setMenuOpen(true)} aria-label="Menüyü aç"><img src="/dnh-icon.svg?v=20260926-1" alt="" /></button>
       {page !== 'home' && <button className="global-back-button" onClick={goBack}>← Geri</button>}
       <aside className={menuOpen ? 'sidebar open' : 'sidebar'}>
-        <div className="topbar"><div className="brand"><img src="/dnh-icon.svg?v=20260926-1" alt="Dilara Nur Hayat" /></div><button className="toggle" onClick={() => setMenuOpen(!menuOpen)}>☰</button></div>
+        <div className="topbar"><div className="brand"><img src="/dnh-icon.svg?v=20260926-1" alt="Dilara Nur Hayat" /></div><button className="toggle" onClick={() => setMenuOpen(false)} aria-label="Menüyü kapat">×</button></div>
         <nav className="main-menu">{menuItems.map((item) => <button key={item.key} className={page === item.key ? 'menu-item active' : 'menu-item'} onClick={() => changePage(item.key)}><span>{item.icon}</span>{menuOpen && <span>{item.title}</span>}</button>)}</nav>
       </aside>
       <main className="content">
