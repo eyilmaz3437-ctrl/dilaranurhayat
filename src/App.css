@@ -21,6 +21,7 @@ button {
 
 .sidebar {
   width: 74px;
+  height: 100vh;
   min-height: 100vh;
   background: #7b1e60;
   color: white;
@@ -29,7 +30,14 @@ button {
   position: sticky;
   top: 0;
   align-self: flex-start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.35) transparent;
 }
+.sidebar::-webkit-scrollbar { width: 6px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.35); border-radius: 999px; }
 
 .sidebar.open {
   width: 250px;
@@ -54,10 +62,10 @@ button {
   overflow: hidden;
 }
 .brand img {
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
-  border-radius: 10px;
+  width: 31px;
+  height: 31px;
+  flex: 0 0 31px;
+  border-radius: 9px;
   box-shadow: 0 4px 12px rgba(93,22,79,.22);
 }
 .brand span {
@@ -272,6 +280,8 @@ section h2 {
     width: 260px;
     z-index: 1000;
     transition: all 0.3s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .sidebar.open {
@@ -364,6 +374,8 @@ section h2 {
     height: 100vh;
     z-index: 1000;
     transition: left 0.25s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .sidebar.open {
