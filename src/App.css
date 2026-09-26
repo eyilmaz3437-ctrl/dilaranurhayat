@@ -55,22 +55,22 @@ button {
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 9px;
-  font-weight: 700;
-  font-size: 15px;
-  white-space: nowrap;
-  overflow: hidden;
+  justify-content: flex-start;
+  overflow: visible;
 }
 .brand img {
-  width: 31px;
-  height: 31px;
-  flex: 0 0 31px;
-  border-radius: 9px;
-  box-shadow: 0 4px 12px rgba(93,22,79,.22);
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  border-radius: 12px;
+  box-shadow: 0 5px 14px rgba(93,22,79,.24);
+  transition: width .25s ease,height .25s ease,flex-basis .25s ease;
 }
-.brand span {
-  overflow: hidden;
-  text-overflow: ellipsis;
+.sidebar.open .brand img {
+  width: 92px;
+  height: 92px;
+  flex-basis: 92px;
+  border-radius: 20px;
 }
 
 .toggle {
