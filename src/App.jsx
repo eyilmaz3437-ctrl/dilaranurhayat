@@ -1310,6 +1310,7 @@ function LatestLocationPage({ goHome, openHistory, currentUser }) {
 function LocationHistoryPage({ goHome }) {
   const today = localDateISO();
   const [date, setDate] = useState(today);
+  const [datePickerOpen,setDatePickerOpen]=useState(false);
   const [allRows, setAllRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -1326,6 +1327,8 @@ function LocationHistoryPage({ goHome }) {
     return()=>{alive=false};
   },[]);
   const rows=allRows.filter(r=>localDateISO(new Date(r.recorded_at))===date);
+  const availableDates=[...new Set(allRows.map(r=>localDateISO(new Date(r.recorded_at))))].sort((a,b)=>b.localeCompare(a));
+  const dateLabel=(iso)=>new Date(iso+'T12:00:00').toLocaleDateString('tr-TR',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
 
   return (
     <>
@@ -1333,9 +1336,28 @@ function LocationHistoryPage({ goHome }) {
       <SectionTitle title="Konum Geçmişi" />
       <div className="location-history-wrap">
         <div className="location-history-toolbar">
-          <label><span>Gün</span><input type="date" value={date} onChange={e=>setDate(e.target.value)} /></label>
+          <div className="location-history-date-wrap">
+            <span>Gün</span>
+            <button type="button" className="location-history-date-button" onClick={()=>setDatePickerOpen(true)}>
+              <b>{dateLabel(date)}</b><i>▾</i>
+            </button>
+          </div>
           <strong>{rows.length} kayıt</strong>
         </div>
+        {datePickerOpen&&<div className="modal-backdrop location-date-backdrop" onClick={()=>setDatePickerOpen(false)}>
+          <div className="location-date-picker" onClick={e=>e.stopPropagation()}>
+            <div className="modal-head"><strong>Konum geçmişi günleri</strong><button onClick={()=>setDatePickerOpen(false)}>×</button></div>
+            <div className="location-date-list">
+              {availableDates.length===0&&<div className="home-empty">Henüz konum geçmişi yok.</div>}
+              {availableDates.map(d=>{
+                const count=allRows.filter(r=>localDateISO(new Date(r.recorded_at))===d).length;
+                return <button type="button" key={d} className={d===date?'active':''} onClick={()=>{setDate(d);setDatePickerOpen(false)}}>
+                  <span>{dateLabel(d)}</span><small>{count} kayıt</small>
+                </button>
+              })}
+            </div>
+          </div>
+        </div>}
         {loading&&<div className="home-empty">Konum kayıtları yükleniyor...</div>}
         {!loading&&error&&<div className="location-info-note">Konum geçmişi okunamadı.</div>}
         {!loading&&!error&&rows.length===0&&<div className="home-empty">Bu gün için konum kaydı yok.</div>}
