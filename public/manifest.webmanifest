@@ -7,7 +7,7 @@
   "theme_color": "#7b1e60",
   "icons": [
     {
-      "src": "/dnh-icon.svg",
+      "src": "/dnh-icon.svg?v=20260926-1",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
