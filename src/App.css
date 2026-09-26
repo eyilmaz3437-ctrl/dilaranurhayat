@@ -3675,26 +3675,27 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
 
 /* v64.10 haftalar arasi ders programi ve otomatik odev bilgisi */
 .schedule-week-nav{
-  display:grid;
-  grid-template-columns:auto minmax(150px,1fr) auto auto;
+  display:flex;
   align-items:center;
+  justify-content:space-between;
   gap:8px;
   margin:0 0 10px;
-  padding:8px;
+  padding:8px 10px;
   border:1px solid #dbe4ef;
   border-radius:14px;
   background:#f8fafc;
 }
-.schedule-week-nav>div{text-align:center;min-width:0}
-.schedule-week-nav strong,.schedule-week-nav small{display:block}
-.schedule-week-nav strong{color:#7b1e60;font-size:13px}
-.schedule-week-nav small{color:#64748b;font-size:11px;margin-top:2px}
+.schedule-week-label{min-width:0;text-align:left}
+.schedule-week-label strong,.schedule-week-label small{display:block}
+.schedule-week-label strong{color:#7b1e60;font-size:13px}
+.schedule-week-label small{color:#64748b;font-size:11px;margin-top:2px;white-space:nowrap}
+.schedule-week-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex:0 0 auto}
 .schedule-week-nav button{
   border:0;
   border-radius:999px;
   background:#7b1e60;
   color:#fff;
-  padding:8px 11px;
+  padding:7px 10px;
   font-weight:800;
   white-space:nowrap;
 }
@@ -3714,10 +3715,11 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
 }
 .task-prefill-notice span{color:#475569}
 @media(max-width:700px){
-  .schedule-week-nav{grid-template-columns:1fr 1fr;gap:6px}
-  .schedule-week-nav>div{grid-column:1/-1;grid-row:1}
-  .schedule-week-nav .schedule-this-week{grid-column:1/-1;grid-row:3}
-  .schedule-week-nav button{font-size:11px;padding:7px 9px}
+  .schedule-week-nav{gap:6px;padding:7px 8px}
+  .schedule-week-label strong{font-size:12px}
+  .schedule-week-label small{font-size:10px}
+  .schedule-week-actions{gap:4px}
+  .schedule-week-nav button{font-size:10px;padding:6px 8px}
 }
 
 
