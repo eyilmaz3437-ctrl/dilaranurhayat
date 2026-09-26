@@ -3549,3 +3549,17 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
   color:#fff!important;
   font-weight:900!important;
 }
+
+
+/* v64.9 ders programi tarih + tamamlayan gorunurluk */
+.schedule-day-head{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important}
+.schedule-day-head small{display:block!important;color:#dbeafe!important;font-size:9px!important;font-weight:800!important;line-height:1!important}
+.completion-select,.detail-complete-area .completion-select,.completion-edit-box .completion-select{
+  color:#0f172a!important;
+  background:#fff!important;
+  -webkit-text-fill-color:#0f172a!important;
+  opacity:1!important;
+}
+.completion-select option{color:#0f172a!important;background:#fff!important}
+.completion-edit-box .field-label{display:block;color:#162033!important;font-weight:800;margin:10px 0 6px}
+.completion-edit-box .completion-textarea{background:#fff!important;color:#0f172a!important}
