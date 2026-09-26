@@ -878,7 +878,7 @@ export default function App() {
 
   useEffect(()=>{
     let alive=true;
-    if(!sessionUser?.id){applyUserBackground(DEFAULT_UI_BACKGROUND);return()=>{alive=false}}
+    if(!sessionUser?.id){applyUserAppearance({background:DEFAULT_UI_BACKGROUND,cardBackground:DEFAULT_CARD_BACKGROUND});return()=>{alive=false}}
     const local=loadLocalUserAppearance(sessionUser.id);
     applyUserAppearance(local);
     pullUserAppearance(sessionUser.id).then(pref=>{if(alive)applyUserAppearance(pref)});
