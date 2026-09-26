@@ -1,0 +1,14 @@
+/
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/manifest.webmanifest
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/dnh-icon.svg
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/favicon.svg
+  Cache-Control: no-cache, no-store, must-revalidate
