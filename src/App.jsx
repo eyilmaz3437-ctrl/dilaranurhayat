@@ -3694,7 +3694,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
               <p>{t.content}</p>
               <button className="task-delete-button" onClick={(e) => { e.stopPropagation(); deleteTask(t); }}>🗑 Sil</button>
             </article>
-          ))}
+          )})}
         </div>
       )}
 
@@ -3712,7 +3712,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
               <button className="undo-task" onClick={(e) => { e.stopPropagation(); undoComplete(t); }}>Geri</button>
               <button className="task-delete-button" onClick={(e) => { e.stopPropagation(); deleteTask(t); }}>🗑 Sil</button>
             </article>
-          ))}
+          )})}
         </div>
       )}
       {completeTarget && (
