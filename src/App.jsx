@@ -751,6 +751,45 @@ async function getAppUsers() {
   for(const base of DEFAULT_APP_USERS) users.push({...base,passwordHash:await appHash(INITIAL_PASSWORDS[base.id])});
   localStorage.setItem('dnh_users',JSON.stringify(users)); return users;
 }
+
+const DEFAULT_UI_BACKGROUND='#f8fafc';
+const UI_BACKGROUND_PRESETS=[
+  {name:'Beyaz',color:'#f8fafc'},
+  {name:'Krem',color:'#fff8f5'},
+  {name:'Yumuşak gri',color:'#eef2f3'},
+  {name:'Adaçayı',color:'#edf3ee'},
+  {name:'Pudra',color:'#f8eef3'},
+  {name:'Açık mavi',color:'#eef4f8'},
+];
+function userAppearanceStorageKey(userId){return 'dnh_user_appearance_'+userId}
+function userAppearanceSharedKey(userId){return 'user_appearance_'+userId}
+function loadLocalUserAppearance(userId){
+  try{return {background:DEFAULT_UI_BACKGROUND,...JSON.parse(localStorage.getItem(userAppearanceStorageKey(userId))||'{}')}}catch{return {background:DEFAULT_UI_BACKGROUND}}
+}
+function applyUserBackground(color){
+  document.documentElement.style.setProperty('--dnh-app-bg',color||DEFAULT_UI_BACKGROUND);
+}
+async function pullUserAppearance(userId){
+  if(!userId)return loadLocalUserAppearance('');
+  const local=loadLocalUserAppearance(userId);
+  applyUserBackground(local.background);
+  const {data,error}=await supabase.from('app_shared_state').select('value').eq('key',userAppearanceSharedKey(userId)).maybeSingle();
+  if(error||!data?.value)return local;
+  const next={...local,...data.value};
+  localStorage.setItem(userAppearanceStorageKey(userId),JSON.stringify(next));
+  applyUserBackground(next.background);
+  window.dispatchEvent(new CustomEvent('dnh-user-appearance',{detail:{userId,...next}}));
+  return next;
+}
+async function saveUserAppearance(userId,next){
+  if(!userId)return false;
+  localStorage.setItem(userAppearanceStorageKey(userId),JSON.stringify(next));
+  applyUserBackground(next.background);
+  window.dispatchEvent(new CustomEvent('dnh-user-appearance',{detail:{userId,...next}}));
+  const {error}=await supabase.from('app_shared_state').upsert({key:userAppearanceSharedKey(userId),value:next,updated_at:new Date().toISOString()},{onConflict:'key'});
+  return !error;
+}
+
 function LoginGate({ onLogin }) {
   const [username,setUsername]=useState(''); const [password,setPassword]=useState(''); const [remember,setRemember]=useState(true); const [error,setError]=useState('');
   async function submit(e){e.preventDefault();setError('');const users=await getAppUsers();const hash=await appHash(password);const user=users.find(x=>x.username.toLocaleLowerCase('tr-TR')===username.trim().toLocaleLowerCase('tr-TR')&&x.passwordHash===hash);if(!user){setError('Kullanıcı adı veya şifre hatalı.');return;}const session={id:user.id,username:user.username,displayName:user.displayName,role:user.role};if(remember){localStorage.setItem('dnh_remembered_user',JSON.stringify(session));sessionStorage.removeItem('dnh_session_user')}else{sessionStorage.setItem('dnh_session_user',JSON.stringify(session));localStorage.removeItem('dnh_remembered_user')}onLogin(session);}
@@ -758,13 +797,20 @@ function LoginGate({ onLogin }) {
 }
 function UserSettingsPage({goHome,currentUser,onLogout}) {
  const [users,setUsers]=useState([]),[oldPass,setOldPass]=useState(''),[newPass,setNewPass]=useState(''),[newPass2,setNewPass2]=useState(''),[msg,setMsg]=useState('');
- useEffect(()=>{getAppUsers().then(setUsers)},[]);
+ const [background,setBackground]=useState(()=>loadLocalUserAppearance(currentUser.id).background);
+ const [appearanceMsg,setAppearanceMsg]=useState('');
+ useEffect(()=>{getAppUsers().then(setUsers);let alive=true;pullUserAppearance(currentUser.id).then(p=>{if(alive)setBackground(p.background||DEFAULT_UI_BACKGROUND)});return()=>{alive=false}},[currentUser.id]);
+ function previewBackground(color){setBackground(color);applyUserBackground(color)}
+ async function chooseBackground(color){previewBackground(color);setAppearanceMsg('Kaydediliyor…');const ok=await saveUserAppearance(currentUser.id,{...loadLocalUserAppearance(currentUser.id),background:color});setAppearanceMsg(ok?'Bu renk hesabına kaydedildi.':'Renk bu cihazda uygulandı; buluta kaydedilemedi.')}
+
  async function changePassword(e){e.preventDefault();setMsg('');const list=await getAppUsers(),me=list.find(x=>x.id===currentUser.id);if(!me||me.passwordHash!==await appHash(oldPass)){setMsg('Mevcut şifre yanlış.');return;}if(newPass.length<4){setMsg('Yeni şifre en az 4 karakter olmalı.');return;}if(newPass!==newPass2){setMsg('Yeni şifreler aynı değil.');return;}const next=[];for(const x of list)next.push(x.id===me.id?{...x,passwordHash:await appHash(newPass)}:x);localStorage.setItem('dnh_users',JSON.stringify(next));setUsers(next);setOldPass('');setNewPass('');setNewPass2('');setMsg('Şifre değiştirildi.');}
  async function editUser(u){if(currentUser.role!=='admin')return;const name=prompt('Kullanıcı adı:',u.username);if(!name?.trim())return;const displayName=prompt('Görünen ad:',u.displayName||u.username);if(displayName===null)return;const list=await getAppUsers(),next=list.map(x=>x.id===u.id?{...x,username:name.trim(),displayName:displayName.trim()||name.trim()}:x);localStorage.setItem('dnh_users',JSON.stringify(next));setUsers(next);}
  async function resetPassword(u){if(currentUser.role!=='admin')return;const p=prompt(u.username+' için yeni şifre:');if(p===null)return;if(p.length<4)return alert('Şifre en az 4 karakter olmalı.');const list=await getAppUsers(),next=[];for(const x of list)next.push(x.id===u.id?{...x,passwordHash:await appHash(p)}:x);localStorage.setItem('dnh_users',JSON.stringify(next));setUsers(next);alert('Şifre yenilendi.');}
  async function deleteUser(u){if(currentUser.role!=='admin'||u.id==='admin')return;if(!confirm(u.username+' kullanıcısı silinsin mi?'))return;const list=await getAppUsers(),next=list.filter(x=>x.id!==u.id);localStorage.setItem('dnh_users',JSON.stringify(next));setUsers(next);}
  async function addUser(){if(currentUser.role!=='admin')return;const username=prompt('Yeni kullanıcı adı:');if(!username?.trim())return;const password=prompt('İlk şifre (en az 4 karakter):');if(!password||password.length<4)return alert('Şifre en az 4 karakter olmalı.');const list=await getAppUsers();if(list.some(x=>x.username.toLocaleLowerCase('tr-TR')===username.trim().toLocaleLowerCase('tr-TR')))return alert('Bu kullanıcı zaten var.');const u={id:'u_'+Date.now(),username:username.trim(),displayName:username.trim(),role:'user',passwordHash:await appHash(password)},next=[...list,u];localStorage.setItem('dnh_users',JSON.stringify(next));setUsers(next);}
- return <><TopActions goHome={goHome}/><SectionTitle title="Kullanıcı Tanımları"/><div className="user-settings-wrap"><div className="current-user-card"><span>👤</span><div><small>Oturum</small><strong>{currentUser.displayName}</strong></div><button onClick={onLogout}>Çıkış</button></div><form className="password-card" onSubmit={changePassword}><h3>Şifremi Değiştir</h3><input type="password" placeholder="Mevcut şifre" value={oldPass} onChange={e=>setOldPass(e.target.value)}/><input type="password" placeholder="Yeni şifre" value={newPass} onChange={e=>setNewPass(e.target.value)}/><input type="password" placeholder="Yeni şifre tekrar" value={newPass2} onChange={e=>setNewPass2(e.target.value)}/><button>Şifreyi değiştir</button>{msg&&<small className="password-message">{msg}</small>}</form>{currentUser.role==='admin'&&<div className="admin-users-card"><div className="admin-users-head"><h3>Kullanıcı Yönetimi</h3><button onClick={addUser}>＋ Kullanıcı</button></div>{users.map(u=><div className="admin-user-row" key={u.id}><div><strong>{u.username}</strong><small>{u.role==='admin'?'Yönetici':'Kullanıcı'}</small></div><div className="admin-user-actions"><button onClick={()=>editUser(u)}>Düzenle</button><button onClick={()=>resetPassword(u)}>Şifre</button>{u.id!=='admin'&&<button className="danger" onClick={()=>deleteUser(u)}>Sil</button>}</div></div>)}</div>}</div></>;
+ return <><TopActions goHome={goHome}/><SectionTitle title="Kullanıcı Tanımları"/><div className="user-settings-wrap"><div className="current-user-card"><span>👤</span><div><small>Oturum</small><strong>{currentUser.displayName}</strong></div><button onClick={onLogout}>Çıkış</button></div>
+ <section className="appearance-card"><div className="appearance-head"><div><h3>🎨 Arka Plan</h3><small>Yalnızca senin hesabının görünümünü değiştirir.</small></div><label className="custom-background-picker" title="Özel renk"><span>Özel</span><input type="color" value={background} onInput={e=>previewBackground(e.currentTarget.value)} onChange={e=>chooseBackground(e.currentTarget.value)}/></label></div><div className="background-presets">{UI_BACKGROUND_PRESETS.map(p=><button type="button" key={p.color} className={background.toLowerCase()===p.color.toLowerCase()?'active':''} onClick={()=>chooseBackground(p.color)}><i style={{background:p.color}}></i><span>{p.name}</span></button>)}</div>{appearanceMsg&&<small className="appearance-message">{appearanceMsg}</small>}</section>
+ <form className="password-card" onSubmit={changePassword}><h3>Şifremi Değiştir</h3><input type="password" placeholder="Mevcut şifre" value={oldPass} onChange={e=>setOldPass(e.target.value)}/><input type="password" placeholder="Yeni şifre" value={newPass} onChange={e=>setNewPass(e.target.value)}/><input type="password" placeholder="Yeni şifre tekrar" value={newPass2} onChange={e=>setNewPass2(e.target.value)}/><button>Şifreyi değiştir</button>{msg&&<small className="password-message">{msg}</small>}</form>{currentUser.role==='admin'&&<div className="admin-users-card"><div className="admin-users-head"><h3>Kullanıcı Yönetimi</h3><button onClick={addUser}>＋ Kullanıcı</button></div>{users.map(u=><div className="admin-user-row" key={u.id}><div><strong>{u.username}</strong><small>{u.role==='admin'?'Yönetici':'Kullanıcı'}</small></div><div className="admin-user-actions"><button onClick={()=>editUser(u)}>Düzenle</button><button onClick={()=>resetPassword(u)}>Şifre</button>{u.id!=='admin'&&<button className="danger" onClick={()=>deleteUser(u)}>Sil</button>}</div></div>)}</div>}</div></>;
 }
 
 export default function App() {
@@ -810,6 +856,15 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('dnh_active_user', activeUser);
   }, [activeUser]);
+
+  useEffect(()=>{
+    let alive=true;
+    if(!sessionUser?.id){applyUserBackground(DEFAULT_UI_BACKGROUND);return()=>{alive=false}}
+    const local=loadLocalUserAppearance(sessionUser.id);
+    applyUserBackground(local.background);
+    pullUserAppearance(sessionUser.id).then(pref=>{if(alive)applyUserBackground(pref.background)});
+    return()=>{alive=false};
+  },[sessionUser?.id]);
 
   async function loadTasks() {
     setTasksLoading(true);
@@ -1007,7 +1062,7 @@ export default function App() {
   }
 
   if(!sessionUser) return <LoginGate onLogin={setSessionUser}/>;
-  function logoutApp(){sessionStorage.removeItem('dnh_session_user');localStorage.removeItem('dnh_remembered_user');setSessionUser(null);}
+  function logoutApp(){sessionStorage.removeItem('dnh_session_user');localStorage.removeItem('dnh_remembered_user');applyUserBackground(DEFAULT_UI_BACKGROUND);setSessionUser(null);}
 
   return (
     <div className="app notranslate" translate="no">
