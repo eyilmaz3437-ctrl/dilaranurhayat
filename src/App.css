@@ -3885,7 +3885,7 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
 
 
 /* Büyük telefonlarda ders programını bir tık büyüt; dar telefon görünümü değişmez */
-@media (min-width:390px) and (max-width:700px){
+@media (min-width:410px) and (max-width:700px){
   .schedule-screen .screen-title-row h2{font-size:21px}
   .schedule-screen .schedule-grid{min-width:760px}
   .schedule-screen .schedule-head{font-size:12px!important;padding:6px 5px!important}
