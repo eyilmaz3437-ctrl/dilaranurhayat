@@ -3563,3 +3563,112 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
 .completion-select option{color:#0f172a!important;background:#fff!important}
 .completion-edit-box .field-label{display:block;color:#162033!important;font-weight:800;margin:10px 0 6px}
 .completion-edit-box .completion-textarea{background:#fff!important;color:#0f172a!important}
+
+
+/* v64.10 girilmis odevi yeniden duzenleme */
+.task-edit-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:18px 0 10px;
+}
+.task-edit-heading>strong{color:#162033;font-size:14px}
+.task-edit-toggle{
+  border:1px solid #cbd5e1!important;
+  border-radius:10px!important;
+  background:#f8fafc!important;
+  color:#1e3a8a!important;
+  padding:8px 11px!important;
+  font-weight:800!important;
+}
+.task-read-content h2{margin:6px 0 8px}
+.task-read-content p{white-space:pre-wrap;margin:0}
+.task-edit-form{
+  padding:14px;
+  border:1px solid #cbd5e1;
+  border-radius:14px;
+  background:#f8fafc;
+}
+.task-edit-form input,
+.task-edit-form select,
+.task-edit-form textarea{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #cbd5e1;
+  border-radius:11px;
+  background:#fff!important;
+  color:#0f172a!important;
+  -webkit-text-fill-color:#0f172a!important;
+  padding:10px 12px;
+  font:inherit;
+  opacity:1!important;
+}
+.task-edit-form textarea{min-height:120px;resize:vertical;white-space:pre-wrap}
+.task-edit-form option{color:#0f172a!important;background:#fff!important}
+.task-edit-save{
+  width:100%;
+  margin-top:14px;
+  border:0!important;
+  border-radius:12px!important;
+  background:#166534!important;
+  color:#fff!important;
+  padding:11px 14px!important;
+  font-weight:900!important;
+}
+.task-edit-save:disabled,.task-edit-toggle:disabled{opacity:.6!important}
+.clickable-task-row{cursor:pointer}
+.clickable-task-row:hover{background:#f8fafc}
+@media(max-width:700px){
+  .task-edit-heading{align-items:stretch;flex-direction:column}
+  .task-edit-toggle{width:100%}
+  .task-edit-form{padding:12px}
+}
+
+
+/* v64.10 haftalar arasi ders programi ve otomatik odev bilgisi */
+.schedule-week-nav{
+  display:grid;
+  grid-template-columns:auto minmax(150px,1fr) auto auto;
+  align-items:center;
+  gap:8px;
+  margin:0 0 10px;
+  padding:8px;
+  border:1px solid #dbe4ef;
+  border-radius:14px;
+  background:#f8fafc;
+}
+.schedule-week-nav>div{text-align:center;min-width:0}
+.schedule-week-nav strong,.schedule-week-nav small{display:block}
+.schedule-week-nav strong{color:#162033;font-size:13px}
+.schedule-week-nav small{color:#64748b;font-size:11px;margin-top:2px}
+.schedule-week-nav button{
+  border:0;
+  border-radius:999px;
+  background:#162033;
+  color:#fff;
+  padding:8px 11px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.schedule-week-nav .schedule-this-week{background:#dbeafe;color:#1e3a8a}
+.task-prefill-notice{
+  grid-column:1/-1;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  padding:9px 11px;
+  border:1px solid #93c5fd;
+  border-radius:12px;
+  background:#eff6ff;
+  color:#1e3a8a;
+  font-size:12px;
+}
+.task-prefill-notice span{color:#475569}
+@media(max-width:700px){
+  .schedule-week-nav{grid-template-columns:1fr 1fr;gap:6px}
+  .schedule-week-nav>div{grid-column:1/-1;grid-row:1}
+  .schedule-week-nav .schedule-this-week{grid-column:1/-1;grid-row:3}
+  .schedule-week-nav button{font-size:11px;padding:7px 9px}
+}

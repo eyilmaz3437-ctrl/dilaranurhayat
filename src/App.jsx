@@ -1622,8 +1622,14 @@ function buildScheduleRows(settings){
 }
 function WeeklySchedule({ goTasks }) {
  const days=['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
- const mondayOfWeek=(()=>{const d=new Date();const day=(d.getDay()+6)%7;d.setHours(12,0,0,0);d.setDate(d.getDate()-day);return d})();
- const dayDate=(index)=>{const d=new Date(mondayOfWeek);d.setDate(d.getDate()+index);return d.toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit'})};
+ const [weekOffset,setWeekOffset]=useState(0);
+ const thisMonday=(()=>{const d=new Date();const day=(d.getDay()+6)%7;d.setHours(12,0,0,0);d.setDate(d.getDate()-day);return d})();
+ const mondayOfWeek=new Date(thisMonday);mondayOfWeek.setDate(mondayOfWeek.getDate()+(weekOffset*7));
+ const dateForDay=(index)=>{const d=new Date(mondayOfWeek);d.setDate(d.getDate()+index);return d};
+ const dayDate=(index)=>dateForDay(index).toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit'});
+ const dayISO=(index)=>{const d=dateForDay(index);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+ const sundayOfWeek=dateForDay(6);
+ const weekLabel=`${mondayOfWeek.toLocaleDateString('tr-TR',{day:'numeric',month:'short'})} – ${sundayOfWeek.toLocaleDateString('tr-TR',{day:'numeric',month:'short',year:'numeric'})}`;
  const [subjects,setSubjects]=useState(loadSubjects);
  const [settings,setSettings]=useState(loadSchoolSettings);
  const [plan,setPlan]=useState(()=>{try{return JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}')}catch{return {}}});
@@ -1642,14 +1648,20 @@ function WeeklySchedule({ goTasks }) {
    sharedPush('schedule_plan',next);
  }
  function chooseSubject(day,rowId){setSubjectPick({day,rowId})}
- function action(day,row){const key=day+'|'+row.id,sub=subjects.find(s=>s.id===plan[key]);if(!sub){chooseSubject(day,row.id);return}setMenu({day,row,sub})}
- function addNote(calendar=false){const txt=prompt(calendar?'Takvime eklenecek not:':'Ders notu:');if(!txt)return;if(calendar){const date=prompt('Tarih (YYYY-AA-GG):',localDateISO());if(!date)return;addCalendarEvent({type:'note',date,subject:menu.sub.name,note:txt});}else{const k='dnh_subject_notes';let a=[];try{a=JSON.parse(localStorage.getItem(k)||'[]')}catch{}a.push({id:Date.now(),subject:menu.sub.name,note:txt,createdAt:new Date().toISOString()});localStorage.setItem(k,JSON.stringify(a));}setMenu(null);alert(calendar?'Takvime eklendi.':'Not kaydedildi.')}
+ function action(day,row,dayIndex){const key=day+'|'+row.id,sub=subjects.find(s=>s.id===plan[key]);if(!sub){chooseSubject(day,row.id);return}setMenu({day,row,sub,date:dayISO(dayIndex)})}
+ function addNote(calendar=false){const txt=prompt(calendar?'Takvime eklenecek not:':'Ders notu:');if(!txt)return;if(calendar){const date=prompt('Tarih (YYYY-AA-GG):',menu.date||localDateISO());if(!date)return;addCalendarEvent({type:'note',date,subject:menu.sub.name,note:txt});}else{const k='dnh_subject_notes';let a=[];try{a=JSON.parse(localStorage.getItem(k)||'[]')}catch{}a.push({id:Date.now(),subject:menu.sub.name,note:txt,createdAt:new Date().toISOString()});localStorage.setItem(k,JSON.stringify(a));}setMenu(null);alert(calendar?'Takvime eklendi.':'Not kaydedildi.')}
+ function addHomework(){
+   sessionStorage.setItem('dnh_task_prefill',JSON.stringify({task_date:menu.date,title:menu.sub.name,task_type:'homework'}));
+   setMenu(null);
+   goTasks();
+ }
  return <section className="android-home-screen schedule-screen"><div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 2</span><h2>Haftalık Ders Planı</h2></div><small className="schedule-summary">{settings.start} · {settings.lessonMinutes} dk</small></div>
+  <div className="schedule-week-nav" aria-label="Hafta seçimi"><button type="button" onClick={()=>setWeekOffset(value=>value-1)}>‹ Önceki</button><div><strong>{weekOffset===0?'Bu hafta':weekOffset===1?'Sonraki hafta':weekOffset===-1?'Önceki hafta':weekLabel}</strong><small>{weekLabel}</small></div>{weekOffset!==0&&<button type="button" className="schedule-this-week" onClick={()=>setWeekOffset(0)}>Bu hafta</button>}<button type="button" onClick={()=>setWeekOffset(value=>value+1)}>Sonraki ›</button></div>
   <div className="schedule-scroll"><div className="schedule-grid" style={{gridTemplateColumns:'92px repeat(7,minmax(105px,1fr))'}}><div className="schedule-head schedule-sticky-time schedule-time-heading">Ders<br/>Saatleri</div>{days.map((d,i)=><div className="schedule-head schedule-day-head" key={d}><span>{d}</span><small>{dayDate(i)}</small></div>)}
-   {rows.map(r=><div key={r.id} style={{display:'contents'}}><div className={'schedule-time schedule-sticky-time type-'+r.type}>{r.start}–{r.end}</div>{days.map(d=>{if(r.type!=='lesson')return <div key={d} className={'schedule-cell type-'+r.type}>{r.type==='lunch'?'Öğle Arası':'Teneffüs'}</div>;const sid=plan[d+'|'+r.id],sub=subjects.find(x=>x.id===sid);return <button key={d} className="schedule-cell lesson-pick" style={sub?{background:sub.color}:undefined} onClick={()=>action(d,r)}>{sub?sub.name:'＋ Ders seç'}</button>})}</div>)}
+   {rows.map(r=><div key={r.id} style={{display:'contents'}}><div className={'schedule-time schedule-sticky-time type-'+r.type}>{r.start}–{r.end}</div>{days.map((d,i)=>{if(r.type!=='lesson')return <div key={d} className={'schedule-cell type-'+r.type}>{r.type==='lunch'?'Öğle Arası':'Teneffüs'}</div>;const sid=plan[d+'|'+r.id],sub=subjects.find(x=>x.id===sid);return <button key={d} className="schedule-cell lesson-pick" style={sub?{background:sub.color}:undefined} onClick={()=>action(d,r,i)}>{sub?sub.name:'＋ Ders seç'}</button>})}</div>)}
   </div></div>
   {subjectPick&&<div className="modal-backdrop" onClick={()=>setSubjectPick(null)}><div className="subject-pick-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>Ders seç</strong><button onClick={()=>setSubjectPick(null)}>×</button></div><div className="subject-pick-grid">{subjects.map(s=><button key={s.id} style={{background:s.color}} onClick={()=>{setLesson(subjectPick.day,subjectPick.rowId,s.id);setSubjectPick(null)}}>{s.name}</button>)}</div></div></div>}
-  {menu&&<div className="modal-backdrop" onClick={()=>setMenu(null)}><div className="lesson-action-menu" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>{menu.sub.name} · {menu.day}</strong><button onClick={()=>setMenu(null)}>×</button></div><button onClick={()=>{chooseSubject(menu.day,menu.row.id);setMenu(null)}}>🔄 Dersi değiştir</button><button onClick={()=>addNote(false)}>📝 Not ekle</button><button onClick={()=>addNote(true)}>📅 Takvime not ekle</button><button onClick={()=>{setMenu(null);goTasks()}}>📚 Ödev ekle</button><button onClick={()=>{setLesson(menu.day,menu.row.id,'');setMenu(null)}}>🗑️ Dersi kaldır</button></div></div>}
+  {menu&&<div className="modal-backdrop" onClick={()=>setMenu(null)}><div className="lesson-action-menu" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>{menu.sub.name} · {menu.day} · {formatShortDate(menu.date)}</strong><button onClick={()=>setMenu(null)}>×</button></div><button onClick={()=>{chooseSubject(menu.day,menu.row.id);setMenu(null)}}>🔄 Dersi değiştir</button><button onClick={()=>addNote(false)}>📝 Not ekle</button><button onClick={()=>addNote(true)}>📅 Takvime not ekle</button><button onClick={addHomework}>📚 Bu derse ödev ekle</button><button onClick={()=>{setLesson(menu.day,menu.row.id,'');setMenu(null)}}>🗑️ Dersi kaldır</button></div></div>}
  </section>;
 }
 
@@ -1872,9 +1884,60 @@ function CompactTaskRow({ task, onOpen }) {
 }
 
 function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
+  const projectTitleMatch = (task.title || '').match(/^Proje \((.*)\)$/);
   const [note, setNote] = useState(task.completed_note || '');
   const [completedBy, setCompletedBy] = useState(task.completed_by || activeUser);
+  const [editingTask, setEditingTask] = useState(false);
+  const [taskDraft, setTaskDraft] = useState({
+    task_date: task.task_date || localDateISO(),
+    owner: task.owner || activeUser || 'D',
+    task_type: projectTitleMatch ? 'project' : 'homework',
+    title: projectTitleMatch ? projectTitleMatch[1] : (task.title || ''),
+    content: task.content || '',
+  });
+  const [subjects] = useState(loadSubjects);
   const [saving, setSaving] = useState(false);
+
+  async function updateTaskDetail() {
+    const cleanTitle = taskDraft.title.trim();
+    if (!taskDraft.task_date || !cleanTitle) {
+      alert('Tarih ve ders/başlık boş bırakılamaz.');
+      return;
+    }
+
+    const savedTitle = taskDraft.task_type === 'project'
+      ? `Proje (${cleanTitle})`
+      : cleanTitle;
+
+    setSaving(true);
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .update({
+          task_date: taskDraft.task_date,
+          owner: taskDraft.owner,
+          title: savedTitle,
+          content: taskDraft.content.trim(),
+        })
+        .eq('id', task.id)
+        .select('id, task_date, owner, title, content')
+        .single();
+
+      if (error) {
+        alert('Ödev güncellenemedi: ' + error.message);
+        return;
+      }
+      if (!data) {
+        alert('Ödev güncellenemedi. Lütfen tekrar dene.');
+        return;
+      }
+
+      await reloadTasks();
+      onClose();
+    } finally {
+      setSaving(false);
+    }
+  }
 
   async function completeFromDetail() {
     const ok = confirm(`"${task.title}" tamamlandı olarak işaretlensin mi?`);
@@ -1933,8 +1996,53 @@ function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
             {task.completed && task.completed_at && <span><b>Tamamlandı</b> {formatDateTime(task.completed_at)}</span>}
             {task.completed && <span><b>Tamamlayan</b> {task.completed_by || '?'}</span>}
           </div>
-          <h2>{task.title}</h2>
-          <p>{task.content || 'Açıklama yok.'}</p>
+          <div className="task-edit-heading">
+            <strong>Ödev Bilgisi</strong>
+            <button type="button" className="task-edit-toggle" onClick={() => setEditingTask(value => !value)} disabled={saving}>
+              {editingTask ? 'Vazgeç' : '✎ Ödevi düzenle'}
+            </button>
+          </div>
+
+          {editingTask ? (
+            <div className="task-edit-form">
+              <label className="field-label">Tarih</label>
+              <input type="date" value={taskDraft.task_date} onChange={(e) => setTaskDraft({ ...taskDraft, task_date: e.target.value })} />
+
+              <label className="field-label">Veren</label>
+              <select value={taskDraft.owner} onChange={(e) => setTaskDraft({ ...taskDraft, owner: e.target.value })}>
+                <option value="D">D - Dilara</option>
+                <option value="B">B - Baba</option>
+                <option value="A">A - Anne</option>
+              </select>
+
+              <label className="field-label">Tür</label>
+              <select value={taskDraft.task_type} onChange={(e) => setTaskDraft({ ...taskDraft, task_type: e.target.value })}>
+                <option value="homework">Ödev</option>
+                <option value="project">Dönem / Proje Ödevi</option>
+              </select>
+
+              <label className="field-label">Ders / Başlık</label>
+              <select value={taskDraft.title} onChange={(e) => setTaskDraft({ ...taskDraft, title: e.target.value })}>
+                {!subjects.some((subject) => subject.name === taskDraft.title) && taskDraft.title && (
+                  <option value={taskDraft.title}>{taskDraft.title}</option>
+                )}
+                <option value="">Ders seç</option>
+                {subjects.map((subject) => <option key={subject.id} value={subject.name}>{subject.name}</option>)}
+              </select>
+
+              <label className="field-label">İçerik</label>
+              <textarea value={taskDraft.content} onChange={(e) => setTaskDraft({ ...taskDraft, content: e.target.value })} placeholder="Ödevin içeriğini yaz" />
+
+              <button type="button" className="task-edit-save" onClick={updateTaskDetail} disabled={saving}>
+                {saving ? 'Kaydediliyor...' : 'Değişiklikleri kaydet'}
+              </button>
+            </div>
+          ) : (
+            <div className="task-read-content">
+              <h2>{task.title}</h2>
+              <p>{task.content || 'Açıklama yok.'}</p>
+            </div>
+          )}
 
           {!task.completed && (
             <div className="detail-complete-area">
@@ -2976,7 +3084,8 @@ function loadCalendarColors(){try{return {...DEFAULT_CALENDAR_COLORS,...JSON.par
 function addCalendarEvent(event){const rows=loadCalendarEvents();saveCalendarEvents([{id:Date.now(),createdAt:new Date().toISOString(),...event},...rows])}
 
 function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActiveUser }) {
-  const [form, setForm] = useState({ task_date: new Date().toISOString().slice(0, 10), owner: activeUser, title: '', content: '', task_type:'homework' });
+  const [schedulePrefill] = useState(()=>{try{const raw=sessionStorage.getItem('dnh_task_prefill');sessionStorage.removeItem('dnh_task_prefill');return raw?JSON.parse(raw):null}catch{return null}});
+  const [form, setForm] = useState({ task_date: schedulePrefill?.task_date || localDateISO(), owner: schedulePrefill?.owner || activeUser, title: schedulePrefill?.title || '', content: schedulePrefill?.content || '', task_type:schedulePrefill?.task_type || 'homework' });
   const [saving, setSaving] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
   const [completeTarget, setCompleteTarget] = useState(null);
@@ -3070,6 +3179,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
       <SectionTitle title="Görevler" />
 
       <form className="task-form compact" onSubmit={addTask}>
+        {schedulePrefill && <div className="task-prefill-notice">📅 Ders programından seçildi: <strong>{formatShortDate(schedulePrefill.task_date)} · {schedulePrefill.title}</strong><span>Tarih ve dersi aşağıdan değiştirebilirsin.</span></div>}
         <div className="quick-date-row">
           <button type="button" onClick={()=>setForm({...form,task_date:localDateISO()})}>Bugün</button>
           <button type="button" onClick={()=>setForm({...form,task_date:shiftDate(1)})}>Yarın</button>
@@ -3104,13 +3214,13 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
         <div className="task-list compact">
           {activeTasks.length === 0 && <div className="home-empty">Açık görev yok.</div>}
           {activeTasks.map(t => (
-            <article className="task-card compact task-active" key={t.id}>
-              <button className="done-check" onClick={() => completeTask(t)} title="Tamamlandı">✓</button>
+            <article className="task-card compact task-active clickable-task-row" key={t.id} onClick={() => setDetailTask(t)}>
+              <button className="done-check" onClick={(e) => { e.stopPropagation(); completeTask(t); }} title="Tamamlandı">✓</button>
               <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
               <span>{formatShortDate(t.task_date)}</span>
               <strong>{t.title}</strong>
               <p>{t.content}</p>
-              <button className="task-delete-button" onClick={() => deleteTask(t)}>🗑 Sil</button>
+              <button className="task-delete-button" onClick={(e) => { e.stopPropagation(); deleteTask(t); }}>🗑 Sil</button>
             </article>
           ))}
         </div>
