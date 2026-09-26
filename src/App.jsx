@@ -1172,9 +1172,10 @@ function SchoolSettingsPage({goHome}) {
  function saveSubjects(next){setSubjects(next);localStorage.setItem('dnh_subjects',JSON.stringify(next));sharedPush('subjects',next);window.dispatchEvent(new Event('dnh-settings'))}
  function patch(k,v){setSettings(current=>{const next={...current,[k]:v};localStorage.setItem('dnh_school_settings',JSON.stringify(next));sharedPush('school_settings',next);window.dispatchEvent(new Event('dnh-settings'));return next})}
  function applySchoolTimes(){const next={...settings,start:'08:10',lessonMinutes:40,breakMinutes:10,afternoonBreakMinutes:5,lunchAfter:5,lunchMinutes:40,lessonCount:8,blockMode:false,blockSize:2};setSettings(next);localStorage.setItem('dnh_school_settings',JSON.stringify(next));sharedPush('school_settings',next);window.dispatchEvent(new Event('dnh-settings'))}
- function addSubject(){const name=prompt('Ders adı:');if(!name?.trim())return;saveSubjects([...subjects,{id:'s_'+Date.now(),name:name.trim(),color:'#e2e8f0'}])}
+ function addSubject(){const name=prompt('Ders adı:');if(!name?.trim())return;saveSubjects([...subjects,{id:'s_'+Date.now(),name:name.trim(),color:'#e2e8f0',textColor:'#000000'}])}
  function renameSubject(s){const name=prompt('Ders adı:',s.name);if(!name?.trim())return;saveSubjects(subjects.map(x=>x.id===s.id?{...x,name:name.trim()}:x))}
  function setSubjectColor(id,color){saveSubjects(subjects.map(x=>x.id===id?{...x,color}:x))}
+ function setSubjectTextColor(id,textColor){saveSubjects(subjects.map(x=>x.id===id?{...x,textColor}:x))}
  function delSubject(s){if(confirm(s.name+' silinsin mi?'))saveSubjects(subjects.filter(x=>x.id!==s.id))}
  function addHoliday(){const name=prompt('Tatil / özel gün adı:');if(!name)return;const start=prompt('Başlangıç (YYYY-AA-GG):',localDateISO());if(!start)return;const end=prompt('Bitiş (YYYY-AA-GG):',start)||start;const next=[...holidays,{id:Date.now(),name,start,end}];setHolidays(next);localStorage.setItem('dnh_holidays',JSON.stringify(next));sharedPush('holidays',next);window.dispatchEvent(new Event('dnh-settings'))}
  function delHoliday(id){const next=holidays.filter(h=>h.id!==id);setHolidays(next);localStorage.setItem('dnh_holidays',JSON.stringify(next));sharedPush('holidays',next);window.dispatchEvent(new Event('dnh-settings'))}
@@ -1197,7 +1198,7 @@ function SchoolSettingsPage({goHome}) {
   </section>
   <section className="subjects-card calendar-color-settings"><div className="subjects-head"><div><h3>🎨 Takvim Renkleri</h3><small>Zemin ve metin renklerini değiştirebilirsin.</small></div></div><div className="calendar-color-grid">{[['exam','Sınav'],['project','Proje'],['task','Ödev'],['note','Not'],['weekend','Hafta sonu'],['holiday','Tatil']].map(([k,n])=><div key={k}><strong>{n}</strong><label>Zemin<input type="color" value={calendarColors[k+'Bg']} onChange={e=>setCalColor(k+'Bg',e.target.value)}/></label><label>Metin<input type="color" value={calendarColors[k+'Text']} onChange={e=>setCalColor(k+'Text',e.target.value)}/></label></div>)}</div></section>
   <section className="subjects-card holiday-settings"><div className="subjects-head"><div><h3>🏖️ Tatiller / Okul Kapalı Günler</h3><small>Takvimde belirgin gösterilir.</small></div><button onClick={addHoliday}>＋ Tatil</button></div><div className="holiday-list">{holidays.length===0&&<small>Henüz özel tatil tanımı yok.</small>}{holidays.map(h=><div key={h.id}><strong>{h.name}</strong><span>{formatShortDate(h.start)} – {formatShortDate(h.end)}</span><button onClick={()=>delHoliday(h.id)}>Sil</button></div>)}</div></section>
-  <section className="subjects-card"><div className="subjects-head"><div><h3>📚 Ders Tanımları</h3><small>Ders planında bu listeden seçim yapılır.</small></div><button onClick={addSubject}>＋ Ders</button></div><div className="subject-definition-list">{subjects.map(s=><div className="subject-definition-row" key={s.id}><label className="subject-color-picker" title="Renk seç"><i style={{background:s.color}}></i><input type="color" value={s.color} onChange={e=>setSubjectColor(s.id,e.target.value)}/></label><strong>{s.name}</strong><button className="settings-edit-button" onClick={()=>renameSubject(s)}>Düzenle</button><button className="danger" onClick={()=>delSubject(s)}>Sil</button></div>)}</div></section>
+  <section className="subjects-card"><div className="subjects-head"><div><h3>📚 Ders Tanımları</h3><small>Ders planında, ödev listelerinde ve ders seçimlerinde zemin + metin rengi kullanılır.</small></div><button onClick={addSubject}>＋ Ders</button></div><div className="subject-definition-list">{subjects.map(s=><div className="subject-definition-row" key={s.id}><div className="subject-color-controls"><label className="subject-color-picker" title="Zemin rengi"><i style={{background:s.color}}></i><span>Zemin</span><input type="color" value={s.color} onChange={e=>setSubjectColor(s.id,e.target.value)}/></label><label className="subject-color-picker text-color-picker" title="Metin rengi"><i style={{background:s.textColor||'#000000'}}></i><span>Metin</span><input type="color" value={s.textColor||'#000000'} onChange={e=>setSubjectTextColor(s.id,e.target.value)}/></label></div><strong className="subject-name-preview" style={{background:s.color,color:s.textColor||'#000000'}}>{s.name}</strong><button className="settings-edit-button" onClick={()=>renameSubject(s)}>Düzenle</button><button className="danger" onClick={()=>delSubject(s)}>Sil</button></div>)}</div></section>
  </div></>;
 }
 
@@ -1779,10 +1780,10 @@ function HomeworkHome({ tasks, tasksLoading, goTasks, reloadTasks, onOpen }) {
   return <section className="android-home-screen homework-screen">
     <div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN</span><h2>Ödevler</h2></div><button className="compact-title-action" onClick={goTasks}>＋ Ödev</button></div>
     <div className="homework-list-full homework-vertical">
-      {events.filter(e=>e.type==='exam'&&e.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).map(e=>{const subjectColor=subjectColorByName(e.subject,subjects);return <div className="homework-row-scroll" key={'exam-'+e.id}><article className={'homework-row exam-home-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor}:undefined}><span className="homework-date">{formatShortDate(e.date)}</span><strong className="homework-title-box">Sınav ({e.subject})</strong><span className="homework-content-box">{e.note||'Sınav'}</span><span className="status-pill exam-pill">📝 Sınav</span></article></div>})}
+      {events.filter(e=>e.type==='exam'&&e.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).map(e=>{const subjectColor=subjectColorByName(e.subject,subjects),subjectText=subjectTextColorByName(e.subject,subjects);return <div className="homework-row-scroll" key={'exam-'+e.id}><article className={'homework-row exam-home-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor,'--subject-text':subjectText}:undefined}><span className="homework-date">{formatShortDate(e.date)}</span><strong className="homework-title-box">Sınav ({e.subject})</strong><span className="homework-content-box">{e.note||'Sınav'}</span><span className="status-pill exam-pill">📝 Sınav</span></article></div>})}
       {tasksLoading && <div className="home-empty">Ödevler yükleniyor...</div>}
       {!tasksLoading && visible.length === 0 && <div className="home-empty">Şimdilik ödev görünmüyor.</div>}
-      {visible.map(t => {const correction=t.teacher_status==='Düzeltme istedi'||t.teacher_status==='Tekrar teslim edilecek';const subjectColor=subjectColorForTask(t,subjects);return <div className="homework-row-scroll" key={t.id}><article className={`homework-row ${t.completed ? 'is-completed' : ''} ${t.delivered ? 'is-delivered' : ''} ${correction?'needs-correction':''} ${subjectColor?'subject-colored':''}`} style={subjectColor?{'--subject-color':subjectColor}:undefined} onClick={() => onOpen(t)}>
+      {visible.map(t => {const correction=t.teacher_status==='Düzeltme istedi'||t.teacher_status==='Tekrar teslim edilecek';const subjectColor=subjectColorForTask(t,subjects),subjectText=subjectTextColorForTask(t,subjects);return <div className="homework-row-scroll" key={t.id}><article className={`homework-row ${t.completed ? 'is-completed' : ''} ${t.delivered ? 'is-delivered' : ''} ${correction?'needs-correction':''} ${subjectColor?'subject-colored':''}`} style={subjectColor?{'--subject-color':subjectColor,'--subject-text':subjectText}:undefined} onClick={() => onOpen(t)}>
         <span className="homework-date">{formatShortDate(t.task_date)}</span>
         <strong className="homework-title-box">{t.title}</strong>
         <span className="homework-content-box">{correction ? ('Düzeltme: '+(t.teacher_note||'Öğretmen düzeltme istedi.')) : (t.content || 'Açıklama yok.')}</span>
@@ -1827,8 +1828,8 @@ function CompletedHomework({ tasks, reloadTasks, onOpen }) {
     </div>
     <div className="homework-list-full homework-vertical">
       {completed.length===0 && <div className="home-empty">Henüz tamamlanan ödev yok.</div>}
-      {completed.map(t=>{const subjectColor=subjectColorForTask(t,subjects);return <div className="homework-row-scroll" key={t.id}>
-        <article className={'homework-row is-completed delivered-single-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor}:undefined} onClick={()=>onOpen(t)}>
+      {completed.map(t=>{const subjectColor=subjectColorForTask(t,subjects),subjectText=subjectTextColorForTask(t,subjects);return <div className="homework-row-scroll" key={t.id}>
+        <article className={'homework-row is-completed delivered-single-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor,'--subject-text':subjectText}:undefined} onClick={()=>onOpen(t)}>
           <span className="homework-date">{formatShortDate(t.task_date)}</span>
           <strong className="homework-title-box">{t.title}</strong>
           <span className="homework-content-box">{t.completed_note || t.content || 'Açıklama yok.'}</span>
@@ -1851,7 +1852,14 @@ const DEFAULT_SUBJECTS = [
  {id:'almanca',name:'Almanca / 2. Yabancı Dil',color:'#ede9fe'},{id:'rehberlik',name:'Rehberlik',color:'#f1f5f9'}
 ];
 const DEFAULT_SCHOOL_SETTINGS={start:'08:10',lessonMinutes:40,breakMinutes:10,afternoonBreakMinutes:5,lunchAfter:5,lunchMinutes:40,lessonCount:8,blockMode:false,blockSize:2};
-function loadSubjects(){try{return JSON.parse(localStorage.getItem('dnh_subjects')||'null')||DEFAULT_SUBJECTS}catch{return DEFAULT_SUBJECTS}}
+function loadSubjects(){
+  try{
+    const rows=JSON.parse(localStorage.getItem('dnh_subjects')||'null')||DEFAULT_SUBJECTS;
+    return rows.map(s=>({...s,textColor:s.textColor||'#000000'}));
+  }catch{
+    return DEFAULT_SUBJECTS.map(s=>({...s,textColor:s.textColor||'#000000'}));
+  }
+}
 function useLiveSubjects(){
   const [subjects,setSubjects]=useState(loadSubjects);
   useEffect(()=>{
@@ -1865,15 +1873,27 @@ function useLiveSubjects(){
 function normalizedSubjectName(value){
   return String(value||'').trim().toLocaleLowerCase('tr-TR');
 }
-function subjectColorByName(name,subjects){
+function subjectByName(name,subjects){
   const wanted=normalizedSubjectName(name);
   if(!wanted)return null;
-  return subjects.find(s=>normalizedSubjectName(s.name)===wanted)?.color||null;
+  return subjects.find(s=>normalizedSubjectName(s.name)===wanted)||null;
 }
-function subjectColorForTask(task,subjects){
+function subjectColorByName(name,subjects){
+  return subjectByName(name,subjects)?.color||null;
+}
+function subjectTextColorByName(name,subjects){
+  return subjectByName(name,subjects)?.textColor||'#000000';
+}
+function subjectNameForTask(task){
   const raw=String(task?.title||'').trim();
   const project=raw.match(/^Proje \((.*)\)$/i);
-  return subjectColorByName(project?project[1]:raw,subjects);
+  return project?project[1]:raw;
+}
+function subjectColorForTask(task,subjects){
+  return subjectColorByName(subjectNameForTask(task),subjects);
+}
+function subjectTextColorForTask(task,subjects){
+  return subjectTextColorByName(subjectNameForTask(task),subjects);
 }
 function loadSchoolSettings(){try{return {...DEFAULT_SCHOOL_SETTINGS,...JSON.parse(localStorage.getItem('dnh_school_settings')||'{}')}}catch{return DEFAULT_SCHOOL_SETTINGS}}
 function addMinutes(hhmm,min){const [h,m]=hhmm.split(':').map(Number);const d=new Date(2000,0,1,h,m+min);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
@@ -1946,9 +1966,9 @@ function WeeklySchedule({ goTasks }) {
  return <section className="android-home-screen schedule-screen"><div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 2</span><h2>Haftalık Ders Planı</h2></div><small className="schedule-summary">{settings.start} · {settings.lessonMinutes} dk</small></div>
   <div className="schedule-week-nav" aria-label="Hafta seçimi"><div className="schedule-week-label"><strong>{weekOffset===0?'Bu hafta':weekOffset===1?'Sonraki hafta':weekOffset===-1?'Önceki hafta':weekLabel}</strong><small>{weekLabel}</small></div><div className="schedule-week-actions"><button type="button" onClick={()=>setWeekOffset(value=>value-1)}>‹ Önceki</button>{weekOffset!==0&&<button type="button" className="schedule-this-week" onClick={()=>setWeekOffset(0)}>Bu hafta</button>}<button type="button" onClick={()=>setWeekOffset(value=>value+1)}>Sonraki ›</button></div></div>
   <div className="schedule-scroll"><div className="schedule-grid" style={{gridTemplateColumns:'92px repeat(7,minmax(105px,1fr))'}}><div className="schedule-head schedule-sticky-time schedule-time-heading">Ders<br/>Saatleri</div>{days.map((d,i)=><div className="schedule-head schedule-day-head" key={d}><span>{d}</span><small>{dayDate(i)}</small></div>)}
-   {rows.map(r=><div key={r.id} style={{display:'contents'}}><div className={'schedule-time schedule-sticky-time type-'+r.type}>{r.start}–{r.end}</div>{days.map((d,i)=>{if(r.type!=='lesson')return <div key={d} className={'schedule-cell type-'+r.type}>{r.type==='lunch'?'Öğle Arası':'Teneffüs'}</div>;const sid=plan[d+'|'+r.id],sub=subjects.find(x=>x.id===sid);return <button key={d} className="schedule-cell lesson-pick" style={sub?{background:sub.color}:undefined} onClick={()=>action(d,r,i)}>{sub?sub.name:'＋ Ders seç'}</button>})}</div>)}
+   {rows.map(r=><div key={r.id} style={{display:'contents'}}><div className={'schedule-time schedule-sticky-time type-'+r.type}>{r.start}–{r.end}</div>{days.map((d,i)=>{if(r.type!=='lesson')return <div key={d} className={'schedule-cell type-'+r.type}>{r.type==='lunch'?'Öğle Arası':'Teneffüs'}</div>;const sid=plan[d+'|'+r.id],sub=subjects.find(x=>x.id===sid);return <button key={d} className="schedule-cell lesson-pick" style={sub?{background:sub.color,color:sub.textColor||'#000000'}:undefined} onClick={()=>action(d,r,i)}>{sub?sub.name:'＋ Ders seç'}</button>})}</div>)}
   </div></div>
-  {subjectPick&&<div className="modal-backdrop" onClick={()=>setSubjectPick(null)}><div className="subject-pick-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>Ders seç</strong><button onClick={()=>setSubjectPick(null)}>×</button></div><div className="subject-pick-grid">{subjects.map(s=><button key={s.id} style={{background:s.color}} onClick={()=>{setLesson(subjectPick.day,subjectPick.rowId,s.id);setSubjectPick(null)}}>{s.name}</button>)}</div></div></div>}
+  {subjectPick&&<div className="modal-backdrop" onClick={()=>setSubjectPick(null)}><div className="subject-pick-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>Ders seç</strong><button onClick={()=>setSubjectPick(null)}>×</button></div><div className="subject-pick-grid">{subjects.map(s=><button key={s.id} style={{background:s.color,color:s.textColor||'#000000'}} onClick={()=>{setLesson(subjectPick.day,subjectPick.rowId,s.id);setSubjectPick(null)}}>{s.name}</button>)}</div></div></div>}
   {menu&&<div className="modal-backdrop" onClick={()=>setMenu(null)}><div className="lesson-action-menu" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>{menu.sub.name} · {menu.day} · {formatShortDate(menu.date)}</strong><button onClick={()=>setMenu(null)}>×</button></div><button onClick={()=>{chooseSubject(menu.day,menu.row.id);setMenu(null)}}>🔄 Dersi değiştir</button><button onClick={()=>addNote(false)}>📝 Not ekle</button><button onClick={()=>addNote(true)}>📅 Takvime not ekle</button><button onClick={addHomework}>📚 Bu derse ödev ekle</button><button onClick={()=>{setLesson(menu.day,menu.row.id,'');setMenu(null)}}>🗑️ Dersi kaldır</button></div></div>}
  </section>;
 }
@@ -2044,7 +2064,7 @@ function TaskSchedulePicker({ taskDate, selectedTitle, onSelect, onClose }) {
                   <div className="task-picker-lessons">
                     {lessons.length === 0 && <span className="task-picker-empty">Ders yok</span>}
                     {lessons.map(({ row, subject }) => (
-                      <button type="button" className={subject.name === selectedTitle && dayISO === taskDate ? 'selected-lesson' : ''} style={{ background: subject.color }} onClick={() => selectLesson(index, subject)} key={row.id}>
+                      <button type="button" className={subject.name === selectedTitle && dayISO === taskDate ? 'selected-lesson' : ''} style={{ background: subject.color, color: subject.textColor || '#000000' }} onClick={() => selectLesson(index, subject)} key={row.id}>
                         <small>{row.lessonNo}. ders · {row.start}</small><strong>{subject.name}</strong>
                       </button>
                     ))}
@@ -2165,7 +2185,7 @@ function DeliveredHomework({ tasks, reloadTasks, onOpen }) {
 
   return <section className="android-home-screen delivered-screen">
     <div className="screen-title-row"><div><span className="screen-kicker">5. EKRAN</span><h2>Teslim Edilenler</h2></div><span className="delivered-count">{delivered.length}</span></div>
-    <div className="homework-list-full homework-vertical">{delivered.length===0&&<div className="home-empty">Henüz teslim edilmiş ödev yok.</div>}{delivered.map(t=>{const subjectColor=subjectColorForTask(t,subjects);return <div className="homework-row-scroll" key={t.id}><article className={'homework-row delivered-single-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor}:undefined} onClick={()=>onOpen(t)}><span className="homework-date">{formatShortDate(t.task_date)}</span><strong className="homework-title-box">{t.title}</strong><span className="homework-content-box">{t.content||'Açıklama yok.'}</span><span className="status-pill delivered">📤 {t.delivered_at?formatShortDate(t.delivered_at.slice(0,10)):'Teslim'}</span><select value={t.teacher_status||'Bekliyor'} onClick={e=>e.stopPropagation()} onChange={e=>saveReview(e,t,{teacher_status:e.target.value})}><option>Bekliyor</option><option>Kontrol edildi</option><option>Düzeltme istedi</option><option>Tekrar teslim edilecek</option></select><button className="undo-delivery" onClick={e=>undoDelivery(e,t)}>↩ Geri al</button></article></div>})}</div>
+    <div className="homework-list-full homework-vertical">{delivered.length===0&&<div className="home-empty">Henüz teslim edilmiş ödev yok.</div>}{delivered.map(t=>{const subjectColor=subjectColorForTask(t,subjects),subjectText=subjectTextColorForTask(t,subjects);return <div className="homework-row-scroll" key={t.id}><article className={'homework-row delivered-single-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor,'--subject-text':subjectText}:undefined} onClick={()=>onOpen(t)}><span className="homework-date">{formatShortDate(t.task_date)}</span><strong className="homework-title-box">{t.title}</strong><span className="homework-content-box">{t.content||'Açıklama yok.'}</span><span className="status-pill delivered">📤 {t.delivered_at?formatShortDate(t.delivered_at.slice(0,10)):'Teslim'}</span><select value={t.teacher_status||'Bekliyor'} onClick={e=>e.stopPropagation()} onChange={e=>saveReview(e,t,{teacher_status:e.target.value})}><option>Bekliyor</option><option>Kontrol edildi</option><option>Düzeltme istedi</option><option>Tekrar teslim edilecek</option></select><button className="undo-delivery" onClick={e=>undoDelivery(e,t)}>↩ Geri al</button></article></div>})}</div>
   </section>;
 }
 
@@ -3665,8 +3685,8 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
       {!showCompleted && (
         <div className="task-list compact">
           {activeTasks.length === 0 && <div className="home-empty">Açık görev yok.</div>}
-          {activeTasks.map(t => {const subjectColor=subjectColorForTask(t,subjects);return (
-            <article className={'task-card compact task-active clickable-task-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor}:undefined} key={t.id} onClick={() => setDetailTask(t)}>
+          {activeTasks.map(t => {const subjectColor=subjectColorForTask(t,subjects),subjectText=subjectTextColorForTask(t,subjects);return (
+            <article className={'task-card compact task-active clickable-task-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor,'--subject-text':subjectText}:undefined} key={t.id} onClick={() => setDetailTask(t)}>
               <button className="done-check" onClick={(e) => { e.stopPropagation(); completeTask(t); }} title="Tamamlandı">✓</button>
               <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
               <span>{formatShortDate(t.task_date)}</span>
@@ -3681,8 +3701,8 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
       {showCompleted && (
         <div className="task-list compact">
           {completedTasks.length === 0 && <div className="home-empty">Tamamlanan görev yok.</div>}
-          {completedTasks.map(t => {const subjectColor=subjectColorForTask(t,subjects);return (
-            <article className={'task-card compact task-completed task-completed-rich clickable-completed-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor}:undefined} key={t.id} onClick={() => setDetailTask(t)}>
+          {completedTasks.map(t => {const subjectColor=subjectColorForTask(t,subjects),subjectText=subjectTextColorForTask(t,subjects);return (
+            <article className={'task-card compact task-completed task-completed-rich clickable-completed-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor,'--subject-text':subjectText}:undefined} key={t.id} onClick={() => setDetailTask(t)}>
               <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
               <span className="compact-date">{formatShortDate(t.task_date)}</span>
               <strong>{t.title}</strong>
