@@ -4210,3 +4210,113 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
     grid-column:auto!important;
   }
 }
+
+
+/* v65.4 Ödevlerde yalnız ders adı kutusu ders rengini kullanır */
+.homework-row.subject-colored:not(.is-completed):not(.needs-correction){
+  background:var(--dnh-card-bg,#fff)!important;
+  color:#172033!important;
+}
+.homework-row.subject-colored.is-completed{
+  background:#f0fdf4!important;
+  color:#172033!important;
+}
+.homework-row.subject-colored.needs-correction{
+  background:#fffaf5!important;
+  color:#172033!important;
+}
+.homework-row.subject-colored .homework-date{
+  color:#64748b!important;
+  -webkit-text-fill-color:#64748b!important;
+}
+.homework-row.subject-colored .homework-title-box{
+  background:var(--subject-color)!important;
+  color:var(--subject-text,#000000)!important;
+  -webkit-text-fill-color:var(--subject-text,#000000)!important;
+  border:1px solid rgba(15,23,42,.10)!important;
+}
+.homework-row.subject-colored .homework-content-box{
+  background:#fff!important;
+  color:#334155!important;
+  -webkit-text-fill-color:#334155!important;
+  border-color:#e2e8f0!important;
+}
+.task-card.subject-colored{
+  background:var(--dnh-card-bg,#fff)!important;
+  color:#172033!important;
+}
+.task-card.subject-colored>p,
+.task-card.subject-colored>span:not(.owner-badge):not(.completed-by){
+  color:inherit!important;
+  -webkit-text-fill-color:currentColor!important;
+}
+.task-subject-box{
+  display:inline-block;
+  width:max-content;
+  max-width:100%;
+  padding:5px 8px;
+  border-radius:8px;
+  border:1px solid rgba(15,23,42,.10);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* Ders tanımlarında zemin ve metin rengi açıkça görünür */
+.subject-definition-row{
+  grid-template-columns:minmax(0,1fr) auto auto!important;
+  gap:8px!important;
+  align-items:center!important;
+}
+.subject-name-preview{
+  grid-column:1/-1;
+  display:block;
+  padding:9px 10px!important;
+}
+.subject-color-controls{
+  grid-column:1/-1;
+  display:flex!important;
+  gap:8px!important;
+  flex-wrap:wrap;
+}
+.subject-color-field{
+  display:flex!important;
+  align-items:center;
+  gap:7px;
+  min-height:38px;
+  padding:5px 8px;
+  border:1px solid #dbe3ee;
+  border-radius:10px;
+  background:#fff;
+  color:#475569;
+  font-size:11px;
+  font-weight:900;
+}
+.subject-color-field input[type="color"]{
+  position:static!important;
+  display:block!important;
+  width:42px!important;
+  height:28px!important;
+  min-width:42px!important;
+  padding:0!important;
+  border:1px solid #cbd5e1!important;
+  border-radius:7px!important;
+  opacity:1!important;
+  visibility:visible!important;
+  cursor:pointer;
+  background:#fff!important;
+}
+.subject-color-field input[type="color"]::-webkit-color-swatch-wrapper{
+  padding:2px;
+}
+.subject-color-field input[type="color"]::-webkit-color-swatch{
+  border:0;
+  border-radius:5px;
+}
+@media(min-width:701px){
+  .subject-definition-row{
+    grid-template-columns:minmax(220px,1fr) auto auto auto!important;
+  }
+  .subject-name-preview{grid-column:auto}
+  .subject-color-controls{grid-column:auto;flex-wrap:nowrap}
+}
