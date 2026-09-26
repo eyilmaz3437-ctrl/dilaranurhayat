@@ -4094,3 +4094,21 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
 .homework-row.subject-colored.is-delivered{
   opacity:.88;
 }
+
+
+/* Görevler sayfasındaki aktif/tamamlanan kartlar da ders rengini kullanır */
+.task-card.subject-colored{
+  background:var(--subject-color)!important;
+}
+.task-card.subject-colored p,
+.task-card.subject-colored strong,
+.task-card.subject-colored span{
+  position:relative;
+  z-index:1;
+}
+.task-card.subject-colored .task-original-note,
+.task-card.subject-colored .task-completion-note{
+  background:rgba(255,255,255,.45)!important;
+  border-radius:8px;
+  padding:5px 7px;
+}
