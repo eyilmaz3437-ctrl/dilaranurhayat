@@ -753,6 +753,7 @@ async function getAppUsers() {
 }
 
 const DEFAULT_UI_BACKGROUND='#f8fafc';
+const DEFAULT_CARD_BACKGROUND='#ffffff';
 const UI_BACKGROUND_PRESETS=[
   {name:'Beyaz',color:'#f8fafc'},
   {name:'Krem',color:'#fff8f5'},
@@ -761,30 +762,45 @@ const UI_BACKGROUND_PRESETS=[
   {name:'Pudra',color:'#f8eef3'},
   {name:'Açık mavi',color:'#eef4f8'},
 ];
+const UI_CARD_PRESETS=[
+  {name:'Beyaz',color:'#ffffff'},
+  {name:'Krem',color:'#fffaf5'},
+  {name:'Yumuşak gri',color:'#f4f6f7'},
+  {name:'Adaçayı',color:'#f3f7f3'},
+  {name:'Pudra',color:'#fff5f8'},
+  {name:'Açık mavi',color:'#f5f9fc'},
+];
 function userAppearanceStorageKey(userId){return 'dnh_user_appearance_'+userId}
 function userAppearanceSharedKey(userId){return 'user_appearance_'+userId}
 function loadLocalUserAppearance(userId){
-  try{return {background:DEFAULT_UI_BACKGROUND,...JSON.parse(localStorage.getItem(userAppearanceStorageKey(userId))||'{}')}}catch{return {background:DEFAULT_UI_BACKGROUND}}
+  try{return {background:DEFAULT_UI_BACKGROUND,cardBackground:DEFAULT_CARD_BACKGROUND,...JSON.parse(localStorage.getItem(userAppearanceStorageKey(userId))||'{}')}}catch{return {background:DEFAULT_UI_BACKGROUND,cardBackground:DEFAULT_CARD_BACKGROUND}}
 }
 function applyUserBackground(color){
   document.documentElement.style.setProperty('--dnh-app-bg',color||DEFAULT_UI_BACKGROUND);
 }
+function applyUserCardBackground(color){
+  document.documentElement.style.setProperty('--dnh-card-bg',color||DEFAULT_CARD_BACKGROUND);
+}
+function applyUserAppearance(pref={}){
+  applyUserBackground(pref.background);
+  applyUserCardBackground(pref.cardBackground);
+}
 async function pullUserAppearance(userId){
   if(!userId)return loadLocalUserAppearance('');
   const local=loadLocalUserAppearance(userId);
-  applyUserBackground(local.background);
+  applyUserAppearance(local);
   const {data,error}=await supabase.from('app_shared_state').select('value').eq('key',userAppearanceSharedKey(userId)).maybeSingle();
   if(error||!data?.value)return local;
   const next={...local,...data.value};
   localStorage.setItem(userAppearanceStorageKey(userId),JSON.stringify(next));
-  applyUserBackground(next.background);
+  applyUserAppearance(next);
   window.dispatchEvent(new CustomEvent('dnh-user-appearance',{detail:{userId,...next}}));
   return next;
 }
 async function saveUserAppearance(userId,next){
   if(!userId)return false;
   localStorage.setItem(userAppearanceStorageKey(userId),JSON.stringify(next));
-  applyUserBackground(next.background);
+  applyUserAppearance(next);
   window.dispatchEvent(new CustomEvent('dnh-user-appearance',{detail:{userId,...next}}));
   const {error}=await supabase.from('app_shared_state').upsert({key:userAppearanceSharedKey(userId),value:next,updated_at:new Date().toISOString()},{onConflict:'key'});
   return !error;
@@ -798,10 +814,13 @@ function LoginGate({ onLogin }) {
 function UserSettingsPage({goHome,currentUser,onLogout}) {
  const [users,setUsers]=useState([]),[oldPass,setOldPass]=useState(''),[newPass,setNewPass]=useState(''),[newPass2,setNewPass2]=useState(''),[msg,setMsg]=useState('');
  const [background,setBackground]=useState(()=>loadLocalUserAppearance(currentUser.id).background);
+ const [cardBackground,setCardBackground]=useState(()=>loadLocalUserAppearance(currentUser.id).cardBackground);
  const [appearanceMsg,setAppearanceMsg]=useState('');
- useEffect(()=>{getAppUsers().then(setUsers);let alive=true;pullUserAppearance(currentUser.id).then(p=>{if(alive)setBackground(p.background||DEFAULT_UI_BACKGROUND)});return()=>{alive=false}},[currentUser.id]);
+ useEffect(()=>{getAppUsers().then(setUsers);let alive=true;pullUserAppearance(currentUser.id).then(p=>{if(alive){setBackground(p.background||DEFAULT_UI_BACKGROUND);setCardBackground(p.cardBackground||DEFAULT_CARD_BACKGROUND)}});return()=>{alive=false}},[currentUser.id]);
  function previewBackground(color){setBackground(color);applyUserBackground(color)}
- async function chooseBackground(color){previewBackground(color);setAppearanceMsg('Kaydediliyor…');const ok=await saveUserAppearance(currentUser.id,{...loadLocalUserAppearance(currentUser.id),background:color});setAppearanceMsg(ok?'Bu renk hesabına kaydedildi.':'Renk bu cihazda uygulandı; buluta kaydedilemedi.')}
+ function previewCardBackground(color){setCardBackground(color);applyUserCardBackground(color)}
+ async function chooseBackground(color){previewBackground(color);setAppearanceMsg('Kaydediliyor…');const ok=await saveUserAppearance(currentUser.id,{...loadLocalUserAppearance(currentUser.id),background:color});setAppearanceMsg(ok?'Görünüm hesabına kaydedildi.':'Renk bu cihazda uygulandı; buluta kaydedilemedi.')}
+ async function chooseCardBackground(color){previewCardBackground(color);setAppearanceMsg('Kaydediliyor…');const ok=await saveUserAppearance(currentUser.id,{...loadLocalUserAppearance(currentUser.id),cardBackground:color});setAppearanceMsg(ok?'Görünüm hesabına kaydedildi.':'Renk bu cihazda uygulandı; buluta kaydedilemedi.')}
 
  async function changePassword(e){e.preventDefault();setMsg('');const list=await getAppUsers(),me=list.find(x=>x.id===currentUser.id);if(!me||me.passwordHash!==await appHash(oldPass)){setMsg('Mevcut şifre yanlış.');return;}if(newPass.length<4){setMsg('Yeni şifre en az 4 karakter olmalı.');return;}if(newPass!==newPass2){setMsg('Yeni şifreler aynı değil.');return;}const next=[];for(const x of list)next.push(x.id===me.id?{...x,passwordHash:await appHash(newPass)}:x);localStorage.setItem('dnh_users',JSON.stringify(next));setUsers(next);setOldPass('');setNewPass('');setNewPass2('');setMsg('Şifre değiştirildi.');}
  async function editUser(u){if(currentUser.role!=='admin')return;const name=prompt('Kullanıcı adı:',u.username);if(!name?.trim())return;const displayName=prompt('Görünen ad:',u.displayName||u.username);if(displayName===null)return;const list=await getAppUsers(),next=list.map(x=>x.id===u.id?{...x,username:name.trim(),displayName:displayName.trim()||name.trim()}:x);localStorage.setItem('dnh_users',JSON.stringify(next));setUsers(next);}
@@ -809,7 +828,7 @@ function UserSettingsPage({goHome,currentUser,onLogout}) {
  async function deleteUser(u){if(currentUser.role!=='admin'||u.id==='admin')return;if(!confirm(u.username+' kullanıcısı silinsin mi?'))return;const list=await getAppUsers(),next=list.filter(x=>x.id!==u.id);localStorage.setItem('dnh_users',JSON.stringify(next));setUsers(next);}
  async function addUser(){if(currentUser.role!=='admin')return;const username=prompt('Yeni kullanıcı adı:');if(!username?.trim())return;const password=prompt('İlk şifre (en az 4 karakter):');if(!password||password.length<4)return alert('Şifre en az 4 karakter olmalı.');const list=await getAppUsers();if(list.some(x=>x.username.toLocaleLowerCase('tr-TR')===username.trim().toLocaleLowerCase('tr-TR')))return alert('Bu kullanıcı zaten var.');const u={id:'u_'+Date.now(),username:username.trim(),displayName:username.trim(),role:'user',passwordHash:await appHash(password)},next=[...list,u];localStorage.setItem('dnh_users',JSON.stringify(next));setUsers(next);}
  return <><TopActions goHome={goHome}/><SectionTitle title="Kullanıcı Tanımları"/><div className="user-settings-wrap"><div className="current-user-card"><span>👤</span><div><small>Oturum</small><strong>{currentUser.displayName}</strong></div><button onClick={onLogout}>Çıkış</button></div>
- <section className="appearance-card"><div className="appearance-head"><div><h3>🎨 Arka Plan</h3><small>Yalnızca senin hesabının görünümünü değiştirir.</small></div><label className="custom-background-picker" title="Özel renk"><span>Özel</span><input type="color" value={background} onInput={e=>previewBackground(e.currentTarget.value)} onChange={e=>chooseBackground(e.currentTarget.value)}/></label></div><div className="background-presets">{UI_BACKGROUND_PRESETS.map(p=><button type="button" key={p.color} className={background.toLowerCase()===p.color.toLowerCase()?'active':''} onClick={()=>chooseBackground(p.color)}><i style={{background:p.color}}></i><span>{p.name}</span></button>)}</div>{appearanceMsg&&<small className="appearance-message">{appearanceMsg}</small>}</section>
+ <section className="appearance-card"><div className="appearance-head"><div><h3>🎨 Görünüm Renkleri</h3><small>Yalnızca senin hesabının görünümünü değiştirir.</small></div></div><div className="appearance-color-section"><div className="appearance-subhead"><strong>Sayfa arka planı</strong><label className="custom-background-picker" title="Özel arka plan rengi"><span>Özel</span><input type="color" value={background} onInput={e=>previewBackground(e.currentTarget.value)} onChange={e=>chooseBackground(e.currentTarget.value)}/></label></div><div className="background-presets">{UI_BACKGROUND_PRESETS.map(p=><button type="button" key={'page-'+p.color} className={background.toLowerCase()===p.color.toLowerCase()?'active':''} onClick={()=>chooseBackground(p.color)}><i style={{background:p.color}}></i><span>{p.name}</span></button>)}</div></div><div className="appearance-color-section card-color-section"><div className="appearance-subhead"><strong>Kart içleri</strong><label className="custom-background-picker" title="Özel kart rengi"><span>Özel</span><input type="color" value={cardBackground} onInput={e=>previewCardBackground(e.currentTarget.value)} onChange={e=>chooseCardBackground(e.currentTarget.value)}/></label></div><div className="background-presets">{UI_CARD_PRESETS.map(p=><button type="button" key={'card-'+p.color} className={cardBackground.toLowerCase()===p.color.toLowerCase()?'active':''} onClick={()=>chooseCardBackground(p.color)}><i style={{background:p.color}}></i><span>{p.name}</span></button>)}</div></div>{appearanceMsg&&<small className="appearance-message">{appearanceMsg}</small>}</section>
  <form className="password-card" onSubmit={changePassword}><h3>Şifremi Değiştir</h3><input type="password" placeholder="Mevcut şifre" value={oldPass} onChange={e=>setOldPass(e.target.value)}/><input type="password" placeholder="Yeni şifre" value={newPass} onChange={e=>setNewPass(e.target.value)}/><input type="password" placeholder="Yeni şifre tekrar" value={newPass2} onChange={e=>setNewPass2(e.target.value)}/><button>Şifreyi değiştir</button>{msg&&<small className="password-message">{msg}</small>}</form>{currentUser.role==='admin'&&<div className="admin-users-card"><div className="admin-users-head"><h3>Kullanıcı Yönetimi</h3><button onClick={addUser}>＋ Kullanıcı</button></div>{users.map(u=><div className="admin-user-row" key={u.id}><div><strong>{u.username}</strong><small>{u.role==='admin'?'Yönetici':'Kullanıcı'}</small></div><div className="admin-user-actions"><button onClick={()=>editUser(u)}>Düzenle</button><button onClick={()=>resetPassword(u)}>Şifre</button>{u.id!=='admin'&&<button className="danger" onClick={()=>deleteUser(u)}>Sil</button>}</div></div>)}</div>}</div></>;
 }
 
@@ -861,8 +880,8 @@ export default function App() {
     let alive=true;
     if(!sessionUser?.id){applyUserBackground(DEFAULT_UI_BACKGROUND);return()=>{alive=false}}
     const local=loadLocalUserAppearance(sessionUser.id);
-    applyUserBackground(local.background);
-    pullUserAppearance(sessionUser.id).then(pref=>{if(alive)applyUserBackground(pref.background)});
+    applyUserAppearance(local);
+    pullUserAppearance(sessionUser.id).then(pref=>{if(alive)applyUserAppearance(pref)});
     return()=>{alive=false};
   },[sessionUser?.id]);
 
@@ -1062,7 +1081,7 @@ export default function App() {
   }
 
   if(!sessionUser) return <LoginGate onLogin={setSessionUser}/>;
-  function logoutApp(){sessionStorage.removeItem('dnh_session_user');localStorage.removeItem('dnh_remembered_user');applyUserBackground(DEFAULT_UI_BACKGROUND);setSessionUser(null);}
+  function logoutApp(){sessionStorage.removeItem('dnh_session_user');localStorage.removeItem('dnh_remembered_user');applyUserAppearance({background:DEFAULT_UI_BACKGROUND,cardBackground:DEFAULT_CARD_BACKGROUND});setSessionUser(null);}
 
   return (
     <div className="app notranslate" translate="no">
