@@ -1622,6 +1622,8 @@ function buildScheduleRows(settings){
 }
 function WeeklySchedule({ goTasks }) {
  const days=['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+ const mondayOfWeek=(()=>{const d=new Date();const day=(d.getDay()+6)%7;d.setHours(12,0,0,0);d.setDate(d.getDate()-day);return d})();
+ const dayDate=(index)=>{const d=new Date(mondayOfWeek);d.setDate(d.getDate()+index);return d.toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit'})};
  const [subjects,setSubjects]=useState(loadSubjects);
  const [settings,setSettings]=useState(loadSchoolSettings);
  const [plan,setPlan]=useState(()=>{try{return JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}')}catch{return {}}});
@@ -1643,7 +1645,7 @@ function WeeklySchedule({ goTasks }) {
  function action(day,row){const key=day+'|'+row.id,sub=subjects.find(s=>s.id===plan[key]);if(!sub){chooseSubject(day,row.id);return}setMenu({day,row,sub})}
  function addNote(calendar=false){const txt=prompt(calendar?'Takvime eklenecek not:':'Ders notu:');if(!txt)return;if(calendar){const date=prompt('Tarih (YYYY-AA-GG):',localDateISO());if(!date)return;addCalendarEvent({type:'note',date,subject:menu.sub.name,note:txt});}else{const k='dnh_subject_notes';let a=[];try{a=JSON.parse(localStorage.getItem(k)||'[]')}catch{}a.push({id:Date.now(),subject:menu.sub.name,note:txt,createdAt:new Date().toISOString()});localStorage.setItem(k,JSON.stringify(a));}setMenu(null);alert(calendar?'Takvime eklendi.':'Not kaydedildi.')}
  return <section className="android-home-screen schedule-screen"><div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 2</span><h2>Haftalık Ders Planı</h2></div><small className="schedule-summary">{settings.start} · {settings.lessonMinutes} dk</small></div>
-  <div className="schedule-scroll"><div className="schedule-grid" style={{gridTemplateColumns:'92px repeat(7,minmax(105px,1fr))'}}><div className="schedule-head schedule-sticky-time schedule-time-heading">Ders<br/>Saatleri</div>{days.map(d=><div className="schedule-head" key={d}>{d}</div>)}
+  <div className="schedule-scroll"><div className="schedule-grid" style={{gridTemplateColumns:'92px repeat(7,minmax(105px,1fr))'}}><div className="schedule-head schedule-sticky-time schedule-time-heading">Ders<br/>Saatleri</div>{days.map((d,i)=><div className="schedule-head schedule-day-head" key={d}><span>{d}</span><small>{dayDate(i)}</small></div>)}
    {rows.map(r=><div key={r.id} style={{display:'contents'}}><div className={'schedule-time schedule-sticky-time type-'+r.type}>{r.start}–{r.end}</div>{days.map(d=>{if(r.type!=='lesson')return <div key={d} className={'schedule-cell type-'+r.type}>{r.type==='lunch'?'Öğle Arası':'Teneffüs'}</div>;const sid=plan[d+'|'+r.id],sub=subjects.find(x=>x.id===sid);return <button key={d} className="schedule-cell lesson-pick" style={sub?{background:sub.color}:undefined} onClick={()=>action(d,r)}>{sub?sub.name:'＋ Ders seç'}</button>})}</div>)}
   </div></div>
   {subjectPick&&<div className="modal-backdrop" onClick={()=>setSubjectPick(null)}><div className="subject-pick-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>Ders seç</strong><button onClick={()=>setSubjectPick(null)}>×</button></div><div className="subject-pick-grid">{subjects.map(s=><button key={s.id} style={{background:s.color}} onClick={()=>{setLesson(subjectPick.day,subjectPick.rowId,s.id);setSubjectPick(null)}}>{s.name}</button>)}</div></div></div>}
@@ -1870,8 +1872,8 @@ function CompactTaskRow({ task, onOpen }) {
 }
 
 function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
-  const [note, setNote] = useState('');
-  const [completedBy, setCompletedBy] = useState(activeUser);
+  const [note, setNote] = useState(task.completed_note || '');
+  const [completedBy, setCompletedBy] = useState(task.completed_by || activeUser);
   const [saving, setSaving] = useState(false);
 
   async function completeFromDetail() {
@@ -1901,6 +1903,19 @@ function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function updateCompletionDetail() {
+    setSaving(true);
+    try {
+      const { error } = await supabase.from('tasks').update({
+        completed_by: completedBy || activeUser,
+        completed_note: note.trim(),
+      }).eq('id', task.id);
+      if (error) { alert('Tamamlanma bilgisi güncellenemedi: ' + error.message); return; }
+      await reloadTasks();
+      onClose();
+    } finally { setSaving(false); }
   }
 
   return (
@@ -1944,10 +1959,17 @@ function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
           )}
 
           {task.completed && (
-            <div className="completion-note-box">
-              <strong>Tamamlanma Notu</strong>
-              <p>{task.completed_note || 'Not girilmemiş.'}</p>
-              <span>✓ {task.completed_by || '?'} tarafından tamamlandı.</span>
+            <div className="completion-note-box completion-edit-box">
+              <strong>Tamamlanma Bilgisi</strong>
+              <label className="field-label">Tamamlayan</label>
+              <select className="completion-select" value={completedBy} onChange={(e)=>setCompletedBy(e.target.value)}>
+                <option value="D">D - Dilara</option>
+                <option value="B">B - Baba</option>
+                <option value="A">A - Anne</option>
+              </select>
+              <label className="field-label">Tamamlanma açıklaması</label>
+              <textarea className="completion-textarea" value={note} onChange={(e)=>setNote(e.target.value)} placeholder="Tamamlanma notu" />
+              <button className="complete-save-button" onClick={updateCompletionDetail} disabled={saving}>{saving?'Kaydediliyor...':'Değişiklikleri kaydet'}</button>
             </div>
           )}
         </div>
