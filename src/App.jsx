@@ -1479,6 +1479,7 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
   const [selectedTask, setSelectedTask] = useState(null);
   const touchStart = useRef(null);
   const screens = ['Ödevler', 'Haftalık Ders Planı', 'Takvim', 'Teslim Edilenler', 'Notlar', 'Kitap Okuma'];
+  const screenLabels = ['ÖD', 'DP', 'TK', 'TE', 'NOT', 'KO'];
   const [calendarEvents,setCalendarEvents]=useState(loadCalendarEvents);
   useEffect(()=>{const sync=()=>setCalendarEvents(loadCalendarEvents());window.addEventListener('dnh-calendar',sync);window.addEventListener('dnh-shared',sync);return()=>{window.removeEventListener('dnh-calendar',sync);window.removeEventListener('dnh-shared',sync)}},[]);
   const todayISO=localDateISO();
@@ -1511,7 +1512,18 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
       {upcoming.length>0&&<button className="upcoming-strip" onClick={()=>setUpcomingOpen(true)}><strong>Yaklaşan:</strong><div>{upcoming.slice(0,6).map((u,i)=><span key={i}>{formatShortDate(u.date)} · {u.label}</span>)}</div></button>}
       {upcomingOpen&&<div className="modal-backdrop" onClick={()=>setUpcomingOpen(false)}><div className="upcoming-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>Yaklaşan Sınavlar ve Projeler</strong><button onClick={()=>setUpcomingOpen(false)}>×</button></div>{upcoming.map((u,i)=><div className={'upcoming-list-row '+u.type} key={i}><b>{formatShortDate(u.date)}</b><strong>{u.label}</strong>{u.note&&<small>{u.note}</small>}</div>)}</div></div>}
       <div className="home-screen-dots" aria-label="Ana ekranlar">
-        {screens.map((name, i) => <button key={name} className={screen === i ? 'active' : ''} onClick={() => setScreen(i)} title={name}></button>)}
+        {screens.map((name, i) => (
+          <button
+            key={name}
+            className={screen === i ? 'active' : ''}
+            onClick={() => setScreen(i)}
+            title={name}
+            aria-label={name}
+            aria-current={screen === i ? 'page' : undefined}
+          >
+            {screenLabels[i]}
+          </button>
+        ))}
       </div>
       <div className="home-swipe-stage" onTouchStart={swipeStart} onTouchEnd={swipeEnd} onPointerDown={swipeStart} onPointerUp={swipeEnd}>
         {screen === 0 && <HomeworkHome tasks={tasks} tasksLoading={tasksLoading} goTasks={goTasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
