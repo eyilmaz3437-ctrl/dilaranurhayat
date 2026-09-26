@@ -3338,10 +3338,15 @@ body {
 @media(max-width:700px){.home-location-button{width:40px;height:40px}.location-page-card{padding:16px;border-radius:16px}.location-history-row{grid-template-columns:48px 26px 1fr auto;padding:8px}.location-history-row small{font-size:10px}.location-history-toolbar{align-items:center}}
 
 /* v58 kullanici girisi */
-.login-gate{min-height:100dvh;display:grid;place-items:center;padding:20px;background:linear-gradient(145deg,#f7fbff,#fff5fa)}.login-card{width:min(390px,100%);background:#fff;border:1px solid #e2e8f0;border-radius:26px;padding:28px;box-shadow:0 24px 70px rgba(15,23,42,.12)}.login-flower{text-align:center;font-size:42px}.login-card h1{text-align:center;margin:6px 0}.login-card>p{text-align:center;color:#64748b;margin:0 0 22px}.login-card label{display:block;font-size:12px;font-weight:900;color:#475569;margin:12px 0}.login-card input,.password-card input{box-sizing:border-box;width:100%;margin-top:6px;border:1px solid #cbd5e1;border-radius:12px;padding:12px;font:inherit;background:#fff}.login-card>button,.password-card>button{width:100%;border:0;border-radius:12px;padding:12px;background:#172033;color:#fff;font-weight:900}.login-error{border-radius:10px;background:#fff1f2;color:#be123c;padding:9px;margin:10px 0;font-size:12px}.user-settings-wrap{max-width:780px;margin:0 auto;display:grid;gap:14px}.current-user-card,.appearance-card,.password-card,.admin-users-card{background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:16px}.current-user-card{display:flex;align-items:center;gap:12px}.current-user-card>span{font-size:28px}.current-user-card>div{flex:1}.current-user-card small,.current-user-card strong,.admin-user-row small,.admin-user-row strong{display:block}.current-user-card small,.admin-user-row small{color:#64748b}.current-user-card button,.admin-users-card button{border:1px solid #cbd5e1;border-radius:9px;background:#fff;padding:7px 10px;font-weight:800}.password-card{display:grid;gap:8px}.password-card h3{margin:0}.password-message{color:#047857;font-weight:800}
+.login-gate{min-height:100dvh;display:grid;place-items:center;padding:20px;background:linear-gradient(145deg,#f7fbff,#fff5fa)}.login-card{width:min(390px,100%);background:#fff;border:1px solid #e2e8f0;border-radius:26px;padding:28px;box-shadow:0 24px 70px rgba(15,23,42,.12)}.login-flower{text-align:center;font-size:42px}.login-card h1{text-align:center;margin:6px 0}.login-card>p{text-align:center;color:#64748b;margin:0 0 22px}.login-card label{display:block;font-size:12px;font-weight:900;color:#475569;margin:12px 0}.login-card input,.password-card input{box-sizing:border-box;width:100%;margin-top:6px;border:1px solid #cbd5e1;border-radius:12px;padding:12px;font:inherit;background:#fff}.login-card>button,.password-card>button{width:100%;border:0;border-radius:12px;padding:12px;background:#172033;color:#fff;font-weight:900}.login-error{border-radius:10px;background:#fff1f2;color:#be123c;padding:9px;margin:10px 0;font-size:12px}.user-settings-wrap{max-width:780px;margin:0 auto;display:grid;gap:14px}.current-user-card,.appearance-card,.password-card,.admin-users-card{background:var(--dnh-card-bg,#fff);border:1px solid #e2e8f0;border-radius:18px;padding:16px}.current-user-card{display:flex;align-items:center;gap:12px}.current-user-card>span{font-size:28px}.current-user-card>div{flex:1}.current-user-card small,.current-user-card strong,.admin-user-row small,.admin-user-row strong{display:block}.current-user-card small,.admin-user-row small{color:#64748b}.current-user-card button,.admin-users-card button{border:1px solid #cbd5e1;border-radius:9px;background:#fff;padding:7px 10px;font-weight:800}.password-card{display:grid;gap:8px}.password-card h3{margin:0}.password-message{color:#047857;font-weight:800}
 .appearance-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .appearance-head h3{margin:0}
 .appearance-head small{display:block;color:#64748b;margin-top:3px}
+.appearance-color-section{margin-top:14px;padding-top:12px;border-top:1px solid #e2e8f0}
+.appearance-color-section:first-of-type{margin-top:10px;padding-top:0;border-top:0}
+.appearance-subhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.appearance-subhead>strong{color:#475569;font-size:12px}
+
 .background-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
 .background-presets button{border:1px solid #dbe3ee;border-radius:12px;background:#fff;padding:8px;display:flex;align-items:center;gap:7px;min-width:0;cursor:pointer;color:#172033;font-weight:800}
 .background-presets button.active{border-color:#7b1e60;box-shadow:0 0 0 2px rgba(123,30,96,.12)}
@@ -3946,4 +3951,38 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
   .mini-prayer-countdown .prayer-remaining{
     font-size:10px;
   }
+}
+
+
+/* Kullanıcıya özel kart içi rengi */
+.android-home-screen,
+.card,
+.list-card,
+.content-card,
+.career-card,
+.reading-card,
+.task-card,
+.delivered-homework-card,
+.family-note-card,
+.location-page-card,
+.tool-card,
+.school-time-card,
+.subjects-card,
+.shared-sync-card,
+.current-user-card,
+.appearance-card,
+.password-card,
+.admin-users-card,
+.math-pdf-card,
+.math-summary-card,
+.meb-image-card,
+.menu-card{
+  background:var(--dnh-card-bg,#fff)!important;
+}
+.homework-row:not(.is-completed):not(.needs-correction){
+  background:var(--dnh-card-bg,#fff)!important;
+}
+.calendar-screen>.screen-title-row,
+.calendar-screen>.calendar-toolbar{
+  background:var(--dnh-card-bg,#fff)!important;
 }
