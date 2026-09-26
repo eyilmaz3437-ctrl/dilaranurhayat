@@ -1328,7 +1328,11 @@ function LocationHistoryPage({ goHome }) {
   },[]);
   const rows=allRows.filter(r=>localDateISO(new Date(r.recorded_at))===date);
   const availableDates=[...new Set(allRows.map(r=>localDateISO(new Date(r.recorded_at))))].sort((a,b)=>b.localeCompare(a));
-  const dateLabel=(iso)=>new Date(iso+'T12:00:00').toLocaleDateString('tr-TR',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+  const dateObj=(iso)=>new Date(iso+'T12:00:00');
+  const dateLabel=(iso)=>dateObj(iso).toLocaleDateString('tr-TR',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+  const dateDay=(iso)=>dateObj(iso).toLocaleDateString('tr-TR',{day:'2-digit'});
+  const dateMonth=(iso)=>dateObj(iso).toLocaleDateString('tr-TR',{month:'short'}).replace('.','');
+  const dateWeekday=(iso)=>dateObj(iso).toLocaleDateString('tr-TR',{weekday:'long'});
 
   return (
     <>
@@ -1339,20 +1343,30 @@ function LocationHistoryPage({ goHome }) {
           <div className="location-history-date-wrap">
             <span>Gün</span>
             <button type="button" className="location-history-date-button" onClick={()=>setDatePickerOpen(true)}>
-              <b>{dateLabel(date)}</b><i>▾</i>
+              <span className="location-date-button-icon">📅</span>
+              <b>{dateLabel(date)}</b>
+              <i>⌄</i>
             </button>
           </div>
           <strong>{rows.length} kayıt</strong>
         </div>
         {datePickerOpen&&<div className="modal-backdrop location-date-backdrop" onClick={()=>setDatePickerOpen(false)}>
           <div className="location-date-picker" onClick={e=>e.stopPropagation()}>
-            <div className="modal-head"><strong>Konum geçmişi günleri</strong><button onClick={()=>setDatePickerOpen(false)}>×</button></div>
+            <div className="location-date-handle" aria-hidden="true"></div>
+            <div className="location-date-head">
+              <div><span>📍</span><div><strong>Konum geçmişi</strong><small>Kayıt bulunan bir günü seç</small></div></div>
+              <button type="button" onClick={()=>setDatePickerOpen(false)} aria-label="Kapat">×</button>
+            </div>
             <div className="location-date-list">
               {availableDates.length===0&&<div className="home-empty">Henüz konum geçmişi yok.</div>}
               {availableDates.map(d=>{
                 const count=allRows.filter(r=>localDateISO(new Date(r.recorded_at))===d).length;
-                return <button type="button" key={d} className={d===date?'active':''} onClick={()=>{setDate(d);setDatePickerOpen(false)}}>
-                  <span>{dateLabel(d)}</span><small>{count} kayıt</small>
+                const selected=d===date;
+                return <button type="button" key={d} className={selected?'active':''} onClick={()=>{setDate(d);setDatePickerOpen(false)}}>
+                  <span className="location-date-tile"><b>{dateDay(d)}</b><small>{dateMonth(d)}</small></span>
+                  <span className="location-date-copy"><strong>{d===today?'Bugün · ':''}{dateWeekday(d)}</strong><small>{dateObj(d).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})}</small></span>
+                  <span className="location-date-count">{count} kayıt</span>
+                  <span className="location-date-choice">{selected?'✓':'›'}</span>
                 </button>
               })}
             </div>
