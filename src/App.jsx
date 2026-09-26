@@ -1478,14 +1478,14 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
   const [screen, setScreen] = useState(0);
   const [selectedTask, setSelectedTask] = useState(null);
   const touchStart = useRef(null);
-  const screens = ['Ödevler', 'Haftalık Ders Planı', 'Takvim', 'Teslim Edilenler', 'Notlar', 'Kitap Okuma'];
-  const screenLabels = ['ÖD', 'DP', 'TK', 'TE', 'NOT', 'KO'];
+  const screens = ['Ödevler', 'Haftalık Ders Planı', 'Takvim', 'Teslim Edilenler', 'Notlar', 'Kitap Okuma', 'Tamamlanan Ödevler'];
+  const screenLabels = ['ÖD', 'DP', 'TK', 'TE', 'NOT', 'KO', 'TM'];
   const [calendarEvents,setCalendarEvents]=useState(loadCalendarEvents);
   useEffect(()=>{const sync=()=>setCalendarEvents(loadCalendarEvents());window.addEventListener('dnh-calendar',sync);window.addEventListener('dnh-shared',sync);return()=>{window.removeEventListener('dnh-calendar',sync);window.removeEventListener('dnh-shared',sync)}},[]);
   const todayISO=localDateISO();
   const [upcomingOpen,setUpcomingOpen]=useState(false);
   const [fullYearCalendar,setFullYearCalendar]=useState(false);
-  const upcoming=[...tasks.filter(t=>!t.delivered&&t.task_date>=todayISO&&t.title.startsWith('Proje (')).map(t=>({date:t.task_date,label:'📗 '+t.title,type:'project'})),...calendarEvents.filter(e=>e.date>=todayISO&&e.type==='exam').map(e=>({date:e.date,label:'📝 Sınav ('+e.subject+')',type:'exam',note:e.note}))].sort((a,b)=>a.date.localeCompare(b.date));
+  const upcoming=[...tasks.filter(t=>!t.completed&&!t.delivered&&t.task_date>=todayISO&&t.title.startsWith('Proje (')).map(t=>({date:t.task_date,label:'📗 '+t.title,type:'project'})),...calendarEvents.filter(e=>e.date>=todayISO&&e.type==='exam').map(e=>({date:e.date,label:'📝 Sınav ('+e.subject+')',type:'exam',note:e.note}))].sort((a,b)=>a.date.localeCompare(b.date));
 
   function swipeStart(e) {
     if (e.target.closest('button,input,select,textarea,a,.schedule-scroll,.homework-row-scroll,.calendar-grid,.reading-entry,.family-notes-list')) return;
@@ -1532,6 +1532,7 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
         {screen === 3 && <DeliveredHomework tasks={tasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
         {screen === 4 && <FamilyNotes currentUser={currentUser} />}
         {screen === 5 && <ReadingTrackerPage embedded currentUser={currentUser} />}
+        {screen === 6 && <CompletedHomework tasks={tasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
       </div>
       <div className="home-page-swipe-handle" onTouchStart={swipeStart} onTouchEnd={swipeEnd}>
         <span>‹</span><div><i></i><small>Sayfa değiştir</small></div><span>›</span>
@@ -1576,7 +1577,7 @@ function HomeworkHome({ tasks, tasksLoading, goTasks, reloadTasks, onOpen }) {
   useEffect(()=>{const sync=()=>setEvents(loadCalendarEvents());window.addEventListener('dnh-calendar',sync);return()=>window.removeEventListener('dnh-calendar',sync)},[]);
   const today = new Date().toISOString().slice(0, 10);
   const visible = [...tasks]
-    .filter(t => !t.delivered || (t.delivered_at || '').slice(0, 10) === today)
+    .filter(t => !t.completed && (!t.delivered || (t.delivered_at || '').slice(0, 10) === today))
     .sort((a, b) => (a.task_date || '').localeCompare(b.task_date || ''));
 
   async function markDelivered(e, task) {
@@ -1603,6 +1604,48 @@ function HomeworkHome({ tasks, tasksLoading, goTasks, reloadTasks, onOpen }) {
           {t.delivered && <span className="status-pill delivered">📤 Teslim edildi</span>}
         </div>
       </article></div>})}
+    </div>
+  </section>;
+}
+
+
+
+function CompletedHomework({ tasks, reloadTasks, onOpen }) {
+  const completed = [...tasks]
+    .filter(t => t.completed)
+    .sort((a, b) => (b.completed_at || '').localeCompare(a.completed_at || ''));
+
+  async function undoComplete(e, task) {
+    e.stopPropagation();
+    if (!window.confirm('Bu ödev yeniden yapılacaklar listesine alınsın mı?')) return;
+    const { error } = await supabase
+      .from('tasks')
+      .update({ completed: false, completed_at: null, completed_by: null, completed_note: null })
+      .eq('id', task.id);
+
+    if (error) {
+      alert('Ödev geri alınamadı: ' + error.message);
+      return;
+    }
+    await reloadTasks();
+  }
+
+  return <section className="android-home-screen completed-homework-screen">
+    <div className="screen-title-row">
+      <div><span className="screen-kicker">7. EKRAN</span><h2>Tamamlanan Ödevler</h2></div>
+      <span className="delivered-count">{completed.length}</span>
+    </div>
+    <div className="homework-list-full homework-vertical">
+      {completed.length===0 && <div className="home-empty">Henüz tamamlanan ödev yok.</div>}
+      {completed.map(t=><div className="homework-row-scroll" key={t.id}>
+        <article className="homework-row is-completed delivered-single-row" onClick={()=>onOpen(t)}>
+          <span className="homework-date">{formatShortDate(t.task_date)}</span>
+          <strong className="homework-title-box">{t.title}</strong>
+          <span className="homework-content-box">{t.completed_note || t.content || 'Açıklama yok.'}</span>
+          <span className="status-pill done">✓ {t.completed_at ? formatShortDate(t.completed_at.slice(0,10)) : 'Tamamlandı'} · {t.completed_by || 'D'}</span>
+          <button className="undo-delivery" onClick={e=>undoComplete(e,t)}>↩ Geri al</button>
+        </article>
+      </div>)}
     </div>
   </section>;
 }
