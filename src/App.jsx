@@ -1044,6 +1044,39 @@ function mapsLink(lat, lng) {
   return 'https://www.google.com/maps?q=' + encodeURIComponent(lat + ',' + lng);
 }
 
+function compactPlaceName(address = {}, displayName = '') {
+  const place = address.amenity || address.school || address.building || address.shop || address.tourism || address.leisure || '';
+  const road = address.road || address.pedestrian || address.footway || '';
+  const neighbourhood = address.neighbourhood || address.quarter || address.suburb || '';
+  const district = address.town || address.city_district || address.district || '';
+  const city = address.city || address.town || address.municipality || '';
+  const parts = [];
+  if (place) parts.push(place);
+  if (road && !parts.includes(road)) parts.push(road);
+  if (neighbourhood && !parts.includes(neighbourhood)) parts.push(neighbourhood);
+  if (district && !parts.includes(district) && district !== city) parts.push(district);
+  if (city && !parts.includes(city)) parts.push(city);
+  return parts.slice(0, 4).join(' · ') || displayName.split(',').slice(0, 3).join(', ');
+}
+
+async function reverseGeocodeLocation(lat, lng) {
+  const key = 'dnh_place_' + Number(lat).toFixed(4) + '_' + Number(lng).toFixed(4);
+  try {
+    const cached = JSON.parse(localStorage.getItem(key) || 'null');
+    if (cached?.label && Date.now() - Number(cached.savedAt || 0) < 7 * 24 * 60 * 60 * 1000) return cached.label;
+  } catch {}
+  const url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&accept-language=tr&lat='
+    + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lng);
+  const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+  if (!res.ok) throw new Error('Konum adı bulunamadı');
+  const data = await res.json();
+  const label = compactPlaceName(data.address || {}, data.display_name || '');
+  if (label) {
+    try { localStorage.setItem(key, JSON.stringify({ label, savedAt: Date.now() })); } catch {}
+  }
+  return label || '';
+}
+
 function locationAgeText(iso) {
   if (!iso) return 'Bilinmiyor';
   const ms = Date.now() - new Date(iso).getTime();
@@ -1119,6 +1152,8 @@ function LatestLocationPage({ goHome, openHistory, currentUser }) {
   const [error, setError] = useState('');
   const [sending,setSending]=useState(false);
   const [sendMsg,setSendMsg]=useState('');
+  const [placeName,setPlaceName]=useState('');
+  const [placeLoading,setPlaceLoading]=useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -1132,6 +1167,26 @@ function LatestLocationPage({ goHome, openHistory, currentUser }) {
     })();
     return () => { alive = false; };
   }, []);
+
+  useEffect(() => {
+    let alive = true;
+    if (!row?.latitude || !row?.longitude) {
+      setPlaceName('');
+      setPlaceLoading(false);
+      return () => { alive = false; };
+    }
+    if (row.place_name) {
+      setPlaceName(row.place_name);
+      setPlaceLoading(false);
+      return () => { alive = false; };
+    }
+    setPlaceLoading(true);
+    reverseGeocodeLocation(row.latitude, row.longitude)
+      .then(name => { if (alive) setPlaceName(name); })
+      .catch(() => { if (alive) setPlaceName(''); })
+      .finally(() => { if (alive) setPlaceLoading(false); });
+    return () => { alive = false; };
+  }, [row?.latitude, row?.longitude, row?.place_name]);
 
   function shareThisPhone(){
     if(!navigator.geolocation){setSendMsg('Bu cihaz konum paylaşımını desteklemiyor.');return}
@@ -1162,6 +1217,10 @@ function LatestLocationPage({ goHome, openHistory, currentUser }) {
         {row && <>
           <h2>{isDilara?'Son paylaştığım konum':'Dilara’nın son konumu'}</h2>
           <strong className="location-age">{locationAgeText(row.recorded_at)}</strong>
+          <div className="location-place-estimate">
+            <span>📍 Tahmini bulunduğu yer</span>
+            <strong>{placeLoading ? 'Konum adı bulunuyor…' : (placeName || 'Yer adı belirlenemedi')}</strong>
+          </div>
           <p>{new Date(row.recorded_at).toLocaleString('tr-TR')}</p>
           {row.accuracy_m != null && <small>Yaklaşık doğruluk: ±{Math.round(row.accuracy_m)} m</small>}
           <div className="location-actions">
