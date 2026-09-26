@@ -4070,7 +4070,7 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
 .menu-card{
   background:var(--dnh-card-bg,#fff)!important;
 }
-.homework-row:not(.is-completed):not(.needs-correction){
+.homework-row:not(.is-completed):not(.needs-correction):not(.subject-colored){
   background:var(--dnh-card-bg,#fff)!important;
 }
 .calendar-screen>.screen-title-row,
@@ -4111,4 +4111,102 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
   background:rgba(255,255,255,.45)!important;
   border-radius:8px;
   padding:5px 7px;
+}
+
+
+/* Ders zemin + metin renkleri */
+.homework-row.subject-colored,
+.homework-row.subject-colored:not(.is-completed),
+.homework-row.subject-colored.needs-correction{
+  background:var(--subject-color)!important;
+  color:var(--subject-text,#000000)!important;
+}
+.homework-row.subject-colored .homework-date,
+.homework-row.subject-colored .homework-title-box,
+.homework-row.subject-colored .homework-content-box{
+  color:var(--subject-text,#000000)!important;
+  -webkit-text-fill-color:var(--subject-text,#000000)!important;
+}
+.homework-row.subject-colored .homework-title-box{
+  background:color-mix(in srgb,var(--subject-color) 78%,white 22%)!important;
+}
+.homework-row.subject-colored .homework-content-box{
+  background:color-mix(in srgb,var(--subject-color) 58%,white 42%)!important;
+}
+.task-card.subject-colored{
+  color:var(--subject-text,#000000)!important;
+}
+.task-card.subject-colored>strong,
+.task-card.subject-colored>p,
+.task-card.subject-colored>span:not(.owner-badge):not(.completed-by){
+  color:var(--subject-text,#000000)!important;
+  -webkit-text-fill-color:var(--subject-text,#000000)!important;
+}
+
+/* Ders tanımlarında zemin ve metin rengi yan yana */
+.subject-definition-row{
+  grid-template-columns:minmax(112px,auto) minmax(0,1fr) auto auto!important;
+}
+.subject-color-controls{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.subject-color-controls .subject-color-picker{
+  position:relative;
+  width:auto;
+  height:34px;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  border:1px solid #dbe3ee;
+  border-radius:10px;
+  padding:4px 7px;
+  background:#fff;
+  cursor:pointer;
+  overflow:hidden;
+}
+.subject-color-controls .subject-color-picker i{
+  width:22px!important;
+  height:22px!important;
+  flex:0 0 22px;
+  border-radius:7px!important;
+}
+.subject-color-controls .subject-color-picker span{
+  font-size:9px;
+  font-weight:900;
+  color:#475569;
+  white-space:nowrap;
+}
+.subject-color-controls .subject-color-picker input{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  cursor:pointer;
+}
+.subject-name-preview{
+  min-width:0;
+  border-radius:10px;
+  padding:8px 10px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  border:1px solid rgba(15,23,42,.08);
+}
+@media(max-width:700px){
+  .subject-definition-row{
+    grid-template-columns:minmax(0,1fr) auto auto!important;
+    align-items:center!important;
+  }
+  .subject-color-controls{
+    grid-column:1/-1;
+  }
+  .subject-name-preview{
+    grid-column:1/2;
+  }
+  .subject-definition-row .danger{
+    grid-column:auto!important;
+  }
 }
