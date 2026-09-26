@@ -1064,6 +1064,7 @@ function SchoolSettingsPage({goHome}) {
  const calculatedEnd=calculatedRows.filter(r=>r.type==='lesson').at(-1)?.end||settings.start;
  function saveSubjects(next){setSubjects(next);localStorage.setItem('dnh_subjects',JSON.stringify(next));sharedPush('subjects',next);window.dispatchEvent(new Event('dnh-settings'))}
  function patch(k,v){setSettings(current=>{const next={...current,[k]:v};localStorage.setItem('dnh_school_settings',JSON.stringify(next));sharedPush('school_settings',next);window.dispatchEvent(new Event('dnh-settings'));return next})}
+ function applySchoolTimes(){const next={...settings,start:'08:10',lessonMinutes:40,breakMinutes:10,afternoonBreakMinutes:5,lunchAfter:5,lunchMinutes:40,lessonCount:8,blockMode:false,blockSize:2};setSettings(next);localStorage.setItem('dnh_school_settings',JSON.stringify(next));sharedPush('school_settings',next);window.dispatchEvent(new Event('dnh-settings'))}
  function addSubject(){const name=prompt('Ders adı:');if(!name?.trim())return;saveSubjects([...subjects,{id:'s_'+Date.now(),name:name.trim(),color:'#e2e8f0'}])}
  function renameSubject(s){const name=prompt('Ders adı:',s.name);if(!name?.trim())return;saveSubjects(subjects.map(x=>x.id===s.id?{...x,name:name.trim()}:x))}
  function setSubjectColor(id,color){saveSubjects(subjects.map(x=>x.id===id?{...x,color}:x))}
@@ -1076,14 +1077,16 @@ function SchoolSettingsPage({goHome}) {
   <section className="school-time-card"><h3>⏱️ Günlük Zaman Düzeni</h3><div className="school-settings-grid">
    <label>İlk ders başlangıcı<input type="time" step="60" value={settings.start||'08:30'} onInput={e=>patch('start',e.currentTarget.value)} onChange={e=>patch('start',e.currentTarget.value)}/></label>
    <label>Bir ders süresi (dk)<input type="number" min="20" max="90" value={settings.lessonMinutes} onChange={e=>patch('lessonMinutes',Number(e.target.value))}/></label>
-   <label>Ara teneffüs (dk)<input type="number" min="0" max="60" value={settings.breakMinutes} onChange={e=>patch('breakMinutes',Number(e.target.value))}/></label>
+   <label>Öğle öncesi teneffüs (dk)<input type="number" min="0" max="60" value={settings.breakMinutes} onChange={e=>patch('breakMinutes',Number(e.target.value))}/></label>
+   <label>Öğle sonrası teneffüs (dk)<input type="number" min="0" max="60" value={settings.afternoonBreakMinutes ?? 5} onChange={e=>patch('afternoonBreakMinutes',Number(e.target.value))}/></label>
    <label>Günlük ders sayısı<input type="number" min="1" max="14" value={settings.lessonCount} onChange={e=>patch('lessonCount',Number(e.target.value))}/></label>
    <label>Öğle arası hangi dersten sonra?<input type="number" min="1" max={Math.max(1,Number(settings.lessonCount)-1)} value={Math.min(Number(settings.lunchAfter)||1,Math.max(1,Number(settings.lessonCount)-1))} onChange={e=>patch('lunchAfter',Number(e.target.value))}/></label>
    <label>Öğle arası süresi (dk)<input type="number" min="0" max="180" value={settings.lunchMinutes} onChange={e=>patch('lunchMinutes',Number(e.target.value))}/></label>
   </div>
+  <button type="button" className="school-preset-button" onClick={applySchoolTimes}>🏫 Okulun saatlerini uygula · 08:10 / 40 dk / 10 dk / öğle 40 dk / 5 dk</button>
   <label className="block-toggle"><input type="checkbox" checked={!!settings.blockMode} onChange={e=>patch('blockMode',e.target.checked)}/><span>Blok ders var (2 ders arka arkaya)</span></label>
   <small>{settings.blockMode?'Blok açık: iki ders arasında teneffüs koyulmaz; ikinci dersin sonunda normal teneffüs hesaplanır. Öğle arası kendi yerinde uygulanır.':'Blok kapalı: her dersin ardından normal teneffüs hesaplanır.'}</small>
-  <div className="school-time-preview"><div className="school-time-preview-head"><strong>Otomatik hesaplanan saatler</strong><span>Çıkış: {calculatedEnd}</span></div><div className="school-time-preview-rows">{calculatedRows.map(r=><span key={r.id} className={'preview-'+r.type}>{r.type==='lesson'?(r.lessonNo+'. ders '+r.start+'–'+r.end):(r.type==='lunch'?('Öğle '+r.start+'–'+r.end):('Teneffüs '+r.start+'–'+r.end))}</span>)}</div></div>
+  <div className="school-time-preview"><div className="school-time-preview-head"><strong>Otomatik hesaplanan saatler</strong><span>Çıkış: {calculatedEnd}</span></div><div className="school-time-preview-rows">{calculatedRows.map(r=><span key={r.id} className={'preview-'+r.type}>{r.type==='lesson'?(r.lessonNo+'. ders '+r.start+'–'+r.end):(r.type==='lunch'?('Öğle '+r.start+'–'+r.end):((r.period==='afternoon'?'ÖS ':'')+'Teneffüs '+r.start+'–'+r.end))}</span>)}</div></div>
   </section>
   <section className="subjects-card calendar-color-settings"><div className="subjects-head"><div><h3>🎨 Takvim Renkleri</h3><small>Zemin ve metin renklerini değiştirebilirsin.</small></div></div><div className="calendar-color-grid">{[['exam','Sınav'],['project','Proje'],['task','Ödev'],['note','Not'],['weekend','Hafta sonu'],['holiday','Tatil']].map(([k,n])=><div key={k}><strong>{n}</strong><label>Zemin<input type="color" value={calendarColors[k+'Bg']} onChange={e=>setCalColor(k+'Bg',e.target.value)}/></label><label>Metin<input type="color" value={calendarColors[k+'Text']} onChange={e=>setCalColor(k+'Text',e.target.value)}/></label></div>)}</div></section>
   <section className="subjects-card holiday-settings"><div className="subjects-head"><div><h3>🏖️ Tatiller / Okul Kapalı Günler</h3><small>Takvimde belirgin gösterilir.</small></div><button onClick={addHoliday}>＋ Tatil</button></div><div className="holiday-list">{holidays.length===0&&<small>Henüz özel tatil tanımı yok.</small>}{holidays.map(h=><div key={h.id}><strong>{h.name}</strong><span>{formatShortDate(h.start)} – {formatShortDate(h.end)}</span><button onClick={()=>delHoliday(h.id)}>Sil</button></div>)}</div></section>
@@ -1666,7 +1669,7 @@ const DEFAULT_SUBJECTS = [
  {id:'saglik',name:'Sağlık Bilgisi ve Trafik Kültürü',color:'#e2e8f0'},{id:'bilisim',name:'Bilişim Teknolojileri',color:'#e0f2fe'},
  {id:'almanca',name:'Almanca / 2. Yabancı Dil',color:'#ede9fe'},{id:'rehberlik',name:'Rehberlik',color:'#f1f5f9'}
 ];
-const DEFAULT_SCHOOL_SETTINGS={start:'08:30',lessonMinutes:40,breakMinutes:10,lunchAfter:4,lunchMinutes:40,lessonCount:8,blockMode:false,blockSize:2};
+const DEFAULT_SCHOOL_SETTINGS={start:'08:10',lessonMinutes:40,breakMinutes:10,afternoonBreakMinutes:5,lunchAfter:5,lunchMinutes:40,lessonCount:8,blockMode:false,blockSize:2};
 function loadSubjects(){try{return JSON.parse(localStorage.getItem('dnh_subjects')||'null')||DEFAULT_SUBJECTS}catch{return DEFAULT_SUBJECTS}}
 function loadSchoolSettings(){try{return {...DEFAULT_SCHOOL_SETTINGS,...JSON.parse(localStorage.getItem('dnh_school_settings')||'{}')}}catch{return DEFAULT_SCHOOL_SETTINGS}}
 function addMinutes(hhmm,min){const [h,m]=hhmm.split(':').map(Number);const d=new Date(2000,0,1,h,m+min);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
@@ -1674,8 +1677,9 @@ function buildScheduleRows(settings){
  const lessonCount=Math.max(1,Number(settings.lessonCount)||1);
  const lessonMinutes=Math.max(1,Number(settings.lessonMinutes)||40);
  const breakMinutes=Math.max(0,Number(settings.breakMinutes)||0);
+ const afternoonBreakMinutes=Math.max(0,Number(settings.afternoonBreakMinutes ?? 5)||0);
  const lunchMinutes=Math.max(0,Number(settings.lunchMinutes)||0);
- const lunchAfter=Math.min(Math.max(1,Number(settings.lunchAfter)||4),Math.max(1,lessonCount-1));
+ const lunchAfter=Math.min(Math.max(1,Number(settings.lunchAfter)||5),Math.max(1,lessonCount-1));
  const blockMode=!!settings.blockMode;
  const blockSize=Math.max(2,Number(settings.blockSize)||2);
  let time=settings.start||'08:30',rows=[],lessonsSinceBreak=0;
@@ -1691,7 +1695,8 @@ function buildScheduleRows(settings){
      }else{
        const shouldBreak=!blockMode||lessonsSinceBreak>=blockSize;
        if(shouldBreak){
-         if(breakMinutes>0){const bend=addMinutes(time,breakMinutes);rows.push({id:'break-'+n,type:'break',start:time,end:bend});time=bend}
+         const thisBreakMinutes=n<lunchAfter?breakMinutes:afternoonBreakMinutes;
+         if(thisBreakMinutes>0){const bend=addMinutes(time,thisBreakMinutes);rows.push({id:'break-'+n,type:'break',start:time,end:bend,period:n<lunchAfter?'morning':'afternoon'});time=bend}
          lessonsSinceBreak=0;
        }
      }
