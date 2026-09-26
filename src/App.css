@@ -67,10 +67,10 @@ button {
   transition: width .25s ease,height .25s ease,flex-basis .25s ease;
 }
 .sidebar.open .brand img {
-  width: 92px;
-  height: 92px;
-  flex-basis: 92px;
-  border-radius: 20px;
+  width: 112px;
+  height: 112px;
+  flex-basis: 112px;
+  border-radius: 22px;
 }
 
 .toggle {
@@ -349,13 +349,20 @@ section h2 {
     left: 14px;
     z-index: 900;
     border: 0;
-    background: #7b1e60;
-    color: white;
-    border-radius: 12px;
-    width: 44px;
-    height: 44px;
-    font-size: 22px;
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+    background: transparent;
+    color: transparent;
+    border-radius: 14px;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 7px 18px rgba(93,22,79,.20);
+  }
+  .mobile-menu-button img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .mobile-overlay {
@@ -3823,4 +3830,29 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
   .task-schedule-open{grid-column:1/-1}
   .task-picker-days{grid-template-columns:1fr}
   .task-schedule-picker-body{padding:8px}
+}
+
+@media (max-width:700px){
+  .sidebar.open .topbar{
+    align-items:flex-start;
+    gap:10px;
+    margin-bottom:12px;
+  }
+  .sidebar.open .brand{
+    justify-content:flex-start;
+    overflow:visible;
+  }
+  .sidebar.open .toggle{
+    margin-left:auto;
+    margin-top:4px;
+    width:42px;
+    height:42px;
+    padding:0;
+    border-radius:12px;
+    font-size:28px;
+    line-height:1;
+    background:#fff8f5;
+    color:#7b1e60;
+    flex:0 0 42px;
+  }
 }
