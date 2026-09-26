@@ -67,10 +67,10 @@ button {
   transition: width .25s ease,height .25s ease,flex-basis .25s ease;
 }
 .sidebar.open .brand img {
-  width: 112px;
-  height: 112px;
-  flex-basis: 112px;
-  border-radius: 22px;
+  width: 150px;
+  height: 150px;
+  flex-basis: 150px;
+  border-radius: 26px;
 }
 
 .toggle {
