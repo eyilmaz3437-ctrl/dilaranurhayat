@@ -3858,3 +3858,18 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
     flex:0 0 42px;
   }
 }
+
+
+/* Büyük telefonlarda ders programını bir tık büyüt; dar telefon görünümü değişmez */
+@media (min-width:390px) and (max-width:700px){
+  .schedule-screen .screen-title-row h2{font-size:21px}
+  .schedule-screen .schedule-grid{min-width:760px}
+  .schedule-screen .schedule-head{font-size:12px!important;padding:6px 5px!important}
+  .schedule-screen .schedule-cell.lesson-pick{min-height:34px!important;padding:6px 6px!important;font-size:13px!important}
+  .schedule-screen .schedule-time.type-lesson{min-height:34px!important;padding:6px 5px!important;font-size:12px!important}
+  .schedule-screen .type-break{min-height:14px!important;padding:2px 5px!important;font-size:10px!important}
+  .schedule-screen .type-lunch{min-height:18px!important;padding:3px 5px!important;font-size:10px!important}
+  .schedule-screen .schedule-week-nav strong{font-size:14px}
+  .schedule-screen .schedule-week-nav small{font-size:12px}
+  .schedule-screen .schedule-week-nav button{font-size:12px;padding:8px 10px}
+}
