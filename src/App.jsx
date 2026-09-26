@@ -1506,6 +1506,7 @@ function CompactPrayerBar() {
       <div className="top-countdown-row">
         <button className="mini-prayer-countdown" onClick={() => setOpen(true)} title={next.title + ' vaktine kalan süre'}>
           <span className="prayer-initial">{(next.title || '?').trim().charAt(0)}</span>
+          <span className="prayer-separator">–</span>
           <span className="prayer-remaining">{next.remaining}</span>
         </button>
       </div>
