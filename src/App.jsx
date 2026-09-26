@@ -1063,7 +1063,7 @@ function SchoolSettingsPage({goHome}) {
  const calculatedRows=buildScheduleRows(settings);
  const calculatedEnd=calculatedRows.filter(r=>r.type==='lesson').at(-1)?.end||settings.start;
  function saveSubjects(next){setSubjects(next);localStorage.setItem('dnh_subjects',JSON.stringify(next));sharedPush('subjects',next);window.dispatchEvent(new Event('dnh-settings'))}
- function patch(k,v){const next={...settings,[k]:v};setSettings(next);localStorage.setItem('dnh_school_settings',JSON.stringify(next));sharedPush('school_settings',next);window.dispatchEvent(new Event('dnh-settings'))}
+ function patch(k,v){setSettings(current=>{const next={...current,[k]:v};localStorage.setItem('dnh_school_settings',JSON.stringify(next));sharedPush('school_settings',next);window.dispatchEvent(new Event('dnh-settings'));return next})}
  function addSubject(){const name=prompt('Ders adı:');if(!name?.trim())return;saveSubjects([...subjects,{id:'s_'+Date.now(),name:name.trim(),color:'#e2e8f0'}])}
  function renameSubject(s){const name=prompt('Ders adı:',s.name);if(!name?.trim())return;saveSubjects(subjects.map(x=>x.id===s.id?{...x,name:name.trim()}:x))}
  function setSubjectColor(id,color){saveSubjects(subjects.map(x=>x.id===id?{...x,color}:x))}
@@ -1074,7 +1074,7 @@ function SchoolSettingsPage({goHome}) {
  async function uploadThisDevice(){if(!confirm('Bu cihazdaki dersler, renkler, ders planı ve diğer ortak ayarlar aile verisi olarak kullanılsın mı?'))return;const ok=await seedSharedFromThisDevice();if(ok){await sharedPull();alert('Bu cihazdaki ayarlar ortak veriye aktarıldı. Diğer cihazlar da aynı veriyi kullanacak.')}else alert('Aktarım yapılamadı.')}
  return <><TopActions goHome={goHome}/><SectionTitle title="Dersler ve Ders Saatleri"/><div className="shared-sync-card"><strong>☁️ Cihazlar arası senkronizasyon</strong><small>Yeni değişiklikler otomatik ortak veriye kaydolur. Bu düğme yalnızca daha önce bu cihazda kalmış eski yerel ayarları ilk kez ortaklaştırmak içindir.</small><button onClick={uploadThisDevice}>Bu cihazdaki eski ayarları ortak yap</button></div><div className="school-settings-wrap">
   <section className="school-time-card"><h3>⏱️ Günlük Zaman Düzeni</h3><div className="school-settings-grid">
-   <label>İlk ders başlangıcı<input type="time" value={settings.start} onChange={e=>patch('start',e.target.value)}/></label>
+   <label>İlk ders başlangıcı<input type="time" step="60" value={settings.start||'08:30'} onInput={e=>patch('start',e.currentTarget.value)} onChange={e=>patch('start',e.currentTarget.value)}/></label>
    <label>Bir ders süresi (dk)<input type="number" min="20" max="90" value={settings.lessonMinutes} onChange={e=>patch('lessonMinutes',Number(e.target.value))}/></label>
    <label>Ara teneffüs (dk)<input type="number" min="0" max="60" value={settings.breakMinutes} onChange={e=>patch('breakMinutes',Number(e.target.value))}/></label>
    <label>Günlük ders sayısı<input type="number" min="1" max="14" value={settings.lessonCount} onChange={e=>patch('lessonCount',Number(e.target.value))}/></label>
@@ -3276,19 +3276,33 @@ function shiftDate(days){const d=new Date();d.setDate(d.getDate()+days);return l
 function nextWeekdayDate(){const d=new Date();const day=d.getDay();const add=day===0?1:8-day;d.setDate(d.getDate()+add);return localDateISO(d)}
 function nextMonthDate(){const d=new Date();d.setMonth(d.getMonth()+1);return localDateISO(d)}
 const SHARED_MAP={subjects:'dnh_subjects',school_settings:'dnh_school_settings',schedule_plan:'dnh_schedule_plan',calendar_events:'dnh_calendar_events',holidays:'dnh_holidays',calendar_colors:'dnh_calendar_colors',family_notes:'dnh_family_notes',reading_log:'dnh_reading_log'};
+const SHARED_PENDING=new Set();
 async function sharedPull(){
  const {data,error}=await supabase.from('app_shared_state').select('key,value');
  if(error)return false;
  let changed=false;
- for(const row of data||[]){if(row.value!==null&&SHARED_MAP[row.key]){localStorage.setItem(SHARED_MAP[row.key],JSON.stringify(row.value));changed=true}}
+ for(const row of data||[]){
+   if(row.value!==null&&SHARED_MAP[row.key]&&!SHARED_PENDING.has(row.key)){
+     localStorage.setItem(SHARED_MAP[row.key],JSON.stringify(row.value));
+     changed=true;
+   }
+ }
  if(changed){window.dispatchEvent(new Event('dnh-settings'));window.dispatchEvent(new Event('dnh-calendar'));window.dispatchEvent(new Event('dnh-shared'))}
  return true;
 }
 async function sharedPush(key,value){
- if(!SHARED_MAP[key])return;
+ if(!SHARED_MAP[key])return false;
+ SHARED_PENDING.add(key);
  localStorage.setItem(SHARED_MAP[key],JSON.stringify(value));
- await supabase.from('app_shared_state').upsert({key,value,updated_at:new Date().toISOString()},{onConflict:'key'});
+ const {error}=await supabase.from('app_shared_state').upsert({key,value,updated_at:new Date().toISOString()},{onConflict:'key'});
+ if(error){
+   console.error('Ortak ayar kaydedilemedi:',key,error);
+   setTimeout(()=>SHARED_PENDING.delete(key),15000);
+   return false;
+ }
+ SHARED_PENDING.delete(key);
  window.dispatchEvent(new Event('dnh-shared'));
+ return true;
 }
 async function seedSharedFromThisDevice(){
  const payload=[];
