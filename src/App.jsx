@@ -1529,7 +1529,7 @@ function CareerPage({ goHome }) {
                 </div>
               </div>
             </article>
-          )})}
+          ))}
         </div>
       )}
 
@@ -1555,7 +1555,7 @@ function CareerPage({ goHome }) {
                 <p>{step.text}</p>
               </div>
             </article>
-          )})}
+          ))}
         </div>
       )}
 
