@@ -1482,6 +1482,13 @@ function CareerCard({ icon, title, text }) {
 }
 
 
+function TodayDateBadge() {
+  const [now,setNow]=useState(new Date());
+  useEffect(()=>{const id=setInterval(()=>setNow(new Date()),60000);return()=>clearInterval(id)},[]);
+  const label=now.toLocaleDateString('tr-TR',{day:'2-digit',month:'short'}).replace('.','');
+  return <div className="home-today-date" title={now.toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}>{label}</div>;
+}
+
 function CompactPrayerBar() {
   const { today: prayers, tomorrow: tomorrowPrayers } = useIstanbulPrayerTimes();
   const [now, setNow] = useState(new Date());
@@ -1497,8 +1504,9 @@ function CompactPrayerBar() {
   return (
     <>
       <div className="top-countdown-row">
-        <button className="mini-prayer-countdown" onClick={() => setOpen(true)}>
-          🕌 {next.title} • {next.remaining} kaldı
+        <button className="mini-prayer-countdown" onClick={() => setOpen(true)} title={next.title + ' vaktine kalan süre'}>
+          <span className="prayer-initial">{(next.title || '?').trim().charAt(0)}</span>
+          <span className="prayer-remaining">{next.remaining}</span>
         </button>
       </div>
 
@@ -1573,6 +1581,7 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
       <div className="home-free-swipe-zone" onTouchStart={swipeStart} onTouchEnd={swipeEnd} onPointerDown={swipeStart} onPointerUp={swipeEnd}>
       <div className="home-top-strip">
         {screen > 0 && <button className="home-first-screen-button" onClick={()=>setScreen(0)}>⌂ Ana ekran</button>}
+        <TodayDateBadge />
         <CompactPrayerBar />
         <button className="home-location-button" onClick={goLocation} title="Dilara'nın son konumu" aria-label="Son konum">📍</button>
       </div>
