@@ -1761,6 +1761,7 @@ function ReadingTrackerPage({goHome,currentUser,embedded=false}) {
 }
 
 function HomeworkHome({ tasks, tasksLoading, goTasks, reloadTasks, onOpen }) {
+  const subjects=useLiveSubjects();
   const [events,setEvents]=useState(loadCalendarEvents);
   useEffect(()=>{const sync=()=>setEvents(loadCalendarEvents());window.addEventListener('dnh-calendar',sync);return()=>window.removeEventListener('dnh-calendar',sync)},[]);
   const today = new Date().toISOString().slice(0, 10);
@@ -1778,10 +1779,10 @@ function HomeworkHome({ tasks, tasksLoading, goTasks, reloadTasks, onOpen }) {
   return <section className="android-home-screen homework-screen">
     <div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN</span><h2>Ödevler</h2></div><button className="compact-title-action" onClick={goTasks}>＋ Ödev</button></div>
     <div className="homework-list-full homework-vertical">
-      {events.filter(e=>e.type==='exam'&&e.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).map(e=><div className="homework-row-scroll" key={'exam-'+e.id}><article className="homework-row exam-home-row"><span className="homework-date">{formatShortDate(e.date)}</span><strong className="homework-title-box">Sınav ({e.subject})</strong><span className="homework-content-box">{e.note||'Sınav'}</span><span className="status-pill exam-pill">📝 Sınav</span></article></div>)}
+      {events.filter(e=>e.type==='exam'&&e.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).map(e=>{const subjectColor=subjectColorByName(e.subject,subjects);return <div className="homework-row-scroll" key={'exam-'+e.id}><article className={'homework-row exam-home-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor}:undefined}><span className="homework-date">{formatShortDate(e.date)}</span><strong className="homework-title-box">Sınav ({e.subject})</strong><span className="homework-content-box">{e.note||'Sınav'}</span><span className="status-pill exam-pill">📝 Sınav</span></article></div>})}
       {tasksLoading && <div className="home-empty">Ödevler yükleniyor...</div>}
       {!tasksLoading && visible.length === 0 && <div className="home-empty">Şimdilik ödev görünmüyor.</div>}
-      {visible.map(t => {const correction=t.teacher_status==='Düzeltme istedi'||t.teacher_status==='Tekrar teslim edilecek';return <div className="homework-row-scroll" key={t.id}><article className={`homework-row ${t.completed ? 'is-completed' : ''} ${t.delivered ? 'is-delivered' : ''} ${correction?'needs-correction':''}`} onClick={() => onOpen(t)}>
+      {visible.map(t => {const correction=t.teacher_status==='Düzeltme istedi'||t.teacher_status==='Tekrar teslim edilecek';const subjectColor=subjectColorForTask(t,subjects);return <div className="homework-row-scroll" key={t.id}><article className={`homework-row ${t.completed ? 'is-completed' : ''} ${t.delivered ? 'is-delivered' : ''} ${correction?'needs-correction':''} ${subjectColor?'subject-colored':''}`} style={subjectColor?{'--subject-color':subjectColor}:undefined} onClick={() => onOpen(t)}>
         <span className="homework-date">{formatShortDate(t.task_date)}</span>
         <strong className="homework-title-box">{t.title}</strong>
         <span className="homework-content-box">{correction ? ('Düzeltme: '+(t.teacher_note||'Öğretmen düzeltme istedi.')) : (t.content || 'Açıklama yok.')}</span>
@@ -1799,6 +1800,7 @@ function HomeworkHome({ tasks, tasksLoading, goTasks, reloadTasks, onOpen }) {
 
 
 function CompletedHomework({ tasks, reloadTasks, onOpen }) {
+  const subjects=useLiveSubjects();
   const completed = [...tasks]
     .filter(t => t.completed)
     .sort((a, b) => (b.completed_at || '').localeCompare(a.completed_at || ''));
@@ -1825,15 +1827,15 @@ function CompletedHomework({ tasks, reloadTasks, onOpen }) {
     </div>
     <div className="homework-list-full homework-vertical">
       {completed.length===0 && <div className="home-empty">Henüz tamamlanan ödev yok.</div>}
-      {completed.map(t=><div className="homework-row-scroll" key={t.id}>
-        <article className="homework-row is-completed delivered-single-row" onClick={()=>onOpen(t)}>
+      {completed.map(t=>{const subjectColor=subjectColorForTask(t,subjects);return <div className="homework-row-scroll" key={t.id}>
+        <article className={'homework-row is-completed delivered-single-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor}:undefined} onClick={()=>onOpen(t)}>
           <span className="homework-date">{formatShortDate(t.task_date)}</span>
           <strong className="homework-title-box">{t.title}</strong>
           <span className="homework-content-box">{t.completed_note || t.content || 'Açıklama yok.'}</span>
           <span className="status-pill done">✓ {t.completed_at ? formatShortDate(t.completed_at.slice(0,10)) : 'Tamamlandı'} · {t.completed_by || 'D'}</span>
           <button className="undo-delivery" onClick={e=>undoComplete(e,t)}>↩ Geri al</button>
         </article>
-      </div>)}
+      </div>})}
     </div>
   </section>;
 }
@@ -1850,6 +1852,29 @@ const DEFAULT_SUBJECTS = [
 ];
 const DEFAULT_SCHOOL_SETTINGS={start:'08:10',lessonMinutes:40,breakMinutes:10,afternoonBreakMinutes:5,lunchAfter:5,lunchMinutes:40,lessonCount:8,blockMode:false,blockSize:2};
 function loadSubjects(){try{return JSON.parse(localStorage.getItem('dnh_subjects')||'null')||DEFAULT_SUBJECTS}catch{return DEFAULT_SUBJECTS}}
+function useLiveSubjects(){
+  const [subjects,setSubjects]=useState(loadSubjects);
+  useEffect(()=>{
+    const sync=()=>setSubjects(loadSubjects());
+    window.addEventListener('dnh-settings',sync);
+    window.addEventListener('dnh-shared',sync);
+    return()=>{window.removeEventListener('dnh-settings',sync);window.removeEventListener('dnh-shared',sync)};
+  },[]);
+  return subjects;
+}
+function normalizedSubjectName(value){
+  return String(value||'').trim().toLocaleLowerCase('tr-TR');
+}
+function subjectColorByName(name,subjects){
+  const wanted=normalizedSubjectName(name);
+  if(!wanted)return null;
+  return subjects.find(s=>normalizedSubjectName(s.name)===wanted)?.color||null;
+}
+function subjectColorForTask(task,subjects){
+  const raw=String(task?.title||'').trim();
+  const project=raw.match(/^Proje \((.*)\)$/i);
+  return subjectColorByName(project?project[1]:raw,subjects);
+}
 function loadSchoolSettings(){try{return {...DEFAULT_SCHOOL_SETTINGS,...JSON.parse(localStorage.getItem('dnh_school_settings')||'{}')}}catch{return DEFAULT_SCHOOL_SETTINGS}}
 function addMinutes(hhmm,min){const [h,m]=hhmm.split(':').map(Number);const d=new Date(2000,0,1,h,m+min);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function buildScheduleRows(settings){
@@ -2105,6 +2130,7 @@ function HomeworkCalendar({ tasks, onOpen, fullYear=false, onOpenFullYear }) {
 }
 
 function DeliveredHomework({ tasks, reloadTasks, onOpen }) {
+  const subjects=useLiveSubjects();
   const delivered = [...tasks]
     .filter(t => t.delivered)
     .sort((a, b) => (b.delivered_at || '').localeCompare(a.delivered_at || ''));
@@ -2139,7 +2165,7 @@ function DeliveredHomework({ tasks, reloadTasks, onOpen }) {
 
   return <section className="android-home-screen delivered-screen">
     <div className="screen-title-row"><div><span className="screen-kicker">5. EKRAN</span><h2>Teslim Edilenler</h2></div><span className="delivered-count">{delivered.length}</span></div>
-    <div className="homework-list-full homework-vertical">{delivered.length===0&&<div className="home-empty">Henüz teslim edilmiş ödev yok.</div>}{delivered.map(t=><div className="homework-row-scroll" key={t.id}><article className="homework-row delivered-single-row" onClick={()=>onOpen(t)}><span className="homework-date">{formatShortDate(t.task_date)}</span><strong className="homework-title-box">{t.title}</strong><span className="homework-content-box">{t.content||'Açıklama yok.'}</span><span className="status-pill delivered">📤 {t.delivered_at?formatShortDate(t.delivered_at.slice(0,10)):'Teslim'}</span><select value={t.teacher_status||'Bekliyor'} onClick={e=>e.stopPropagation()} onChange={e=>saveReview(e,t,{teacher_status:e.target.value})}><option>Bekliyor</option><option>Kontrol edildi</option><option>Düzeltme istedi</option><option>Tekrar teslim edilecek</option></select><button className="undo-delivery" onClick={e=>undoDelivery(e,t)}>↩ Geri al</button></article></div>)}</div>
+    <div className="homework-list-full homework-vertical">{delivered.length===0&&<div className="home-empty">Henüz teslim edilmiş ödev yok.</div>}{delivered.map(t=>{const subjectColor=subjectColorForTask(t,subjects);return <div className="homework-row-scroll" key={t.id}><article className={'homework-row delivered-single-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor}:undefined} onClick={()=>onOpen(t)}><span className="homework-date">{formatShortDate(t.task_date)}</span><strong className="homework-title-box">{t.title}</strong><span className="homework-content-box">{t.content||'Açıklama yok.'}</span><span className="status-pill delivered">📤 {t.delivered_at?formatShortDate(t.delivered_at.slice(0,10)):'Teslim'}</span><select value={t.teacher_status||'Bekliyor'} onClick={e=>e.stopPropagation()} onChange={e=>saveReview(e,t,{teacher_status:e.target.value})}><option>Bekliyor</option><option>Kontrol edildi</option><option>Düzeltme istedi</option><option>Tekrar teslim edilecek</option></select><button className="undo-delivery" onClick={e=>undoDelivery(e,t)}>↩ Geri al</button></article></div>})}</div>
   </section>;
 }
 
