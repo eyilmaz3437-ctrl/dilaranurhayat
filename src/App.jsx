@@ -1665,6 +1665,112 @@ function WeeklySchedule({ goTasks }) {
  </section>;
 }
 
+function localDateFromISO(value) {
+  const parts = String(value || '').split('-').map(Number);
+  if (parts.length === 3 && parts.every(Number.isFinite)) {
+    return new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0, 0);
+  }
+  const fallback = new Date();
+  fallback.setHours(12, 0, 0, 0);
+  return fallback;
+}
+
+function mondayForISO(value) {
+  const date = localDateFromISO(value);
+  const day = (date.getDay() + 6) % 7;
+  date.setDate(date.getDate() - day);
+  return date;
+}
+
+function TaskSchedulePicker({ taskDate, selectedTitle, onSelect, onClose }) {
+  const days = [
+    { key: 'Pzt', label: 'Pazartesi' }, { key: 'Sal', label: 'Salı' },
+    { key: 'Çar', label: 'Çarşamba' }, { key: 'Per', label: 'Perşembe' },
+    { key: 'Cum', label: 'Cuma' }, { key: 'Cmt', label: 'Cumartesi' },
+    { key: 'Paz', label: 'Pazar' },
+  ];
+  const currentMonday = mondayForISO(localDateISO());
+  const selectedMonday = mondayForISO(taskDate);
+  const initialOffset = Math.round((selectedMonday.getTime() - currentMonday.getTime()) / (7 * 24 * 60 * 60 * 1000));
+  const [weekOffset, setWeekOffset] = useState(initialOffset);
+  const [subjects, setSubjects] = useState(loadSubjects);
+  const [settings, setSettings] = useState(loadSchoolSettings);
+  const [plan, setPlan] = useState(() => { try { return JSON.parse(localStorage.getItem('dnh_schedule_plan') || '{}'); } catch { return {}; } });
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      await sharedPull();
+      if (!alive) return;
+      setSubjects(loadSubjects());
+      setSettings(loadSchoolSettings());
+      try { setPlan(JSON.parse(localStorage.getItem('dnh_schedule_plan') || '{}')); } catch { setPlan({}); }
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  const monday = new Date(currentMonday);
+  monday.setDate(monday.getDate() + (weekOffset * 7));
+  const dateForDay = (index) => { const date = new Date(monday); date.setDate(date.getDate() + index); return date; };
+  const dateISO = (index) => localDateISO(dateForDay(index));
+  const sunday = dateForDay(6);
+  const weekLabel = `${monday.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })} – ${sunday.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+  const lessonRows = buildScheduleRows(settings).filter((row) => row.type === 'lesson');
+
+  function selectDate(index) {
+    onSelect({ task_date: dateISO(index), title: selectedTitle });
+  }
+
+  function selectLesson(index, subject) {
+    onSelect({ task_date: dateISO(index), title: subject.name });
+  }
+
+  return (
+    <div className="modal-backdrop task-schedule-backdrop" onClick={(event) => { event.stopPropagation(); onClose(); }}>
+      <div className="task-schedule-picker" onClick={(event) => event.stopPropagation()}>
+        <div className="modal-head">
+          <strong>Ders Programından Seç</strong>
+          <button type="button" onClick={onClose}>×</button>
+        </div>
+        <div className="task-schedule-picker-body">
+          <div className="task-picker-week-nav">
+            <button type="button" onClick={() => setWeekOffset((value) => value - 1)}>‹</button>
+            <div><strong>{weekOffset === 0 ? 'Bu hafta' : weekLabel}</strong><small>{weekLabel}</small></div>
+            {weekOffset !== 0 && <button type="button" className="task-picker-today" onClick={() => setWeekOffset(0)}>Bugün</button>}
+            <button type="button" onClick={() => setWeekOffset((value) => value + 1)}>›</button>
+          </div>
+          <p className="task-picker-help">Günün tarihine dokunursan yalnız tarih; derse dokunursan tarih ve ders birlikte seçilir.</p>
+          <div className="task-picker-days">
+            {days.map((day, index) => {
+              const dayISO = dateISO(index);
+              const lessons = lessonRows.map((row) => {
+                const subjectId = plan[day.key + '|' + row.id];
+                const subject = subjects.find((item) => item.id === subjectId);
+                return subject ? { row, subject } : null;
+              }).filter(Boolean);
+              return (
+                <section className={`task-picker-day ${dayISO === taskDate ? 'selected-date' : ''}`} key={day.key}>
+                  <button type="button" className="task-picker-date" onClick={() => selectDate(index)}>
+                    <span>{day.label}</span><strong>{dateForDay(index).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' })}</strong><small>Tarihi seç</small>
+                  </button>
+                  <div className="task-picker-lessons">
+                    {lessons.length === 0 && <span className="task-picker-empty">Ders yok</span>}
+                    {lessons.map(({ row, subject }) => (
+                      <button type="button" className={subject.name === selectedTitle && dayISO === taskDate ? 'selected-lesson' : ''} style={{ background: subject.color }} onClick={() => selectLesson(index, subject)} key={row.id}>
+                        <small>{row.lessonNo}. ders · {row.start}</small><strong>{subject.name}</strong>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function HomeworkCalendar({ tasks, onOpen, fullYear=false, onOpenFullYear }) {
   const now=new Date();
   const schoolStart=new Date(2026,8,1), schoolEnd=new Date(2027,5,30);
@@ -1897,6 +2003,19 @@ function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
   });
   const [subjects] = useState(loadSubjects);
   const [saving, setSaving] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const taskDateInput = useRef(null);
+
+  function openDatePicker() {
+    const input = taskDateInput.current;
+    if (!input) return;
+    try {
+      if (typeof input.showPicker === 'function') input.showPicker();
+      else { input.focus(); input.click(); }
+    } catch {
+      input.focus();
+    }
+  }
 
   async function updateTaskDetail() {
     const cleanTitle = taskDraft.title.trim();
@@ -1982,7 +2101,7 @@ function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
   }
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-backdrop task-detail-backdrop" onClick={onClose}>
       <div className="task-detail-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
           <strong>Görev Detayı</strong>
@@ -2005,33 +2124,52 @@ function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
 
           {editingTask ? (
             <div className="task-edit-form">
-              <label className="field-label">Tarih</label>
-              <input type="date" value={taskDraft.task_date} onChange={(e) => setTaskDraft({ ...taskDraft, task_date: e.target.value })} />
+              <div className="task-edit-field">
+                <label className="field-label" htmlFor="task-edit-date">Tarih</label>
+                <div className="task-date-tools">
+                  <input ref={taskDateInput} id="task-edit-date" className="task-date-input" type="date" value={taskDraft.task_date} onChange={(e) => setTaskDraft({ ...taskDraft, task_date: e.target.value })} />
+                  <button type="button" className="task-calendar-open" onClick={openDatePicker} aria-label="Takvimi aç" title="Takvimi aç">📅</button>
+                  <button type="button" className="task-schedule-open" onClick={() => setScheduleOpen(true)}>▦ Ders programı</button>
+                </div>
+              </div>
 
-              <label className="field-label">Veren</label>
-              <select value={taskDraft.owner} onChange={(e) => setTaskDraft({ ...taskDraft, owner: e.target.value })}>
-                <option value="D">D - Dilara</option>
-                <option value="B">B - Baba</option>
-                <option value="A">A - Anne</option>
-              </select>
+              <div className="task-edit-columns">
+                <div className="task-edit-field">
+                  <label className="field-label" htmlFor="task-edit-owner">Veren</label>
+                  <div className="task-owner-row">
+                    <span className={`task-owner-chip owner-${(taskDraft.owner || 'D').toLowerCase()}`}>{taskDraft.owner || 'D'}</span>
+                    <select id="task-edit-owner" className="task-owner-select" value={taskDraft.owner} onChange={(e) => setTaskDraft({ ...taskDraft, owner: e.target.value })}>
+                      <option value="D">D - Dilara</option>
+                      <option value="B">B - Baba</option>
+                      <option value="A">A - Anne</option>
+                    </select>
+                  </div>
+                </div>
 
-              <label className="field-label">Tür</label>
-              <select value={taskDraft.task_type} onChange={(e) => setTaskDraft({ ...taskDraft, task_type: e.target.value })}>
-                <option value="homework">Ödev</option>
-                <option value="project">Dönem / Proje Ödevi</option>
-              </select>
+                <div className="task-edit-field">
+                  <label className="field-label" htmlFor="task-edit-type">Tür</label>
+                  <select id="task-edit-type" value={taskDraft.task_type} onChange={(e) => setTaskDraft({ ...taskDraft, task_type: e.target.value })}>
+                    <option value="homework">Ödev</option>
+                    <option value="project">Dönem / Proje Ödevi</option>
+                  </select>
+                </div>
+              </div>
 
-              <label className="field-label">Ders / Başlık</label>
-              <select value={taskDraft.title} onChange={(e) => setTaskDraft({ ...taskDraft, title: e.target.value })}>
-                {!subjects.some((subject) => subject.name === taskDraft.title) && taskDraft.title && (
-                  <option value={taskDraft.title}>{taskDraft.title}</option>
-                )}
-                <option value="">Ders seç</option>
-                {subjects.map((subject) => <option key={subject.id} value={subject.name}>{subject.name}</option>)}
-              </select>
+              <div className="task-edit-field">
+                <label className="field-label" htmlFor="task-edit-title">Ders / Başlık</label>
+                <select id="task-edit-title" value={taskDraft.title} onChange={(e) => setTaskDraft({ ...taskDraft, title: e.target.value })}>
+                  {!subjects.some((subject) => subject.name === taskDraft.title) && taskDraft.title && (
+                    <option value={taskDraft.title}>{taskDraft.title}</option>
+                  )}
+                  <option value="">Ders seç</option>
+                  {subjects.map((subject) => <option key={subject.id} value={subject.name}>{subject.name}</option>)}
+                </select>
+              </div>
 
-              <label className="field-label">İçerik</label>
-              <textarea value={taskDraft.content} onChange={(e) => setTaskDraft({ ...taskDraft, content: e.target.value })} placeholder="Ödevin içeriğini yaz" />
+              <div className="task-edit-field">
+                <label className="field-label" htmlFor="task-edit-content">İçerik</label>
+                <textarea id="task-edit-content" value={taskDraft.content} onChange={(e) => setTaskDraft({ ...taskDraft, content: e.target.value })} placeholder="Ödevin içeriğini yaz" />
+              </div>
 
               <button type="button" className="task-edit-save" onClick={updateTaskDetail} disabled={saving}>
                 {saving ? 'Kaydediliyor...' : 'Değişiklikleri kaydet'}
@@ -2082,6 +2220,17 @@ function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
           )}
         </div>
       </div>
+      {scheduleOpen && (
+        <TaskSchedulePicker
+          taskDate={taskDraft.task_date}
+          selectedTitle={taskDraft.title}
+          onSelect={(selection) => {
+            setTaskDraft((current) => ({ ...current, task_date: selection.task_date, title: selection.title || current.title }));
+            setScheduleOpen(false);
+          }}
+          onClose={() => setScheduleOpen(false)}
+        />
+      )}
     </div>
   );
 }
@@ -3269,7 +3418,7 @@ function CompleteTaskModal({ task, activeUser, onCancel, onSave }) {
   const [completedBy, setCompletedBy] = useState(activeUser);
 
   return (
-    <div className="modal-backdrop" onClick={onCancel}>
+    <div className="modal-backdrop task-detail-backdrop" onClick={onCancel}>
       <div className="task-detail-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
           <strong>Tamamlandı Bilgisi</strong>
