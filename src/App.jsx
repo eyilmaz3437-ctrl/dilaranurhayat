@@ -1015,7 +1015,7 @@ export default function App() {
       <button className="mobile-menu-button" onClick={() => setMenuOpen(true)}>☰</button>
       {page !== 'home' && <button className="global-back-button" onClick={goBack}>← Geri</button>}
       <aside className={menuOpen ? 'sidebar open' : 'sidebar'}>
-        <div className="topbar"><div className="brand">🌷 Dilara Nur Hayat</div><button className="toggle" onClick={() => setMenuOpen(!menuOpen)}>☰</button></div>
+        <div className="topbar"><div className="brand"><img src="/dnh-icon.svg" alt="" /><span>Dilara Nur Hayat</span></div><button className="toggle" onClick={() => setMenuOpen(!menuOpen)}>☰</button></div>
         <nav className="main-menu">{menuItems.map((item) => <button key={item.key} className={page === item.key ? 'menu-item active' : 'menu-item'} onClick={() => changePage(item.key)}><span>{item.icon}</span>{menuOpen && <span>{item.title}</span>}</button>)}</nav>
       </aside>
       <main className="content">
@@ -1059,6 +1059,9 @@ function locationAgeText(iso) {
 
 function SchoolSettingsPage({goHome}) {
  const [subjects,setSubjects]=useState(loadSubjects); const [settings,setSettings]=useState(loadSchoolSettings); const [holidays,setHolidays]=useState(loadHolidays); const [calendarColors,setCalendarColors]=useState(loadCalendarColors);
+ useEffect(()=>{const sync=()=>{setSubjects(loadSubjects());setSettings(loadSchoolSettings());setHolidays(loadHolidays());setCalendarColors(loadCalendarColors())};window.addEventListener('dnh-settings',sync);window.addEventListener('dnh-shared',sync);return()=>{window.removeEventListener('dnh-settings',sync);window.removeEventListener('dnh-shared',sync)}},[]);
+ const calculatedRows=buildScheduleRows(settings);
+ const calculatedEnd=calculatedRows.filter(r=>r.type==='lesson').at(-1)?.end||settings.start;
  function saveSubjects(next){setSubjects(next);localStorage.setItem('dnh_subjects',JSON.stringify(next));sharedPush('subjects',next);window.dispatchEvent(new Event('dnh-settings'))}
  function patch(k,v){const next={...settings,[k]:v};setSettings(next);localStorage.setItem('dnh_school_settings',JSON.stringify(next));sharedPush('school_settings',next);window.dispatchEvent(new Event('dnh-settings'))}
  function addSubject(){const name=prompt('Ders adı:');if(!name?.trim())return;saveSubjects([...subjects,{id:'s_'+Date.now(),name:name.trim(),color:'#e2e8f0'}])}
@@ -1066,18 +1069,21 @@ function SchoolSettingsPage({goHome}) {
  function setSubjectColor(id,color){saveSubjects(subjects.map(x=>x.id===id?{...x,color}:x))}
  function delSubject(s){if(confirm(s.name+' silinsin mi?'))saveSubjects(subjects.filter(x=>x.id!==s.id))}
  function addHoliday(){const name=prompt('Tatil / özel gün adı:');if(!name)return;const start=prompt('Başlangıç (YYYY-AA-GG):',localDateISO());if(!start)return;const end=prompt('Bitiş (YYYY-AA-GG):',start)||start;const next=[...holidays,{id:Date.now(),name,start,end}];setHolidays(next);localStorage.setItem('dnh_holidays',JSON.stringify(next));sharedPush('holidays',next);window.dispatchEvent(new Event('dnh-settings'))}
- function delHoliday(id){const next=holidays.filter(h=>h.id!==id);setHolidays(next);localStorage.setItem('dnh_holidays',JSON.stringify(next));window.dispatchEvent(new Event('dnh-settings'))}
+ function delHoliday(id){const next=holidays.filter(h=>h.id!==id);setHolidays(next);localStorage.setItem('dnh_holidays',JSON.stringify(next));sharedPush('holidays',next);window.dispatchEvent(new Event('dnh-settings'))}
  function setCalColor(k,v){const next={...calendarColors,[k]:v};setCalendarColors(next);localStorage.setItem('dnh_calendar_colors',JSON.stringify(next));sharedPush('calendar_colors',next);window.dispatchEvent(new Event('dnh-settings'))}
  async function uploadThisDevice(){if(!confirm('Bu cihazdaki dersler, renkler, ders planı ve diğer ortak ayarlar aile verisi olarak kullanılsın mı?'))return;const ok=await seedSharedFromThisDevice();if(ok){await sharedPull();alert('Bu cihazdaki ayarlar ortak veriye aktarıldı. Diğer cihazlar da aynı veriyi kullanacak.')}else alert('Aktarım yapılamadı.')}
- return <><TopActions goHome={goHome}/><SectionTitle title="Dersler ve Ders Saatleri"/><div className="shared-sync-card"><strong>☁️ Cihazlar arası senkronizasyon</strong><small>S21'deki mevcut ders renklerini ve ayarları ortak veri yapmak için bir kez kullan.</small><button onClick={uploadThisDevice}>Bu cihazdaki ayarları ortak yap</button></div><div className="school-settings-wrap">
+ return <><TopActions goHome={goHome}/><SectionTitle title="Dersler ve Ders Saatleri"/><div className="shared-sync-card"><strong>☁️ Cihazlar arası senkronizasyon</strong><small>Yeni değişiklikler otomatik ortak veriye kaydolur. Bu düğme yalnızca daha önce bu cihazda kalmış eski yerel ayarları ilk kez ortaklaştırmak içindir.</small><button onClick={uploadThisDevice}>Bu cihazdaki eski ayarları ortak yap</button></div><div className="school-settings-wrap">
   <section className="school-time-card"><h3>⏱️ Günlük Zaman Düzeni</h3><div className="school-settings-grid">
    <label>İlk ders başlangıcı<input type="time" value={settings.start} onChange={e=>patch('start',e.target.value)}/></label>
-   <label>Ders süresi (dk)<input type="number" min="20" max="90" value={settings.lessonMinutes} onChange={e=>patch('lessonMinutes',Number(e.target.value))}/></label>
-   <label>Teneffüs (dk)<input type="number" min="5" max="60" value={settings.breakMinutes} onChange={e=>patch('breakMinutes',Number(e.target.value))}/></label>
+   <label>Bir ders süresi (dk)<input type="number" min="20" max="90" value={settings.lessonMinutes} onChange={e=>patch('lessonMinutes',Number(e.target.value))}/></label>
+   <label>Ara teneffüs (dk)<input type="number" min="0" max="60" value={settings.breakMinutes} onChange={e=>patch('breakMinutes',Number(e.target.value))}/></label>
    <label>Günlük ders sayısı<input type="number" min="1" max="14" value={settings.lessonCount} onChange={e=>patch('lessonCount',Number(e.target.value))}/></label>
-   <label>Öğle arası kaçıncı dersten sonra?<input type="number" min="1" max="12" value={settings.lunchAfter} onChange={e=>patch('lunchAfter',Number(e.target.value))}/></label>
-   <label>Öğle arası (dk)<input type="number" min="10" max="120" value={settings.lunchMinutes} onChange={e=>patch('lunchMinutes',Number(e.target.value))}/></label>
-  </div><label className="block-toggle"><input type="checkbox" checked={!!settings.blockMode} onChange={e=>patch('blockMode',e.target.checked)}/><span>Blok ders kullanılıyor</span></label><small>Blok ders seçeneğini şimdiden tanımladım; okulun gerçek düzeni belli olduğunda aradaki teneffüs kuralını buna bağlayacağız.</small>
+   <label>Öğle arası hangi dersten sonra?<input type="number" min="1" max={Math.max(1,Number(settings.lessonCount)-1)} value={Math.min(Number(settings.lunchAfter)||1,Math.max(1,Number(settings.lessonCount)-1))} onChange={e=>patch('lunchAfter',Number(e.target.value))}/></label>
+   <label>Öğle arası süresi (dk)<input type="number" min="0" max="180" value={settings.lunchMinutes} onChange={e=>patch('lunchMinutes',Number(e.target.value))}/></label>
+  </div>
+  <label className="block-toggle"><input type="checkbox" checked={!!settings.blockMode} onChange={e=>patch('blockMode',e.target.checked)}/><span>Blok ders var (2 ders arka arkaya)</span></label>
+  <small>{settings.blockMode?'Blok açık: iki ders arasında teneffüs koyulmaz; ikinci dersin sonunda normal teneffüs hesaplanır. Öğle arası kendi yerinde uygulanır.':'Blok kapalı: her dersin ardından normal teneffüs hesaplanır.'}</small>
+  <div className="school-time-preview"><div className="school-time-preview-head"><strong>Otomatik hesaplanan saatler</strong><span>Çıkış: {calculatedEnd}</span></div><div className="school-time-preview-rows">{calculatedRows.map(r=><span key={r.id} className={'preview-'+r.type}>{r.type==='lesson'?(r.lessonNo+'. ders '+r.start+'–'+r.end):(r.type==='lunch'?('Öğle '+r.start+'–'+r.end):('Teneffüs '+r.start+'–'+r.end))}</span>)}</div></div>
   </section>
   <section className="subjects-card calendar-color-settings"><div className="subjects-head"><div><h3>🎨 Takvim Renkleri</h3><small>Zemin ve metin renklerini değiştirebilirsin.</small></div></div><div className="calendar-color-grid">{[['exam','Sınav'],['project','Proje'],['task','Ödev'],['note','Not'],['weekend','Hafta sonu'],['holiday','Tatil']].map(([k,n])=><div key={k}><strong>{n}</strong><label>Zemin<input type="color" value={calendarColors[k+'Bg']} onChange={e=>setCalColor(k+'Bg',e.target.value)}/></label><label>Metin<input type="color" value={calendarColors[k+'Text']} onChange={e=>setCalColor(k+'Text',e.target.value)}/></label></div>)}</div></section>
   <section className="subjects-card holiday-settings"><div className="subjects-head"><div><h3>🏖️ Tatiller / Okul Kapalı Günler</h3><small>Takvimde belirgin gösterilir.</small></div><button onClick={addHoliday}>＋ Tatil</button></div><div className="holiday-list">{holidays.length===0&&<small>Henüz özel tatil tanımı yok.</small>}{holidays.map(h=><div key={h.id}><strong>{h.name}</strong><span>{formatShortDate(h.start)} – {formatShortDate(h.end)}</span><button onClick={()=>delHoliday(h.id)}>Sil</button></div>)}</div></section>
@@ -1665,12 +1671,30 @@ function loadSubjects(){try{return JSON.parse(localStorage.getItem('dnh_subjects
 function loadSchoolSettings(){try{return {...DEFAULT_SCHOOL_SETTINGS,...JSON.parse(localStorage.getItem('dnh_school_settings')||'{}')}}catch{return DEFAULT_SCHOOL_SETTINGS}}
 function addMinutes(hhmm,min){const [h,m]=hhmm.split(':').map(Number);const d=new Date(2000,0,1,h,m+min);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function buildScheduleRows(settings){
- let time=settings.start,rows=[];
- for(let n=1;n<=settings.lessonCount;n++){
-   const end=addMinutes(time,settings.lessonMinutes);rows.push({id:'lesson-'+n,type:'lesson',lessonNo:n,start:time,end});time=end;
-   if(n<settings.lessonCount){
-     const lunch=n===Number(settings.lunchAfter);const mins=lunch?Number(settings.lunchMinutes):Number(settings.breakMinutes);
-     const bend=addMinutes(time,mins);rows.push({id:(lunch?'lunch-':'break-')+n,type:lunch?'lunch':'break',start:time,end:bend});time=bend;
+ const lessonCount=Math.max(1,Number(settings.lessonCount)||1);
+ const lessonMinutes=Math.max(1,Number(settings.lessonMinutes)||40);
+ const breakMinutes=Math.max(0,Number(settings.breakMinutes)||0);
+ const lunchMinutes=Math.max(0,Number(settings.lunchMinutes)||0);
+ const lunchAfter=Math.min(Math.max(1,Number(settings.lunchAfter)||4),Math.max(1,lessonCount-1));
+ const blockMode=!!settings.blockMode;
+ const blockSize=Math.max(2,Number(settings.blockSize)||2);
+ let time=settings.start||'08:30',rows=[],lessonsSinceBreak=0;
+ for(let n=1;n<=lessonCount;n++){
+   const end=addMinutes(time,lessonMinutes);
+   rows.push({id:'lesson-'+n,type:'lesson',lessonNo:n,start:time,end});
+   time=end;
+   lessonsSinceBreak++;
+   if(n<lessonCount){
+     if(n===lunchAfter){
+       if(lunchMinutes>0){const bend=addMinutes(time,lunchMinutes);rows.push({id:'lunch-'+n,type:'lunch',start:time,end:bend});time=bend}
+       lessonsSinceBreak=0;
+     }else{
+       const shouldBreak=!blockMode||lessonsSinceBreak>=blockSize;
+       if(shouldBreak){
+         if(breakMinutes>0){const bend=addMinutes(time,breakMinutes);rows.push({id:'break-'+n,type:'break',start:time,end:bend});time=bend}
+         lessonsSinceBreak=0;
+       }
+     }
    }
  }
  return rows;
