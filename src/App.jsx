@@ -1528,7 +1528,7 @@ function CareerPage({ goHome }) {
                 </div>
               </div>
             </article>
-          ))}
+          )})}
         </div>
       )}
 
@@ -1554,7 +1554,7 @@ function CareerPage({ goHome }) {
                 <p>{step.text}</p>
               </div>
             </article>
-          ))}
+          )})}
         </div>
       )}
 
@@ -2290,7 +2290,7 @@ function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
     title: projectTitleMatch ? projectTitleMatch[1] : (task.title || ''),
     content: task.content || '',
   });
-  const [subjects] = useState(loadSubjects);
+  const subjects = useLiveSubjects();
   const [saving, setSaving] = useState(false);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const taskDateInput = useRef(null);
@@ -3665,8 +3665,8 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
       {!showCompleted && (
         <div className="task-list compact">
           {activeTasks.length === 0 && <div className="home-empty">Açık görev yok.</div>}
-          {activeTasks.map(t => (
-            <article className="task-card compact task-active clickable-task-row" key={t.id} onClick={() => setDetailTask(t)}>
+          {activeTasks.map(t => {const subjectColor=subjectColorForTask(t,subjects);return (
+            <article className={'task-card compact task-active clickable-task-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor}:undefined} key={t.id} onClick={() => setDetailTask(t)}>
               <button className="done-check" onClick={(e) => { e.stopPropagation(); completeTask(t); }} title="Tamamlandı">✓</button>
               <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
               <span>{formatShortDate(t.task_date)}</span>
@@ -3681,8 +3681,8 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
       {showCompleted && (
         <div className="task-list compact">
           {completedTasks.length === 0 && <div className="home-empty">Tamamlanan görev yok.</div>}
-          {completedTasks.map(t => (
-            <article className="task-card compact task-completed task-completed-rich clickable-completed-row" key={t.id} onClick={() => setDetailTask(t)}>
+          {completedTasks.map(t => {const subjectColor=subjectColorForTask(t,subjects);return (
+            <article className={'task-card compact task-completed task-completed-rich clickable-completed-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor}:undefined} key={t.id} onClick={() => setDetailTask(t)}>
               <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
               <span className="compact-date">{formatShortDate(t.task_date)}</span>
               <strong>{t.title}</strong>
