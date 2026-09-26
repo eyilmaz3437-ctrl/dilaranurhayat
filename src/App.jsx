@@ -1478,8 +1478,8 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
   const [screen, setScreen] = useState(0);
   const [selectedTask, setSelectedTask] = useState(null);
   const touchStart = useRef(null);
-  const screens = ['Ödevler', 'Haftalık Ders Planı', 'Takvim', 'Teslim Edilenler', 'Notlar', 'Kitap Okuma', 'Tamamlanan Ödevler'];
-  const screenLabels = ['ÖD', 'DP', 'TK', 'TE', 'NOT', 'KO', 'TM'];
+  const screens = ['Ödevler', 'Haftalık Ders Planı', 'Takvim', 'Tamamlanan Ödevler', 'Teslim Edilenler', 'Notlar', 'Kitap Okuma'];
+  const screenLabels = ['ÖD', 'DP', 'TK', 'TM', 'TE', 'NOT', 'KO'];
   const [calendarEvents,setCalendarEvents]=useState(loadCalendarEvents);
   useEffect(()=>{const sync=()=>setCalendarEvents(loadCalendarEvents());window.addEventListener('dnh-calendar',sync);window.addEventListener('dnh-shared',sync);return()=>{window.removeEventListener('dnh-calendar',sync);window.removeEventListener('dnh-shared',sync)}},[]);
   const todayISO=localDateISO();
@@ -1529,10 +1529,10 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
         {screen === 0 && <HomeworkHome tasks={tasks} tasksLoading={tasksLoading} goTasks={goTasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
         {screen === 1 && <WeeklySchedule goTasks={goTasks} />}
         {screen === 2 && <HomeworkCalendar tasks={tasks} onOpen={setSelectedTask} fullYear={fullYearCalendar} onOpenFullYear={()=>setFullYearCalendar(v=>!v)} />}
-        {screen === 3 && <DeliveredHomework tasks={tasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
-        {screen === 4 && <FamilyNotes currentUser={currentUser} />}
-        {screen === 5 && <ReadingTrackerPage embedded currentUser={currentUser} />}
-        {screen === 6 && <CompletedHomework tasks={tasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
+        {screen === 3 && <CompletedHomework tasks={tasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
+        {screen === 4 && <DeliveredHomework tasks={tasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
+        {screen === 5 && <FamilyNotes currentUser={currentUser} />}
+        {screen === 6 && <ReadingTrackerPage embedded currentUser={currentUser} />}
       </div>
       <div className="home-page-swipe-handle" onTouchStart={swipeStart} onTouchEnd={swipeEnd}>
         <span>‹</span><div><i></i><small>Sayfa değiştir</small></div><span>›</span>
@@ -1552,7 +1552,7 @@ function FamilyNotes({currentUser}) {
  function addNote(){const text=prompt(canAssign?'Dilara için not / görevlendirme:':'Not:');if(!text?.trim())return;save([{id:Date.now(),text:text.trim(),author,createdAt:new Date().toISOString(),urgent:false},...notes])}
  function toggleUrgent(id){save(notes.map(n=>n.id===id?{...n,urgent:!n.urgent}:n))}
  function remove(id){if(confirm('Not silinsin mi?'))save(notes.filter(n=>n.id!==id))}
- return <section className="android-home-screen family-notes-screen"><div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 5</span><h2>Notlar</h2></div><button className="compact-title-action" onClick={addNote}>＋ Not</button></div>
+ return <section className="android-home-screen family-notes-screen"><div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 6</span><h2>Notlar</h2></div><button className="compact-title-action" onClick={addNote}>＋ Not</button></div>
   {canAssign&&<div className="family-note-info">Dilara'ya yazdığın notlarda görevlendiren <strong>{author}</strong> olarak görünür.</div>}
   <div className="family-notes-list">{notes.length===0&&<div className="home-empty">Henüz not yok.</div>}{notes.map(n=><article key={n.id} className={'family-note-card '+(n.urgent?'urgent':'')}><div><strong>{n.urgent?'🔴 ':''}{n.text}</strong><small>Görevlendiren: {n.author} · {new Date(n.createdAt).toLocaleString('tr-TR')}</small></div><div>{canAssign&&<button onClick={()=>toggleUrgent(n.id)}>{n.urgent?'Acili kaldır':'Acil'}</button>}<button onClick={()=>remove(n.id)}>×</button></div></article>)}</div>
  </section>
@@ -1566,7 +1566,7 @@ function ReadingTrackerPage({goHome,currentUser,embedded=false}) {
  function add(){if(!book.trim()||!pages.trim())return alert('Kitap adı ve okunan sayfa bilgisini gir.');save([{id:Date.now(),date:today,book:book.trim(),pages:pages.trim(),by:currentUser?.displayName||'Dilara'},...rows]);setBook('');setPages('')}
  const byDate={};for(const r of rows)(byDate[r.date]??=[]).push(r);
  const dates=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));if(!dates.includes(today))dates.unshift(today);
- return <>{!embedded&&<><TopActions goHome={goHome}/><SectionTitle title="Kitap Okuma Takibi"/></>}<section className={embedded?'android-home-screen reading-screen':'reading-page'}>{embedded&&<div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 6</span><h2>Kitap Okuma</h2></div></div>}
+ return <>{!embedded&&<><TopActions goHome={goHome}/><SectionTitle title="Kitap Okuma Takibi"/></>}<section className={embedded?'android-home-screen reading-screen':'reading-page'}>{embedded&&<div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 7</span><h2>Kitap Okuma</h2></div></div>}
   <div className="reading-entry"><input value={book} onChange={e=>setBook(e.target.value)} placeholder="Kitap adı"/><input value={pages} onChange={e=>setPages(e.target.value)} placeholder="Okunan sayfa (örn. 24–38)"/><button className="reading-save-button" onClick={add}>＋ Kaydet</button></div>
   <div className="reading-days">{dates.map(date=><section className="reading-day" key={date}><div className="reading-date"><strong>{date===today?'Bugün':new Date(date+'T12:00:00').toLocaleDateString('tr-TR',{weekday:'long'})}</strong><span>{new Date(date+'T12:00:00').toLocaleDateString('tr-TR')}</span></div>{(byDate[date]||[]).length===0?<div className="reading-empty">Henüz okuma kaydı yok.</div>:(byDate[date]||[]).map(r=><div className="reading-row" key={r.id}><span>📖</span><strong>{r.book}</strong><b>{r.pages}</b><button onClick={()=>save(rows.filter(x=>x.id!==r.id))}>×</button></div>)}</section>)}</div>
  </section></>
@@ -1632,7 +1632,7 @@ function CompletedHomework({ tasks, reloadTasks, onOpen }) {
 
   return <section className="android-home-screen completed-homework-screen">
     <div className="screen-title-row">
-      <div><span className="screen-kicker">7. EKRAN</span><h2>Tamamlanan Ödevler</h2></div>
+      <div><span className="screen-kicker">4. EKRAN</span><h2>Tamamlanan Ödevler</h2></div>
       <span className="delivered-count">{completed.length}</span>
     </div>
     <div className="homework-list-full homework-vertical">
@@ -1930,7 +1930,7 @@ function DeliveredHomework({ tasks, reloadTasks, onOpen }) {
   }
 
   return <section className="android-home-screen delivered-screen">
-    <div className="screen-title-row"><div><span className="screen-kicker">4. EKRAN</span><h2>Teslim Edilenler</h2></div><span className="delivered-count">{delivered.length}</span></div>
+    <div className="screen-title-row"><div><span className="screen-kicker">5. EKRAN</span><h2>Teslim Edilenler</h2></div><span className="delivered-count">{delivered.length}</span></div>
     <div className="homework-list-full homework-vertical">{delivered.length===0&&<div className="home-empty">Henüz teslim edilmiş ödev yok.</div>}{delivered.map(t=><div className="homework-row-scroll" key={t.id}><article className="homework-row delivered-single-row" onClick={()=>onOpen(t)}><span className="homework-date">{formatShortDate(t.task_date)}</span><strong className="homework-title-box">{t.title}</strong><span className="homework-content-box">{t.content||'Açıklama yok.'}</span><span className="status-pill delivered">📤 {t.delivered_at?formatShortDate(t.delivered_at.slice(0,10)):'Teslim'}</span><select value={t.teacher_status||'Bekliyor'} onClick={e=>e.stopPropagation()} onChange={e=>saveReview(e,t,{teacher_status:e.target.value})}><option>Bekliyor</option><option>Kontrol edildi</option><option>Düzeltme istedi</option><option>Tekrar teslim edilecek</option></select><button className="undo-delivery" onClick={e=>undoDelivery(e,t)}>↩ Geri al</button></article></div>)}</div>
   </section>;
 }
