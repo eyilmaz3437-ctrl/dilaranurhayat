@@ -4604,6 +4604,19 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
   border-bottom:1px solid #dbe3ee;
   box-shadow:0 2px 10px rgba(15,23,42,.08);
 }
+.pdf-return-dnh{
+  flex:0 0 auto;
+  border:0;
+  border-radius:10px;
+  background:#7b1e60;
+  color:#fff;
+  padding:8px 10px;
+  font-size:10px;
+  font-weight:900;
+  cursor:pointer;
+  white-space:nowrap;
+}
+
 .pdf-viewer-book{
   display:flex;
   align-items:center;
@@ -4734,7 +4747,10 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
   color:#991b1b;
 }
 @media(max-width:420px){
-  .pdf-viewer-toolbar{padding:7px 8px}
+  .pdf-viewer-toolbar{padding:7px 8px;gap:6px}
+  .pdf-return-dnh{padding:7px 8px;font-size:9px}
+  .pdf-viewer-book strong{font-size:11px}
+  .pdf-viewer-book small{font-size:8px}
   .pdf-native-open{font-size:8px;padding:6px 7px}
   .pdf-page-toolbar{top:49px;grid-template-columns:38px minmax(0,1fr) 38px;padding:6px 7px}
   .pdf-page-toolbar>button{height:36px}
