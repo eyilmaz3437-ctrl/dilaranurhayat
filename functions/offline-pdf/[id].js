@@ -9,6 +9,7 @@ const BOOKS = {
   'cografya': 'https://tymm.meb.gov.tr/assets/pdf/cografya-dersi-sinif-9-ders-kitabi.pdf',
   'din': 'https://tymm.meb.gov.tr/assets/pdf/din-kulturu-ve-ahlak-bilgisi-9.pdf',
   'din-2026': 'https://tymm.meb.gov.tr/assets/pdf/din-kulturu-ve-ahlak-bilgisi-9.pdf',
+  'din-2026-ogm-v2': 'https://tymm.meb.gov.tr/upload/kitap/ogm/din-kulturu-ve-ahlak-bilgisi-9.pdf',
   'ingilizce': 'https://tymm.meb.gov.tr/assets/pdf/ingilizce-dersi-9-sinif-ders-kitabi.pdf',
   'almanca': 'https://ogmmateryal.eba.gov.tr/panel/upload/kitap/lfwtr3fxahv.pdf',
 };
