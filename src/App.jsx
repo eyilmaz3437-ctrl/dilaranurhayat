@@ -1955,7 +1955,7 @@ const MEB_TEXTBOOKS={
   din:{
     title:'Din Kültürü ve Ahlak Bilgisi',
     source:'MEB · TYMM',
-    books:[{id:'din-2026',label:'9. Sınıf Ders Kitabı · MEB resmî nüsha',kind:'pdf',url:'https://tymm.meb.gov.tr/upload/kitap/din-kulturu-ve-ahlak-bilgisi-9.pdf'}]
+    books:[{id:'din-2026',label:'9. Sınıf Ders Kitabı · MEB resmî nüsha',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/din-kulturu-ve-ahlak-bilgisi-9.pdf'}]
   },
   ingilizce:{
     title:'İngilizce',
