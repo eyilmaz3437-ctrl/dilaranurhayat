@@ -2501,11 +2501,17 @@ function scheduleDayKeyForDate(iso){
   const d=new Date(iso+'T12:00:00');
   return ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'][d.getDay()];
 }
+function equivalentScheduleSubjectIds(subjectId){
+  if(subjectId==='gorsel'||subjectId==='muzik'||subjectId==='gormuz')return new Set(['gorsel','muzik','gormuz']);
+  if(subjectId==='din'||subjectId==='temel_din')return new Set([subjectId]);
+  return new Set([subjectId]);
+}
 function firstSubjectDateInPlan(subjectId,plan,fromIso,maxDays=13){
   if(!subjectId)return null;
+  const accepted=equivalentScheduleSubjectIds(subjectId);
   const daysWithSubject=new Set();
   for(const [cell,sid] of Object.entries(plan||{})){
-    if(sid!==subjectId)continue;
+    if(!accepted.has(sid))continue;
     const day=cell.split('|')[0];
     if(day)daysWithSubject.add(day);
   }
