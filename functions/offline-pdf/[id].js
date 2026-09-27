@@ -10,6 +10,7 @@ const BOOKS = {
   'din': 'https://tymm.meb.gov.tr/assets/pdf/din-kulturu-ve-ahlak-bilgisi-9.pdf',
   'din-2026': 'https://tymm.meb.gov.tr/assets/pdf/din-kulturu-ve-ahlak-bilgisi-9.pdf',
   'din-2026-ogm-v2': 'https://tymm.meb.gov.tr/upload/kitap/ogm/din-kulturu-ve-ahlak-bilgisi-9.pdf',
+  'din-2026-eba-v3': 'https://eba-public-small.eba.gov.tr/prod/media/landing/4fa8dedb-fb5f-41be-aeb5-4de0625924e2.pdf',
   'ingilizce': 'https://tymm.meb.gov.tr/assets/pdf/ingilizce-dersi-9-sinif-ders-kitabi.pdf',
   'almanca': 'https://ogmmateryal.eba.gov.tr/panel/upload/kitap/lfwtr3fxahv.pdf',
 };
