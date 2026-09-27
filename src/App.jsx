@@ -2170,17 +2170,23 @@ function TextbooksPage({goHome}){
     setDownloadBusy(true);
     try{
       if(navigator.storage?.persist)await navigator.storage.persist().catch(()=>false);
+      const failed=[];
       for(let i=0;i<missing.length;i++){
         const book=missing[i];
         setDownloadMsg((i+1)+' / '+missing.length+' · '+book.subjectName+' indiriliyor…');
-        await cacheTextbookBook(book);
-        setDownloaded(prev=>new Set([...prev,book.id]));
+        try{
+          await cacheTextbookBook(book);
+          setDownloaded(prev=>new Set([...prev,book.id]));
+        }catch(err){
+          failed.push(book.subjectName);
+        }
       }
-      setStorageText(await storageEstimateText());
-      setDownloadMsg('Bütün mevcut PDF’ler telefona kaydedildi ✓ Artık internet olmadan da açılabilir.');
-    }catch(err){
-      setDownloadMsg('İndirme durdu: '+(err?.message||'Bilinmeyen hata')+'. İndirilen kitaplar telefonda kaldı.');
       await refreshOfflineState();
+      if(failed.length){
+        setDownloadMsg('İndirme tamamlandı. '+(missing.length-failed.length)+' kitap kaydedildi; açılamayanlar: '+failed.join(', ')+'.');
+      }else{
+        setDownloadMsg('Bütün mevcut PDF’ler telefona kaydedildi ✓ Artık internet olmadan da açılabilir.');
+      }
     }finally{
       setDownloadBusy(false);
     }
