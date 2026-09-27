@@ -1965,9 +1965,9 @@ const MEB_TEXTBOOKS={
   },
   almanca:{
     title:'Almanca',
-    source:'MEB · OGM Materyal',
-    books:[{id:'almanca',label:'Almanca A1.1 Materyali',kind:'pdf',url:'https://ogmmateryal.eba.gov.tr/panel/upload/kitap/lfwtr3fxahv.pdf'}],
-    note:'MEB OGM A1.1 materyali.'
+    source:'MEB kitabı · Deutschgenie A1.1',
+    books:[{id:'almanca-deutschgenie-a11',label:'Deutschgenie A1.1 Schülerbuch · mavi kitap',kind:'webbook',url:'https://fliphtml5.com/tqthb/jfqd/Deutschgenie-A1.1-Schulerbuch/',pageOffset:2}],
+    note:'Önceki 2 sayfalık dosya ders kitabı değildi. Diloş’un “mavi kitap” tarifine uyan Deutschgenie A1.1 Schülerbuch bağlandı. Şimdilik çevrimdışı PDF yerine dış kitap görüntüleyicisinde açılır.'
   },
   saglik:{
     title:'Sağlık Bilgisi ve Trafik Kültürü',
@@ -2035,6 +2035,7 @@ function extractHomeworkPage(text=''){
   const value=String(text||'');
   const patterns=[
     /(?:sayfa(?:lar)?|syf|sf|s\.)\s*[:.]?\s*(\d{1,3})/i,
+    /(?:mavi\s+kitap|ders\s+kitab[ıi]|kitap)\s*[:.]?\s*(\d{1,3})/i,
     /(\d{1,3})\s*(?:\.|-|–)?\s*sayfa/i
   ];
   for(const pattern of patterns){
@@ -2054,13 +2055,13 @@ function textbookBookForTask(task,subjects){
   const key=textbookKeyForTask(task,subjects);
   const resource=key?MEB_TEXTBOOKS[key]:null;
   if(!resource)return null;
-  const pdfs=(resource.books||[]).filter(book=>book.kind==='pdf');
-  if(!pdfs.length)return null;
+  const books=(resource.books||[]).filter(book=>book.kind==='pdf'||book.kind==='webbook');
+  if(!books.length)return null;
   if(key==='matematik'){
     const term=mathTermForDate(task?.task_date);
-    return pdfs.find(book=>book.term===term)||pdfs[0];
+    return books.find(book=>book.kind==='pdf'&&book.term===term)||books[0];
   }
-  return pdfs[0];
+  return books[0];
 }
 const TEXTBOOK_CACHE_NAME='dnh-textbooks-v1';
 function offlinePdfUrl(bookId,page){
@@ -2078,7 +2079,7 @@ const TEXTBOOK_PAGE_OFFSETS={
   din:0,
   'din-2026':0,
   'din-2026-ogm-v2':0,
-  'din-2026-eba-v3':0
+  'din-2026-eba-v3':1
 };
 function textbookPageOffset(bookId){
   return Object.prototype.hasOwnProperty.call(TEXTBOOK_PAGE_OFFSETS,bookId)?TEXTBOOK_PAGE_OFFSETS[bookId]:1;
@@ -2300,10 +2301,20 @@ async function storageEstimateText(){
     return quota?('Uygulama depolaması: '+mb(usage)+' MB / '+mb(quota)+' MB'):'';
   }catch{return ''}
 }
+function webBookUrlAtPage(book,page){
+  if(!book?.url)return '#';
+  if(!page)return book.url;
+  const offset=Number(book.pageOffset||0);
+  return book.url.replace(/\/?$/,'/')+String(Math.max(1,page+offset))+'/';
+}
 function TaskPdfLink({task,subjects,label='PDF'}){
   const book=textbookBookForTask(task,subjects);
   if(!book?.id)return null;
   const page=extractHomeworkPage(task?.content);
+  if(book.kind==='webbook'){
+    const url=webBookUrlAtPage(book,page);
+    return <a className="task-pdf-link webbook-task-link" href={url} target="_blank" rel="noopener noreferrer" onClick={e=>e.stopPropagation()} title={page?('Kitabı '+page+'. sayfadan aç'):'Ders kitabını aç'}>📘 Kitap{page?(' · s.'+page):''}</a>;
+  }
   const url=page?textbookReaderUrl(book.id,page):offlinePdfUrl(book.id);
   return <a className="task-pdf-link" href={url} target="_blank" onClick={e=>page?openTextbookReaderWindow(e,url):e.stopPropagation()} title={page?('Kitabı '+page+'. sayfadan ayrı pencerede aç'):'MEB ders kitabını aç'}>📕 {label}{page?(' · s.'+page):''}</a>;
 }
@@ -2353,6 +2364,7 @@ function TextbooksPage({goHome}){
       if('caches' in window){
         try{
           const cache=await caches.open(TEXTBOOK_CACHE_NAME);
+          await cache.delete('/offline-pdf/almanca.pdf');
           const current='/offline-pdf/din-2026-eba-v3.pdf';
           if(!(await cache.match(current))){
             await cache.delete('/offline-pdf/din.pdf');
@@ -2466,7 +2478,7 @@ function TextbooksPage({goHome}){
                       ?<><span className="offline-ready">✓ Telefonda</span><button type="button" className="offline-remove" onClick={()=>removeOne({...book,subjectName:resource.title})} disabled={downloadBusy}>Sil</button></>
                       :<button type="button" className="offline-download-one" onClick={()=>downloadOne({...book,subjectName:resource.title})} disabled={downloadBusy}>↓ İndir</button>}
                   </div>
-                :<a key={book.url+index} href={book.url} target="_blank" rel="noopener noreferrer" className="web-book-link">🌐 {book.label}</a>)}
+                :<a key={book.url+index} href={book.url} target="_blank" rel="noopener noreferrer" className={book.kind==='webbook'?'web-book-link german-book-link':'web-book-link'}>{book.kind==='webbook'?'📘':'🌐'} {book.label}</a>)}
             </div>:<div className="textbook-no-pdf">Bu ders için MEB öğrenci PDF bağlantısı yok.</div>}
             {resource?.note&&<small className="textbook-note">{resource.note}</small>}
           </article>
