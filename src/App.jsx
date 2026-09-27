@@ -1954,8 +1954,9 @@ const MEB_TEXTBOOKS={
   },
   din:{
     title:'Din Kültürü ve Ahlak Bilgisi',
-    source:'MEB · EBA',
-    books:[{id:'din-2026-eba-v3',label:'9. Sınıf Ders Kitabı · 2026-2027 EBA',kind:'pdf',url:'https://eba-public-small.eba.gov.tr/prod/media/landing/4fa8dedb-fb5f-41be-aeb5-4de0625924e2.pdf'}]
+    source:'MEB · EBA dijital nüsha',
+    books:[{id:'din-2026-eba-v3',label:'9. Sınıf Ders Kitabı · Diloş 2026 baskı sayfa eşlemesi',kind:'pdf',url:'https://eba-public-small.eba.gov.tr/prod/media/landing/4fa8dedb-fb5f-41be-aeb5-4de0625924e2.pdf'}],
+    note:'Diloş’un 2026 basılı kitabının kapağı farklı. MEB/EBA dijital dosyasının içeriği ve sayfa numaraları basılı nüsha ile eşleştiriliyor.'
   },
   ingilizce:{
     title:'İngilizce',
