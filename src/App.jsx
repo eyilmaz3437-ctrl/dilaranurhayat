@@ -1,6 +1,10 @@
 import './App.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import * as pdfjsLib from 'pdfjs-dist';
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 const supabaseUrl = 'https://prwofdineklysdtjcwmp.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByd29mZGluZWtseXNkdGpjd21wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NjkyMzYsImV4cCI6MjA5NzU0NTIzNn0.feAhSXYzqK2MAX9536J5ZhkN3x8Ya4JUJtc8jOC7Q_Y';
@@ -834,6 +838,15 @@ function UserSettingsPage({goHome,currentUser,onLogout}) {
 }
 
 export default function App() {
+  const params=new URLSearchParams(window.location.search);
+  const pdfBook=params.get('pdfbook');
+  if(pdfBook){
+    return <StandalonePdfViewer bookId={pdfBook} requestedPage={Number(params.get('page')||1)} />;
+  }
+  return <MainApp/>;
+}
+
+function MainApp() {
   const [sessionUser,setSessionUser]=useState(()=>{try{return JSON.parse(localStorage.getItem('dnh_remembered_user')||sessionStorage.getItem('dnh_session_user')||'null')}catch{return null}});
   const [menuOpen, setMenuOpen] = useState(window.innerWidth > 700);
   const [page, setPage] = useState('home');
@@ -2054,6 +2067,151 @@ function offlinePdfUrl(bookId,page){
   const base='/offline-pdf/'+encodeURIComponent(bookId)+'.pdf';
   return page?base+'#page='+page:base;
 }
+function textbookReaderUrl(bookId,page){
+  if(!bookId)return '#';
+  const q=new URLSearchParams({pdfbook:bookId});
+  if(page)q.set('page',String(page));
+  return '/?'+q.toString();
+}
+function textbookTitleByBookId(bookId){
+  for(const resource of Object.values(MEB_TEXTBOOKS)){
+    const book=(resource.books||[]).find(x=>x.id===bookId);
+    if(book)return {resource,book};
+  }
+  return {resource:null,book:null};
+}
+async function resolveRequestedPdfPage(pdf,requestedPage){
+  const requested=Math.max(1,Number(requestedPage)||1);
+  try{
+    const labels=await pdf.getPageLabels();
+    if(Array.isArray(labels)){
+      const exact=labels.findIndex(label=>String(label||'').trim()===String(requested));
+      if(exact>=0)return {pdfPage:exact+1,label:String(requested),mapped:true};
+    }
+  }catch{}
+  return {pdfPage:Math.min(requested,pdf.numPages),label:String(requested),mapped:false};
+}
+
+function StandalonePdfViewer({bookId,requestedPage=1}){
+  const canvasRef=useRef(null);
+  const [pdf,setPdf]=useState(null);
+  const [pdfPage,setPdfPage]=useState(1);
+  const [pageInput,setPageInput]=useState(String(Math.max(1,requestedPage||1)));
+  const [pageLabel,setPageLabel]=useState(String(Math.max(1,requestedPage||1)));
+  const [pageLabels,setPageLabels]=useState(null);
+  const [loading,setLoading]=useState(true);
+  const [rendering,setRendering]=useState(false);
+  const [error,setError]=useState('');
+  const [mapped,setMapped]=useState(false);
+  const bookInfo=textbookTitleByBookId(bookId);
+  const nativeUrl=offlinePdfUrl(bookId);
+
+  useEffect(()=>{
+    let active=true;
+    const task=pdfjsLib.getDocument({url:nativeUrl});
+    setLoading(true);setError('');
+    task.promise.then(async doc=>{
+      if(!active){doc.destroy();return}
+      setPdf(doc);
+      let labels=null;
+      try{labels=await doc.getPageLabels()}catch{}
+      if(active)setPageLabels(labels);
+      const target=await resolveRequestedPdfPage(doc,requestedPage);
+      if(!active)return;
+      setPdfPage(target.pdfPage);
+      setPageLabel(target.label);
+      setMapped(target.mapped);
+      setPageInput(String(requestedPage||1));
+      setLoading(false);
+    }).catch(err=>{
+      if(!active)return;
+      setLoading(false);
+      setError('PDF açılamadı: '+(err?.message||'Bilinmeyen hata'));
+    });
+    return()=>{active=false;task.destroy?.()};
+  },[bookId]);
+
+  useEffect(()=>{
+    if(!pdf||!canvasRef.current)return;
+    let cancelled=false;
+    let renderTask=null;
+    (async()=>{
+      setRendering(true);
+      try{
+        const page=await pdf.getPage(pdfPage);
+        if(cancelled)return;
+        const base=page.getViewport({scale:1});
+        const available=Math.max(280,Math.min(window.innerWidth-16,980));
+        const cssScale=Math.min(available/base.width,1.6);
+        const dpr=Math.min(window.devicePixelRatio||1,2);
+        const viewport=page.getViewport({scale:cssScale*dpr});
+        const canvas=canvasRef.current;
+        const ctx=canvas.getContext('2d',{alpha:false});
+        canvas.width=Math.floor(viewport.width);
+        canvas.height=Math.floor(viewport.height);
+        canvas.style.width=Math.floor(viewport.width/dpr)+'px';
+        canvas.style.height=Math.floor(viewport.height/dpr)+'px';
+        renderTask=page.render({canvasContext:ctx,viewport});
+        await renderTask.promise;
+      }catch(err){
+        if(!cancelled&&err?.name!=='RenderingCancelledException')setError('Sayfa çizilemedi: '+(err?.message||'Bilinmeyen hata'));
+      }finally{
+        if(!cancelled)setRendering(false);
+      }
+    })();
+    return()=>{cancelled=true;renderTask?.cancel?.()};
+  },[pdf,pdfPage]);
+
+  async function goPrintedPage(value){
+    if(!pdf)return;
+    const requested=Math.max(1,Number(value)||1);
+    const target=await resolveRequestedPdfPage(pdf,requested);
+    setPdfPage(target.pdfPage);
+    setPageLabel(target.label);
+    setMapped(target.mapped);
+    setPageInput(String(requested));
+  }
+  function goPdfPage(next){
+    if(!pdf)return;
+    const p=Math.max(1,Math.min(pdf.numPages,next));
+    setPdfPage(p);
+    const label=Array.isArray(pageLabels)?pageLabels[p-1]:null;
+    setPageLabel(label||String(p));
+    setPageInput(label&&/^\d+$/.test(String(label))?String(label):String(p));
+    setMapped(!!label);
+  }
+
+  return <div className="standalone-pdf-viewer">
+    <header className="pdf-viewer-toolbar">
+      <div className="pdf-viewer-book">
+        <span>📕</span>
+        <div><strong>{bookInfo.resource?.title||'Ders Kitabı'}</strong><small>{bookInfo.book?.label||'MEB PDF'}</small></div>
+      </div>
+      <a className="pdf-native-open" href={nativeUrl} target="_blank" rel="noopener noreferrer">PDF’nin tamamı ↗</a>
+    </header>
+
+    <div className="pdf-page-toolbar">
+      <button type="button" onClick={()=>goPdfPage(pdfPage-1)} disabled={!pdf||pdfPage<=1}>‹</button>
+      <form onSubmit={e=>{e.preventDefault();goPrintedPage(pageInput)}}>
+        <span>Kitap sayfası</span>
+        <input inputMode="numeric" pattern="[0-9]*" value={pageInput} onChange={e=>setPageInput(e.target.value.replace(/\D/g,''))}/>
+        <button type="submit" disabled={!pdf}>Git</button>
+      </form>
+      <button type="button" onClick={()=>goPdfPage(pdfPage+1)} disabled={!pdf||pdfPage>=pdf.numPages}>›</button>
+    </div>
+
+    <div className="pdf-page-meta">
+      {pdf&&<><strong>{mapped?'Kitap s. '+pageLabel:'PDF s. '+pdfPage}</strong><span>PDF {pdfPage} / {pdf.numPages}</span></>}
+      {rendering&&<small>Sayfa hazırlanıyor…</small>}
+    </div>
+
+    <main className="pdf-canvas-stage">
+      {loading&&<div className="pdf-viewer-loading">PDF hazırlanıyor…</div>}
+      {error&&<div className="pdf-viewer-error">{error}</div>}
+      <canvas ref={canvasRef} aria-label={'PDF sayfası '+pageLabel}></canvas>
+    </main>
+  </div>;
+}
 async function textbookIsDownloaded(bookId){
   if(!bookId||!('caches' in window))return false;
   const cache=await caches.open(TEXTBOOK_CACHE_NAME);
@@ -2088,7 +2246,7 @@ function TaskPdfLink({task,subjects,label='PDF'}){
   const book=textbookBookForTask(task,subjects);
   if(!book?.id)return null;
   const page=extractHomeworkPage(task?.content);
-  const url=offlinePdfUrl(book.id,page);
+  const url=page?textbookReaderUrl(book.id,page):offlinePdfUrl(book.id);
   return <a className="task-pdf-link" href={url} target="_blank" rel="noopener noreferrer" onClick={e=>e.stopPropagation()} title={page?('Kitabı '+page+'. sayfadan aç'):'MEB ders kitabını aç'}>📕 {label}{page?(' · s.'+page):''}</a>;
 }
 
