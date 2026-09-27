@@ -69,6 +69,7 @@ const menuItems = [
   { key: 'home', title: 'Ana Sayfa', icon: '🏠' },
   { key: 'islam', title: 'İslam', icon: '☪' },
   { key: 'egitim', title: 'Eğitim', icon: '📚' },
+  { key: 'ders-kitaplari', title: 'Ders Kitapları', icon: '📘' },
   { key: 'kariyer', title: 'Kariyer', icon: '🎓' },
   { key: 'ezber', title: 'Ezber Takibi', icon: '🧠' },
   { key: 'gorevler', title: 'Görevler', icon: '✅' },
@@ -1096,6 +1097,7 @@ export default function App() {
         {page === 'home' && <HomePage currentUser={sessionUser} tasks={tasks} tasksLoading={tasksLoading} goTasks={() => changePage('gorevler')} prayerLogs={prayerLogs} saveTodayPrayer={saveTodayPrayer} activeUser={activeUser} reloadTasks={loadTasks} goLocation={() => changePage('konum')} memorization={memorization} goEzber={() => changePage('ezber')} shortcuts={shortcuts} openShortcut={openShortcut} removeShortcut={removeShortcut} renameShortcut={renameShortcut} />}
         {page === 'islam' && <IslamPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} returnToEzber={returnToEzber} goEzber={() => { setPage('ezber'); setSubPage(''); setDetailKey(''); setReturnToEzber(false); }} />}
         {page === 'egitim' && <EgitimPage subPage={subPage} setSubPage={setSubPage} detailKey={detailKey} setDetailKey={setDetailKey} goHome={goHome} toggleShortcut={toggleShortcut} isShortcutActive={isShortcutActive} />}
+        {page === 'ders-kitaplari' && <TextbooksPage goHome={goHome} />}
         {page === 'kariyer' && <CareerPage goHome={goHome} />}
         {page === 'ezber' && <MemorizationPage memorization={memorization} saveMemorization={saveMemorization} goHome={goHome} setPage={setPage} setSubPage={setSubPage} setDetailKey={setDetailKey} setReturnToEzber={setReturnToEzber} activeUser={activeUser} />}
         {page === 'gorevler' && <TasksPage tasks={tasks} setTasks={setTasks} reloadTasks={loadTasks} goHome={goHome} activeUser={activeUser} setActiveUser={setActiveUser} />}
@@ -1786,6 +1788,7 @@ function HomeworkHome({ tasks, tasksLoading, goTasks, reloadTasks, onOpen }) {
       {visible.map(t => {const correction=t.teacher_status==='Düzeltme istedi'||t.teacher_status==='Tekrar teslim edilecek';const subjectColor=subjectColorForTask(t,subjects),subjectText=subjectTextColorForTask(t,subjects);return <div className="homework-row-scroll" key={t.id}><article className={`homework-row ${t.completed ? 'is-completed' : ''} ${t.delivered ? 'is-delivered' : ''} ${correction?'needs-correction':''} ${subjectColor?'subject-colored':''}`} style={subjectColor?{'--subject-color':subjectColor,'--subject-text':subjectText}:undefined} onClick={() => onOpen(t)}>
         <span className="homework-date">{formatShortDate(t.task_date)}</span>
         <strong className="homework-title-box" style={subjectColor?{background:subjectColor,color:subjectText}:undefined}>{t.title}</strong>
+        <TaskPdfLink task={t} subjects={subjects}/>
         <span className="homework-content-box">{correction ? ('Düzeltme: '+(t.teacher_note||'Öğretmen düzeltme istedi.')) : (t.content || 'Açıklama yok.')}</span>
         <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
         <div className="homework-statuses">
@@ -1832,6 +1835,7 @@ function CompletedHomework({ tasks, reloadTasks, onOpen }) {
         <article className={'homework-row is-completed delivered-single-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor,'--subject-text':subjectText}:undefined} onClick={()=>onOpen(t)}>
           <span className="homework-date">{formatShortDate(t.task_date)}</span>
           <strong className="homework-title-box" style={subjectColor?{background:subjectColor,color:subjectText}:undefined}>{t.title}</strong>
+          <TaskPdfLink task={t} subjects={subjects}/>
           <span className="homework-content-box">{t.completed_note || t.content || 'Açıklama yok.'}</span>
           <span className="status-pill done">✓ {t.completed_at ? formatShortDate(t.completed_at.slice(0,10)) : 'Tamamlandı'} · {t.completed_by || 'D'}</span>
           <button className="undo-delivery" onClick={e=>undoComplete(e,t)}>↩ Geri al</button>
@@ -1895,6 +1899,205 @@ function subjectColorForTask(task,subjects){
 function subjectTextColorForTask(task,subjects){
   return subjectTextColorByName(subjectNameForTask(task),subjects);
 }
+
+const MEB_TEXTBOOKS={
+  edebiyat:{
+    title:'Türk Dili ve Edebiyatı',
+    source:'MEB · TYMM',
+    books:[{label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/turk-dili-ve-edebiyati-9sinif-ders-kitabi_20260908_185914_237.pdf'}]
+  },
+  matematik:{
+    title:'Matematik',
+    source:'MEB · TYMM',
+    books:[
+      {label:'1. Kitap · 1. dönem',kind:'pdf',term:1,url:'https://tymm.meb.gov.tr/assets/pdf/matematik-9sinif-ders-kitabi-1kitap_20260908_111051_343.pdf'},
+      {label:'2. Kitap · 2. dönem',kind:'pdf',term:2,url:'https://tymm.meb.gov.tr/assets/pdf/matematik-9sinif-ders-kitabi-2kitap_20260908_111224_539.pdf'}
+    ]
+  },
+  fizik:{
+    title:'Fizik',
+    source:'MEB · TYMM',
+    books:[{label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/fizik-dersi-9-sinif-ders-kitabi.pdf'}]
+  },
+  kimya:{
+    title:'Kimya',
+    source:'MEB · TYMM',
+    books:[{label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/kimya-9sinif-ders-kitabi_20260908_105401_981.pdf'}]
+  },
+  biyoloji:{
+    title:'Biyoloji',
+    source:'MEB · TYMM',
+    books:[{label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/biyoloji-9-sinif-ders-kitabi.pdf'}]
+  },
+  tarih:{
+    title:'Tarih',
+    source:'MEB · TYMM',
+    books:[{label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/tarih-9sinif-ders-kitabi_20260908_184825_403.pdf'}]
+  },
+  cografya:{
+    title:'Coğrafya',
+    source:'MEB · TYMM',
+    books:[{label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/cografya-dersi-sinif-9-ders-kitabi.pdf'}]
+  },
+  din:{
+    title:'Din Kültürü ve Ahlak Bilgisi',
+    source:'MEB · TYMM',
+    books:[{label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/din-kulturu-ve-ahlak-bilgisi-9.pdf'}]
+  },
+  ingilizce:{
+    title:'İngilizce',
+    source:'MEB · TYMM',
+    books:[{label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/ingilizce-dersi-9-sinif-ders-kitabi.pdf'}]
+  },
+  almanca:{
+    title:'Almanca',
+    source:'MEB · OGM Materyal',
+    books:[{label:'Almanca A1.1 Materyali',kind:'pdf',url:'https://ogmmateryal.eba.gov.tr/panel/upload/kitap/lfwtr3fxahv.pdf'}],
+    note:'MEB OGM A1.1 materyali.'
+  },
+  saglik:{
+    title:'Sağlık Bilgisi ve Trafik Kültürü',
+    source:'MEB · OGM Materyal',
+    books:[
+      {label:'1. Ünite · Etkileşimli kitap',kind:'web',url:'https://ogmmateryal.eba.gov.tr/panel/upload/etkilesimli/kitap/saglikbilgisivetrafikkulturu/9/unite1/index.html'},
+      {label:'2. Ünite · Etkileşimli kitap',kind:'web',url:'https://ogmmateryal.eba.gov.tr/panel/upload/etkilesimli/kitap/saglikbilgisivetrafikkulturu/9/unite2/index.html'}
+    ],
+    note:'MEB bu ders için OGM etkileşimli kitabını sunuyor; doğrudan öğrenci PDF’si yerine bunu açıyoruz.'
+  },
+  muzik:{
+    title:'Müzik',
+    source:'MEB · TYMM',
+    books:[{label:'9. Sınıf MEB ders içeriği',kind:'web',url:'https://tymm.meb.gov.tr/ogretim-programlari/muzik-dersi/11'}],
+    note:'Güncel MEB listesinde 9. sınıf öğrenci PDF’si yer almıyor; resmî ders içeriği bağlantısı eklendi.'
+  },
+  beden:{
+    title:'Beden Eğitimi ve Spor',
+    source:'MEB · TYMM',
+    books:[{label:'9. Sınıf MEB ders içeriği',kind:'web',url:'https://tymm.meb.gov.tr/ogretim-programlari/beden-egitimi-ve-spor-dersi/11'}],
+    note:'Güncel MEB listesinde öğrenci ders kitabı yerine öğretmen kılavuzu bulunuyor; öğrenci için resmî ders içeriğini açıyoruz.'
+  },
+  rehberlik:{
+    title:'Rehberlik',
+    source:'MEB',
+    books:[],
+    note:'Bu ders için 9. sınıf öğrenci ders kitabı PDF’si bulunmuyor.'
+  }
+};
+
+function loadSchedulePlan(){
+  try{return JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}')}catch{return {}}
+}
+function textbookKeyForSubject(subject){
+  if(!subject)return null;
+  if(MEB_TEXTBOOKS[subject.id])return subject.id;
+  const name=normalizedSubjectName(subject.name);
+  if(name.includes('proje ing')||name.includes('ingiliz'))return 'ingilizce';
+  if(name==='spor'||name.includes('voleybol')||name.includes('beden'))return 'beden';
+  if(name==='mat'||name.includes('matematik'))return 'matematik';
+  if(name==='türkçe'||name.includes('edebiyat'))return 'edebiyat';
+  return null;
+}
+function textbookKeyForTask(task,subjects){
+  const subject=subjectByName(subjectNameForTask(task),subjects);
+  if(subject)return textbookKeyForSubject(subject);
+  const name=normalizedSubjectName(subjectNameForTask(task));
+  if(name==='mat'||name.includes('matematik'))return 'matematik';
+  if(name==='türkçe'||name.includes('edebiyat'))return 'edebiyat';
+  if(name.includes('fizik'))return 'fizik';
+  if(name.includes('kimya'))return 'kimya';
+  if(name.includes('biyoloji'))return 'biyoloji';
+  if(name.includes('tarih'))return 'tarih';
+  if(name.includes('coğraf')||name.includes('cograf'))return 'cografya';
+  if(name==='din'||name.includes('din kült'))return 'din';
+  if(name.includes('proje ing')||name.includes('ingiliz'))return 'ingilizce';
+  if(name.includes('almanca'))return 'almanca';
+  if(name.includes('sağlık')||name.includes('saglik'))return 'saglik';
+  if(name.includes('müzik')||name.includes('muzik'))return 'muzik';
+  if(name.includes('beden')||name==='spor'||name.includes('voleybol'))return 'beden';
+  if(name.includes('rehberlik'))return 'rehberlik';
+  return null;
+}
+function extractHomeworkPage(text=''){
+  const value=String(text||'');
+  const patterns=[
+    /(?:sayfa(?:lar)?|syf|sf|s\.)\s*[:.]?\s*(\d{1,3})/i,
+    /(\d{1,3})\s*(?:\.|-|–)?\s*sayfa/i
+  ];
+  for(const pattern of patterns){
+    const match=value.match(pattern);
+    if(match){
+      const page=Number(match[1]);
+      if(Number.isFinite(page)&&page>0)return page;
+    }
+  }
+  return null;
+}
+function mathTermForDate(taskDate){
+  const month=Number(String(taskDate||'').slice(5,7));
+  return month>=2&&month<=6?2:1;
+}
+function textbookBookForTask(task,subjects){
+  const key=textbookKeyForTask(task,subjects);
+  const resource=key?MEB_TEXTBOOKS[key]:null;
+  if(!resource)return null;
+  const pdfs=(resource.books||[]).filter(book=>book.kind==='pdf');
+  if(!pdfs.length)return null;
+  if(key==='matematik'){
+    const term=mathTermForDate(task?.task_date);
+    return pdfs.find(book=>book.term===term)||pdfs[0];
+  }
+  return pdfs[0];
+}
+function pdfUrlAtPage(url,page){
+  if(!url||!page)return url;
+  return url.split('#')[0]+'#page='+page;
+}
+function TaskPdfLink({task,subjects,label='PDF'}){
+  const book=textbookBookForTask(task,subjects);
+  if(!book)return null;
+  const page=extractHomeworkPage(task?.content);
+  const url=pdfUrlAtPage(book.url,page);
+  return <a className="task-pdf-link" href={url} target="_blank" rel="noopener noreferrer" onClick={e=>e.stopPropagation()} title={page?('Kitabı '+page+'. sayfadan aç'):'MEB ders kitabını aç'}>📕 {label}{page?(' · s.'+page):''}</a>;
+}
+
+function TextbooksPage({goHome}){
+  const subjects=useLiveSubjects();
+  const [plan,setPlan]=useState(loadSchedulePlan);
+  useEffect(()=>{
+    const sync=()=>setPlan(loadSchedulePlan());
+    window.addEventListener('dnh-settings',sync);
+    window.addEventListener('dnh-shared',sync);
+    return()=>{window.removeEventListener('dnh-settings',sync);window.removeEventListener('dnh-shared',sync)};
+  },[]);
+  const selectedIds=[...new Set(Object.values(plan).filter(Boolean))];
+  const selectedSubjects=subjects.filter(subject=>selectedIds.includes(subject.id));
+  return <>
+    <TopActions goHome={goHome}/>
+    <SectionTitle title="Ders Kitapları"/>
+    <div className="textbook-page">
+      <div className="textbook-info"><strong>📘 Diloş’un ders programındaki kitaplar</strong><span>PDF’ler uygulamanın içinde açılmaz; telefonda ayrı PDF ekranında / tarayıcıda açılır.</span></div>
+      <div className="textbook-grid">
+        {selectedSubjects.map(subject=>{
+          const key=textbookKeyForSubject(subject);
+          const resource=key?MEB_TEXTBOOKS[key]:null;
+          return <article className="textbook-card" key={subject.id}>
+            <div className="textbook-card-head">
+              <span className="textbook-subject-badge" style={{background:subject.color,color:subject.textColor||'#000000'}}>{subject.name}</span>
+              <small>{resource?.source||'MEB'}</small>
+            </div>
+            <h3>{resource?.title||subject.name}</h3>
+            {resource?.books?.length>0?<div className="textbook-links">
+              {resource.books.map((book,index)=><a key={book.url+index} href={book.url} target="_blank" rel="noopener noreferrer" className={book.kind==='pdf'?'pdf-book-link':'web-book-link'}>{book.kind==='pdf'?'📕':'🌐'} {book.label}</a>)}
+            </div>:<div className="textbook-no-pdf">Bu ders için MEB öğrenci PDF bağlantısı yok.</div>}
+            {resource?.note&&<small className="textbook-note">{resource.note}</small>}
+          </article>
+        })}
+        {selectedSubjects.length===0&&<div className="home-empty">Ders programında seçili ders bulunamadı.</div>}
+      </div>
+    </div>
+  </>;
+}
+
 function loadSchoolSettings(){try{return {...DEFAULT_SCHOOL_SETTINGS,...JSON.parse(localStorage.getItem('dnh_school_settings')||'{}')}}catch{return DEFAULT_SCHOOL_SETTINGS}}
 function addMinutes(hhmm,min){const [h,m]=hhmm.split(':').map(Number);const d=new Date(2000,0,1,h,m+min);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function buildScheduleRows(settings){
@@ -2185,7 +2388,7 @@ function DeliveredHomework({ tasks, reloadTasks, onOpen }) {
 
   return <section className="android-home-screen delivered-screen">
     <div className="screen-title-row"><div><span className="screen-kicker">5. EKRAN</span><h2>Teslim Edilenler</h2></div><span className="delivered-count">{delivered.length}</span></div>
-    <div className="homework-list-full homework-vertical">{delivered.length===0&&<div className="home-empty">Henüz teslim edilmiş ödev yok.</div>}{delivered.map(t=>{const subjectColor=subjectColorForTask(t,subjects),subjectText=subjectTextColorForTask(t,subjects);return <div className="homework-row-scroll" key={t.id}><article className={'homework-row delivered-single-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor,'--subject-text':subjectText}:undefined} onClick={()=>onOpen(t)}><span className="homework-date">{formatShortDate(t.task_date)}</span><strong className="homework-title-box" style={subjectColor?{background:subjectColor,color:subjectText}:undefined}>{t.title}</strong><span className="homework-content-box">{t.content||'Açıklama yok.'}</span><span className="status-pill delivered">📤 {t.delivered_at?formatShortDate(t.delivered_at.slice(0,10)):'Teslim'}</span><select value={t.teacher_status||'Bekliyor'} onClick={e=>e.stopPropagation()} onChange={e=>saveReview(e,t,{teacher_status:e.target.value})}><option>Bekliyor</option><option>Kontrol edildi</option><option>Düzeltme istedi</option><option>Tekrar teslim edilecek</option></select><button className="undo-delivery" onClick={e=>undoDelivery(e,t)}>↩ Geri al</button></article></div>})}</div>
+    <div className="homework-list-full homework-vertical">{delivered.length===0&&<div className="home-empty">Henüz teslim edilmiş ödev yok.</div>}{delivered.map(t=>{const subjectColor=subjectColorForTask(t,subjects),subjectText=subjectTextColorForTask(t,subjects);return <div className="homework-row-scroll" key={t.id}><article className={'homework-row delivered-single-row '+(subjectColor?'subject-colored':'')} style={subjectColor?{'--subject-color':subjectColor,'--subject-text':subjectText}:undefined} onClick={()=>onOpen(t)}><span className="homework-date">{formatShortDate(t.task_date)}</span><strong className="homework-title-box" style={subjectColor?{background:subjectColor,color:subjectText}:undefined}>{t.title}</strong><TaskPdfLink task={t} subjects={subjects}/><span className="homework-content-box">{t.content||'Açıklama yok.'}</span><span className="status-pill delivered">📤 {t.delivered_at?formatShortDate(t.delivered_at.slice(0,10)):'Teslim'}</span><select value={t.teacher_status||'Bekliyor'} onClick={e=>e.stopPropagation()} onChange={e=>saveReview(e,t,{teacher_status:e.target.value})}><option>Bekliyor</option><option>Kontrol edildi</option><option>Düzeltme istedi</option><option>Tekrar teslim edilecek</option></select><button className="undo-delivery" onClick={e=>undoDelivery(e,t)}>↩ Geri al</button></article></div>})}</div>
   </section>;
 }
 
@@ -2486,7 +2689,7 @@ function TaskReadModal({ task, activeUser, reloadTasks, onClose }) {
             </div>
           ) : (
             <div className="task-read-content">
-              <h2>{task.title}</h2>
+              <div className="task-read-title-row"><h2>{task.title}</h2><TaskPdfLink task={task} subjects={subjects}/></div>
               <p>{task.content || 'Açıklama yok.'}</p>
             </div>
           )}
@@ -3562,7 +3765,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
   const [showCompleted, setShowCompleted] = useState(false);
   const [completeTarget, setCompleteTarget] = useState(null);
   const [detailTask, setDetailTask] = useState(null);
-  const [subjects] = useState(loadSubjects);
+  const subjects = useLiveSubjects();
 
   const activeTasks = [...tasks].filter(t => !t.completed).sort((a, b) => a.task_date.localeCompare(b.task_date));
   const completedTasks = [...tasks].filter(t => t.completed).sort((a, b) => (b.completed_at || '').localeCompare(a.completed_at || ''));
@@ -3669,6 +3872,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
           <option value="">Ders seç</option>
           {subjects.map(s=><option key={s.id} value={s.name}>{s.name}</option>)}
         </select>
+        <div className="task-form-book-link"><TaskPdfLink task={{title:form.task_type==='project'?('Proje ('+form.title+')'):form.title,content:form.content,task_date:form.task_date}} subjects={subjects} label="Ders kitabı"/></div>
         <textarea placeholder="İçerik" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })}></textarea>
         <button type="submit" disabled={saving}>{saving ? 'Ekleniyor...' : 'Görev Ekle'}</button>
       </form>
@@ -3691,6 +3895,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
               <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
               <span>{formatShortDate(t.task_date)}</span>
               <strong className="task-subject-box" style={subjectColor?{background:subjectColor,color:subjectText}:undefined}>{t.title}</strong>
+              <TaskPdfLink task={t} subjects={subjects}/>
               <p>{t.content}</p>
               <button className="task-delete-button" onClick={(e) => { e.stopPropagation(); deleteTask(t); }}>🗑 Sil</button>
             </article>
@@ -3706,6 +3911,7 @@ function TasksPage({ tasks, setTasks, reloadTasks, goHome, activeUser, setActive
               <span className={`owner-badge owner-${(t.owner || 'D').toLowerCase()}`}>{t.owner || 'D'}</span>
               <span className="compact-date">{formatShortDate(t.task_date)}</span>
               <strong className="task-subject-box" style={subjectColor?{background:subjectColor,color:subjectText}:undefined}>{t.title}</strong>
+              <TaskPdfLink task={t} subjects={subjects}/>
               <p className="task-original-note">Görev: {t.content || 'Açıklama yok.'}</p>
               <p className="task-completion-note">Yaptı: {t.completed_note || 'Tamamlanma açıklaması yok.'}</p>
               <span className="completed-by" title={t.completed_at ? formatDateTime(t.completed_at) : ''}>✓ {t.completed_by || '?'} {t.completed_at ? formatShortDate(t.completed_at.slice(0, 10)) : ''}</span>
