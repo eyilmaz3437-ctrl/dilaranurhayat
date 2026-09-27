@@ -1904,55 +1904,55 @@ const MEB_TEXTBOOKS={
   edebiyat:{
     title:'Türk Dili ve Edebiyatı',
     source:'MEB · TYMM',
-    books:[{label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/turk-dili-ve-edebiyati-9sinif-ders-kitabi_20260908_185914_237.pdf'}]
+    books:[{id:'edebiyat',label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/turk-dili-ve-edebiyati-9sinif-ders-kitabi_20260908_185914_237.pdf'}]
   },
   matematik:{
     title:'Matematik',
     source:'MEB · TYMM',
     books:[
-      {label:'1. Kitap · 1. dönem',kind:'pdf',term:1,url:'https://tymm.meb.gov.tr/assets/pdf/matematik-9sinif-ders-kitabi-1kitap_20260908_111051_343.pdf'},
-      {label:'2. Kitap · 2. dönem',kind:'pdf',term:2,url:'https://tymm.meb.gov.tr/assets/pdf/matematik-9sinif-ders-kitabi-2kitap_20260908_111224_539.pdf'}
+      {id:'matematik-1',label:'1. Kitap · 1. dönem',kind:'pdf',term:1,url:'https://tymm.meb.gov.tr/assets/pdf/matematik-9sinif-ders-kitabi-1kitap_20260908_111051_343.pdf'},
+      {id:'matematik-2',label:'2. Kitap · 2. dönem',kind:'pdf',term:2,url:'https://tymm.meb.gov.tr/assets/pdf/matematik-9sinif-ders-kitabi-2kitap_20260908_111224_539.pdf'}
     ]
   },
   fizik:{
     title:'Fizik',
     source:'MEB · TYMM',
-    books:[{label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/fizik-dersi-9-sinif-ders-kitabi.pdf'}]
+    books:[{id:'fizik',label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/fizik-dersi-9-sinif-ders-kitabi.pdf'}]
   },
   kimya:{
     title:'Kimya',
     source:'MEB · TYMM',
-    books:[{label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/kimya-9sinif-ders-kitabi_20260908_105401_981.pdf'}]
+    books:[{id:'kimya',label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/kimya-9sinif-ders-kitabi_20260908_105401_981.pdf'}]
   },
   biyoloji:{
     title:'Biyoloji',
     source:'MEB · TYMM',
-    books:[{label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/biyoloji-9-sinif-ders-kitabi.pdf'}]
+    books:[{id:'biyoloji',label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/biyoloji-9-sinif-ders-kitabi.pdf'}]
   },
   tarih:{
     title:'Tarih',
     source:'MEB · TYMM',
-    books:[{label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/tarih-9sinif-ders-kitabi_20260908_184825_403.pdf'}]
+    books:[{id:'tarih',label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/tarih-9sinif-ders-kitabi_20260908_184825_403.pdf'}]
   },
   cografya:{
     title:'Coğrafya',
     source:'MEB · TYMM',
-    books:[{label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/cografya-dersi-sinif-9-ders-kitabi.pdf'}]
+    books:[{id:'cografya',label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/cografya-dersi-sinif-9-ders-kitabi.pdf'}]
   },
   din:{
     title:'Din Kültürü ve Ahlak Bilgisi',
     source:'MEB · TYMM',
-    books:[{label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/din-kulturu-ve-ahlak-bilgisi-9.pdf'}]
+    books:[{id:'din',label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/din-kulturu-ve-ahlak-bilgisi-9.pdf'}]
   },
   ingilizce:{
     title:'İngilizce',
     source:'MEB · TYMM',
-    books:[{label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/ingilizce-dersi-9-sinif-ders-kitabi.pdf'}]
+    books:[{id:'ingilizce',label:'9. Sınıf Ders Kitabı',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/ingilizce-dersi-9-sinif-ders-kitabi.pdf'}]
   },
   almanca:{
     title:'Almanca',
     source:'MEB · OGM Materyal',
-    books:[{label:'Almanca A1.1 Materyali',kind:'pdf',url:'https://ogmmateryal.eba.gov.tr/panel/upload/kitap/lfwtr3fxahv.pdf'}],
+    books:[{id:'almanca',label:'Almanca A1.1 Materyali',kind:'pdf',url:'https://ogmmateryal.eba.gov.tr/panel/upload/kitap/lfwtr3fxahv.pdf'}],
     note:'MEB OGM A1.1 materyali.'
   },
   saglik:{
@@ -2048,34 +2048,173 @@ function textbookBookForTask(task,subjects){
   }
   return pdfs[0];
 }
-function pdfUrlAtPage(url,page){
-  if(!url||!page)return url;
-  return url.split('#')[0]+'#page='+page;
+const TEXTBOOK_CACHE_NAME='dnh-textbooks-v1';
+function offlinePdfUrl(bookId,page){
+  if(!bookId)return '#';
+  const base='/offline-pdf/'+encodeURIComponent(bookId)+'.pdf';
+  return page?base+'#page='+page:base;
+}
+async function textbookIsDownloaded(bookId){
+  if(!bookId||!('caches' in window))return false;
+  const cache=await caches.open(TEXTBOOK_CACHE_NAME);
+  return !!(await cache.match('/offline-pdf/'+encodeURIComponent(bookId)+'.pdf'));
+}
+async function cacheTextbookBook(book){
+  if(!book?.id)throw new Error('Kitap kimliği yok');
+  if(!('caches' in window))throw new Error('Bu telefon çevrimdışı kitap saklamayı desteklemiyor');
+  const cache=await caches.open(TEXTBOOK_CACHE_NAME);
+  const path='/offline-pdf/'+encodeURIComponent(book.id)+'.pdf';
+  const saved=await cache.match(path);
+  if(saved)return {already:true};
+  const response=await fetch(path,{cache:'no-store'});
+  if(!response.ok)throw new Error('PDF indirilemedi ('+response.status+')');
+  await cache.put(path,response.clone());
+  return {already:false};
+}
+async function removeCachedTextbook(bookId){
+  if(!bookId||!('caches' in window))return false;
+  const cache=await caches.open(TEXTBOOK_CACHE_NAME);
+  return cache.delete('/offline-pdf/'+encodeURIComponent(bookId)+'.pdf');
+}
+async function storageEstimateText(){
+  if(!navigator.storage?.estimate)return '';
+  try{
+    const {usage=0,quota=0}=await navigator.storage.estimate();
+    const mb=n=>Math.round(n/1024/1024);
+    return quota?('Uygulama depolaması: '+mb(usage)+' MB / '+mb(quota)+' MB'):'';
+  }catch{return ''}
 }
 function TaskPdfLink({task,subjects,label='PDF'}){
   const book=textbookBookForTask(task,subjects);
-  if(!book)return null;
+  if(!book?.id)return null;
   const page=extractHomeworkPage(task?.content);
-  const url=pdfUrlAtPage(book.url,page);
+  const url=offlinePdfUrl(book.id,page);
   return <a className="task-pdf-link" href={url} target="_blank" rel="noopener noreferrer" onClick={e=>e.stopPropagation()} title={page?('Kitabı '+page+'. sayfadan aç'):'MEB ders kitabını aç'}>📕 {label}{page?(' · s.'+page):''}</a>;
 }
 
 function TextbooksPage({goHome}){
   const subjects=useLiveSubjects();
   const [plan,setPlan]=useState(loadSchedulePlan);
+  const [downloaded,setDownloaded]=useState(new Set());
+  const [downloadBusy,setDownloadBusy]=useState(false);
+  const [downloadMsg,setDownloadMsg]=useState('');
+  const [storageText,setStorageText]=useState('');
+
   useEffect(()=>{
     const sync=()=>setPlan(loadSchedulePlan());
     window.addEventListener('dnh-settings',sync);
     window.addEventListener('dnh-shared',sync);
     return()=>{window.removeEventListener('dnh-settings',sync);window.removeEventListener('dnh-shared',sync)};
   },[]);
+
   const selectedIds=[...new Set(Object.values(plan).filter(Boolean))];
   const selectedSubjects=subjects.filter(subject=>selectedIds.includes(subject.id));
+  const selectedPdfBooks=[];
+  const seenPdfIds=new Set();
+  for(const subject of selectedSubjects){
+    const key=textbookKeyForSubject(subject);
+    const resource=key?MEB_TEXTBOOKS[key]:null;
+    for(const book of resource?.books||[]){
+      if(book.kind==='pdf'&&book.id&&!seenPdfIds.has(book.id)){
+        seenPdfIds.add(book.id);
+        selectedPdfBooks.push({...book,subjectName:resource.title});
+      }
+    }
+  }
+
+  async function refreshOfflineState(){
+    const next=new Set();
+    for(const book of selectedPdfBooks){
+      if(await textbookIsDownloaded(book.id))next.add(book.id);
+    }
+    setDownloaded(next);
+    setStorageText(await storageEstimateText());
+  }
+
+  useEffect(()=>{
+    let alive=true;
+    (async()=>{
+      const next=new Set();
+      for(const book of selectedPdfBooks){
+        if(await textbookIsDownloaded(book.id))next.add(book.id);
+      }
+      if(alive){
+        setDownloaded(next);
+        setStorageText(await storageEstimateText());
+      }
+    })();
+    return()=>{alive=false};
+  },[plan,subjects]);
+
+  async function downloadOne(book){
+    if(downloadBusy)return;
+    setDownloadBusy(true);
+    setDownloadMsg(book.subjectName+' indiriliyor… Büyük kitaplarda birkaç dakika sürebilir.');
+    try{
+      if(navigator.storage?.persist)await navigator.storage.persist().catch(()=>false);
+      await cacheTextbookBook(book);
+      await refreshOfflineState();
+      setDownloadMsg(book.subjectName+' telefona kaydedildi ✓');
+    }catch(err){
+      setDownloadMsg(book.subjectName+' indirilemedi: '+(err?.message||'Bilinmeyen hata'));
+    }finally{
+      setDownloadBusy(false);
+    }
+  }
+
+  async function downloadAll(){
+    if(downloadBusy||selectedPdfBooks.length===0)return;
+    const missing=selectedPdfBooks.filter(book=>!downloaded.has(book.id));
+    if(missing.length===0){setDownloadMsg('Bütün PDF’ler zaten telefonda ✓');return}
+    if(!confirm(missing.length+' PDF telefona indirilecek. MEB kitapları çok büyük; toplam boyut 1 GB’ı aşabilir. Wi‑Fi ile devam edilsin mi?'))return;
+    setDownloadBusy(true);
+    try{
+      if(navigator.storage?.persist)await navigator.storage.persist().catch(()=>false);
+      for(let i=0;i<missing.length;i++){
+        const book=missing[i];
+        setDownloadMsg((i+1)+' / '+missing.length+' · '+book.subjectName+' indiriliyor…');
+        await cacheTextbookBook(book);
+        setDownloaded(prev=>new Set([...prev,book.id]));
+      }
+      setStorageText(await storageEstimateText());
+      setDownloadMsg('Bütün mevcut PDF’ler telefona kaydedildi ✓ Artık internet olmadan da açılabilir.');
+    }catch(err){
+      setDownloadMsg('İndirme durdu: '+(err?.message||'Bilinmeyen hata')+'. İndirilen kitaplar telefonda kaldı.');
+      await refreshOfflineState();
+    }finally{
+      setDownloadBusy(false);
+    }
+  }
+
+  async function removeOne(book){
+    if(downloadBusy)return;
+    await removeCachedTextbook(book.id);
+    await refreshOfflineState();
+    setDownloadMsg(book.subjectName+' telefondan kaldırıldı.');
+  }
+
   return <>
     <TopActions goHome={goHome}/>
     <SectionTitle title="Ders Kitapları"/>
     <div className="textbook-page">
-      <div className="textbook-info"><strong>📘 Diloş’un ders programındaki kitaplar</strong><span>PDF’ler uygulamanın içinde açılmaz; telefonda ayrı PDF ekranında / tarayıcıda açılır.</span></div>
+      <div className="textbook-info">
+        <strong>📘 Diloş’un ders programındaki kitaplar</strong>
+        <span>PDF’leri bir kez telefona indirince DNH çevrimdışı depodan açar. Uygulama içine gömülmez; ayrı PDF ekranında açılır.</span>
+      </div>
+
+      <div className="textbook-offline-panel">
+        <div>
+          <strong>📥 Çevrimdışı kitaplar</strong>
+          <span>{downloaded.size} / {selectedPdfBooks.length} PDF telefonda</span>
+          {storageText&&<small>{storageText}</small>}
+        </div>
+        <button type="button" onClick={downloadAll} disabled={downloadBusy||selectedPdfBooks.length===0}>
+          {downloadBusy?'İndiriliyor…':'Tüm PDF’leri telefona indir'}
+        </button>
+        <small className="textbook-size-warning">Not: Güncel MEB PDF’lerinin bazıları 150–260 MB. Tüm kitaplar 1 GB’tan fazla yer tutabilir.</small>
+        {downloadMsg&&<div className="textbook-download-msg">{downloadMsg}</div>}
+      </div>
+
       <div className="textbook-grid">
         {selectedSubjects.map(subject=>{
           const key=textbookKeyForSubject(subject);
@@ -2087,7 +2226,14 @@ function TextbooksPage({goHome}){
             </div>
             <h3>{resource?.title||subject.name}</h3>
             {resource?.books?.length>0?<div className="textbook-links">
-              {resource.books.map((book,index)=><a key={book.url+index} href={book.url} target="_blank" rel="noopener noreferrer" className={book.kind==='pdf'?'pdf-book-link':'web-book-link'}>{book.kind==='pdf'?'📕':'🌐'} {book.label}</a>)}
+              {resource.books.map((book,index)=>book.kind==='pdf'
+                ?<div className="textbook-pdf-row" key={book.id||book.url+index}>
+                    <a href={offlinePdfUrl(book.id)} target="_blank" rel="noopener noreferrer" className="pdf-book-link">📕 {book.label}</a>
+                    {downloaded.has(book.id)
+                      ?<><span className="offline-ready">✓ Telefonda</span><button type="button" className="offline-remove" onClick={()=>removeOne({...book,subjectName:resource.title})} disabled={downloadBusy}>Sil</button></>
+                      :<button type="button" className="offline-download-one" onClick={()=>downloadOne({...book,subjectName:resource.title})} disabled={downloadBusy}>↓ İndir</button>}
+                  </div>
+                :<a key={book.url+index} href={book.url} target="_blank" rel="noopener noreferrer" className="web-book-link">🌐 {book.label}</a>)}
             </div>:<div className="textbook-no-pdf">Bu ders için MEB öğrenci PDF bağlantısı yok.</div>}
             {resource?.note&&<small className="textbook-note">{resource.note}</small>}
           </article>
