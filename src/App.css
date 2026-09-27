@@ -4759,3 +4759,120 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
   .pdf-page-toolbar input{width:54px;padding:7px 4px}
   .pdf-page-toolbar form>button{padding:7px 7px;font-size:9px}
 }
+
+
+/* v67 yeni ders programı -> açık ödev teslim günlerini tazele */
+.schedule-refresh-banner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:0 0 9px;
+  padding:10px 11px;
+  border:1px solid #86efac;
+  border-radius:14px;
+  background:#f0fdf4;
+}
+.schedule-refresh-banner>div{min-width:0}
+.schedule-refresh-banner strong,
+.schedule-refresh-banner span{display:block}
+.schedule-refresh-banner strong{color:#166534;font-size:12px}
+.schedule-refresh-banner span{margin-top:3px;color:#475569;font-size:10px;line-height:1.35}
+.schedule-refresh-banner>button{
+  flex:0 0 auto;
+  border:0;
+  border-radius:10px;
+  background:#166534;
+  color:#fff;
+  padding:8px 11px;
+  font-size:10px;
+  font-weight:900;
+  cursor:pointer;
+}
+.schedule-manual-refresh{
+  display:block;
+  width:100%;
+  margin:0 0 9px;
+  border:1px dashed #cbd5e1;
+  border-radius:11px;
+  background:#f8fafc;
+  color:#475569;
+  padding:7px 9px;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+}
+.schedule-refresh-msg{
+  margin:0 0 9px;
+  border-radius:10px;
+  padding:8px 10px;
+  background:#eff6ff;
+  color:#1e3a8a;
+  font-size:10px;
+  font-weight:800;
+}
+.schedule-refresh-modal{
+  width:min(92vw,480px);
+  max-height:78dvh;
+  overflow:hidden;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 20px 60px rgba(15,23,42,.28);
+}
+.schedule-refresh-body{
+  padding:12px;
+  overflow-y:auto;
+  max-height:calc(78dvh - 54px);
+}
+.schedule-refresh-body>p{
+  margin:0 0 10px;
+  color:#475569;
+  font-size:11px;
+  line-height:1.45;
+}
+.schedule-refresh-list{
+  display:grid;
+  gap:6px;
+  margin-bottom:11px;
+}
+.schedule-refresh-list>div{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border:1px solid #e2e8f0;
+  border-radius:11px;
+  padding:8px 9px;
+  background:#f8fafc;
+}
+.schedule-refresh-list strong{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#172033;
+  font-size:11px;
+}
+.schedule-refresh-list span{
+  flex:0 0 auto;
+  color:#64748b;
+  font-size:10px;
+  white-space:nowrap;
+}
+.schedule-refresh-list b{color:#166534}
+.schedule-refresh-apply{
+  width:100%;
+  border:0;
+  border-radius:12px;
+  background:#166534;
+  color:#fff;
+  padding:10px 12px;
+  font-weight:900;
+  cursor:pointer;
+}
+.schedule-refresh-apply:disabled{opacity:.55}
+@media(max-width:700px){
+  .schedule-refresh-banner{padding:9px}
+  .schedule-refresh-banner span{font-size:9px}
+  .schedule-refresh-banner>button{padding:7px 9px;font-size:9px}
+}
