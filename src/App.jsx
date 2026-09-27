@@ -1731,7 +1731,7 @@ function HomePage({ currentUser, tasks, tasksLoading, goTasks, reloadTasks, goLo
       </div>
       <div className="home-swipe-stage" onTouchStart={swipeStart} onTouchEnd={swipeEnd} onPointerDown={swipeStart} onPointerUp={swipeEnd}>
         {screen === 0 && <HomeworkHome tasks={tasks} tasksLoading={tasksLoading} goTasks={goTasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
-        {screen === 1 && <WeeklySchedule goTasks={goTasks} />}
+        {screen === 1 && <WeeklySchedule goTasks={goTasks} tasks={tasks} reloadTasks={reloadTasks} />}
         {screen === 2 && <HomeworkCalendar tasks={tasks} onOpen={setSelectedTask} fullYear={fullYearCalendar} onOpenFullYear={()=>setFullYearCalendar(v=>!v)} />}
         {screen === 3 && <CompletedHomework tasks={tasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
         {screen === 4 && <DeliveredHomework tasks={tasks} reloadTasks={reloadTasks} onOpen={setSelectedTask} />}
@@ -2464,6 +2464,74 @@ function TextbooksPage({goHome}){
 
 function loadSchoolSettings(){try{return {...DEFAULT_SCHOOL_SETTINGS,...JSON.parse(localStorage.getItem('dnh_school_settings')||'{}')}}catch{return DEFAULT_SCHOOL_SETTINGS}}
 function addMinutes(hhmm,min){const [h,m]=hhmm.split(':').map(Number);const d=new Date(2000,0,1,h,m+min);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function loadScheduleRevision(){
+ try{return JSON.parse(localStorage.getItem('dnh_schedule_revision')||'null')}catch{return null}
+}
+function subjectIdForTask(task,subjects){
+  const direct=subjectByName(subjectNameForTask(task),subjects);
+  if(direct)return direct.id;
+  const name=normalizedSubjectName(subjectNameForTask(task));
+  const aliases=[
+    ['matematik',['mat','matematik']],
+    ['edebiyat',['türkçe','turkce','edebiyat','türk dili ve edebiyatı']],
+    ['ingilizce',['ingilizce','proje ing']],
+    ['cografya',['coğrafya','cografya']],
+    ['din',['din','din kültürü','din kulturu']],
+    ['saglik',['sağlık','saglik']],
+    ['beden',['beden','spor','voleybol']],
+  ];
+  for(const [id,names] of aliases){
+    if(names.some(x=>name===x||name.includes(x))){
+      const byId=subjects.find(s=>s.id===id);
+      if(byId)return byId.id;
+    }
+  }
+  const fuzzy=subjects.find(s=>{
+    const n=normalizedSubjectName(s.name);
+    return n&&name&&(n.includes(name)||name.includes(n));
+  });
+  return fuzzy?.id||null;
+}
+function isoAddDays(iso,days){
+  const d=new Date((iso||localDateISO())+'T12:00:00');
+  d.setDate(d.getDate()+days);
+  return localDateISO(d);
+}
+function scheduleDayKeyForDate(iso){
+  const d=new Date(iso+'T12:00:00');
+  return ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'][d.getDay()];
+}
+function firstSubjectDateInPlan(subjectId,plan,fromIso,maxDays=13){
+  if(!subjectId)return null;
+  const daysWithSubject=new Set();
+  for(const [cell,sid] of Object.entries(plan||{})){
+    if(sid!==subjectId)continue;
+    const day=cell.split('|')[0];
+    if(day)daysWithSubject.add(day);
+  }
+  if(!daysWithSubject.size)return null;
+  for(let i=0;i<=maxDays;i++){
+    const iso=isoAddDays(fromIso,i);
+    if(daysWithSubject.has(scheduleDayKeyForDate(iso)))return iso;
+  }
+  return null;
+}
+function scheduleTaskDateChanges(tasks,plan,subjects,fromIso){
+  const horizon=isoAddDays(fromIso,14);
+  const rows=[];
+  for(const task of tasks||[]){
+    if(task.completed||task.delivered)continue;
+    if(String(task.title||'').startsWith('Proje ('))continue;
+    if(task.task_date&&task.task_date>horizon)continue;
+    const subjectId=subjectIdForTask(task,subjects);
+    const nextDate=firstSubjectDateInPlan(subjectId,plan,fromIso,13);
+    if(nextDate&&nextDate!==task.task_date){
+      rows.push({task,oldDate:task.task_date,newDate:nextDate});
+    }
+  }
+  return rows;
+}
+
 function buildScheduleRows(settings){
  const lessonCount=Math.max(1,Number(settings.lessonCount)||1);
  const lessonMinutes=Math.max(1,Number(settings.lessonMinutes)||40);
@@ -2495,7 +2563,7 @@ function buildScheduleRows(settings){
  }
  return rows;
 }
-function WeeklySchedule({ goTasks }) {
+function WeeklySchedule({ goTasks, tasks=[], reloadTasks }) {
  const days=['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
  const [weekOffset,setWeekOffset]=useState(0);
  const thisMonday=(()=>{const d=new Date();const day=(d.getDay()+6)%7;d.setHours(12,0,0,0);d.setDate(d.getDate()-day);return d})();
@@ -2510,7 +2578,11 @@ function WeeklySchedule({ goTasks }) {
  const [plan,setPlan]=useState(()=>{try{return JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}')}catch{return {}}});
  const [menu,setMenu]=useState(null);
  const [subjectPick,setSubjectPick]=useState(null);
- useEffect(()=>{const sync=()=>{setSubjects(loadSubjects());setSettings(loadSchoolSettings());try{setPlan(JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}'))}catch{}};window.addEventListener('dnh-settings',sync);window.addEventListener('dnh-shared',sync);return()=>{window.removeEventListener('dnh-settings',sync);window.removeEventListener('dnh-shared',sync)}},[]);
+ const [revision,setRevision]=useState(loadScheduleRevision);
+ const [refreshOpen,setRefreshOpen]=useState(false);
+ const [refreshBusy,setRefreshBusy]=useState(false);
+ const [refreshMsg,setRefreshMsg]=useState('');
+ useEffect(()=>{const sync=()=>{setSubjects(loadSubjects());setSettings(loadSchoolSettings());setRevision(loadScheduleRevision());try{setPlan(JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}'))}catch{}};window.addEventListener('dnh-settings',sync);window.addEventListener('dnh-shared',sync);return()=>{window.removeEventListener('dnh-settings',sync);window.removeEventListener('dnh-shared',sync)}},[]);
  useEffect(()=>{let alive=true;(async()=>{await sharedPull();if(!alive)return;try{setPlan(JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}'))}catch{}})();return()=>{alive=false}},[]);
  useEffect(()=>{const sync=()=>{try{setPlan(JSON.parse(localStorage.getItem('dnh_schedule_plan')||'{}'))}catch{}};window.addEventListener('dnh-shared',sync);return()=>window.removeEventListener('dnh-shared',sync)},[]);
  const rows=buildScheduleRows(settings);
@@ -2530,11 +2602,41 @@ function WeeklySchedule({ goTasks }) {
    setMenu(null);
    goTasks();
  }
+ const revisionId=revision?.id||revision?.revision||'';
+ const appliedRevision=localStorage.getItem('dnh_schedule_applied_revision')||'';
+ const revisionPending=!!revisionId&&revisionId!==appliedRevision;
+ const refreshFrom=revision?.effectiveDate||localDateISO();
+ const proposedDateChanges=scheduleTaskDateChanges(tasks,plan,subjects,refreshFrom);
+
+ async function applyTaskDateRefresh(){
+   if(refreshBusy)return;
+   if(proposedDateChanges.length===0){
+     if(revisionId)localStorage.setItem('dnh_schedule_applied_revision',revisionId);
+     setRefreshOpen(false);
+     setRefreshMsg('Açık ödevlerde değişecek teslim tarihi yok.');
+     return;
+   }
+   setRefreshBusy(true);
+   let ok=0,failed=0;
+   for(const row of proposedDateChanges){
+     const {error}=await supabase.from('tasks').update({task_date:row.newDate}).eq('id',row.task.id);
+     if(error)failed++;else ok++;
+   }
+   if(ok&&reloadTasks)await reloadTasks();
+   if(revisionId&&failed===0)localStorage.setItem('dnh_schedule_applied_revision',revisionId);
+   setRefreshBusy(false);
+   setRefreshOpen(false);
+   setRefreshMsg(failed?ok+' ödev güncellendi, '+failed+' ödev değiştirilemedi.':ok+' ödev yeni ders programına göre güncellendi ✓');
+ }
  return <section className="android-home-screen schedule-screen"><div className="screen-title-row"><div><span className="screen-kicker">ANA EKRAN 2</span><h2>Haftalık Ders Planı</h2></div><small className="schedule-summary">{settings.start} · {settings.lessonMinutes} dk</small></div>
+  {revisionPending&&<div className="schedule-refresh-banner"><div><strong>🔄 Yeni ders programı hazır</strong><span>{revision?.label||'Program güncellendi.'} {proposedDateChanges.length>0?proposedDateChanges.length+' açık ödevin teslim günü değişecek.':'Açık ödevlerde tarih değişikliği görünmüyor.'}</span></div><button type="button" onClick={()=>setRefreshOpen(true)}>Tazele</button></div>}
+  {!revisionPending&&<button type="button" className="schedule-manual-refresh" onClick={()=>setRefreshOpen(true)}>↻ Ödev teslim günlerini bu programa göre kontrol et</button>}
+  {refreshMsg&&<div className="schedule-refresh-msg">{refreshMsg}</div>}
   <div className="schedule-week-nav" aria-label="Hafta seçimi"><div className="schedule-week-label"><strong>{weekOffset===0?'Bu hafta':weekOffset===1?'Sonraki hafta':weekOffset===-1?'Önceki hafta':weekLabel}</strong><small>{weekLabel}</small></div><div className="schedule-week-actions"><button type="button" onClick={()=>setWeekOffset(value=>value-1)}>‹ Önceki</button>{weekOffset!==0&&<button type="button" className="schedule-this-week" onClick={()=>setWeekOffset(0)}>Bu hafta</button>}<button type="button" onClick={()=>setWeekOffset(value=>value+1)}>Sonraki ›</button></div></div>
   <div className="schedule-scroll"><div className="schedule-grid" style={{gridTemplateColumns:'92px repeat(7,minmax(105px,1fr))'}}><div className="schedule-head schedule-sticky-time schedule-time-heading">Ders<br/>Saatleri</div>{days.map((d,i)=><div className="schedule-head schedule-day-head" key={d}><span>{d}</span><small>{dayDate(i)}</small></div>)}
    {rows.map(r=><div key={r.id} style={{display:'contents'}}><div className={'schedule-time schedule-sticky-time type-'+r.type}>{r.start}–{r.end}</div>{days.map((d,i)=>{if(r.type!=='lesson')return <div key={d} className={'schedule-cell type-'+r.type}>{r.type==='lunch'?'Öğle Arası':'Teneffüs'}</div>;const sid=plan[d+'|'+r.id],sub=subjects.find(x=>x.id===sid);return <button key={d} className="schedule-cell lesson-pick" style={sub?{background:sub.color,color:sub.textColor||'#000000'}:undefined} onClick={()=>action(d,r,i)}>{sub?sub.name:'＋ Ders seç'}</button>})}</div>)}
   </div></div>
+  {refreshOpen&&<div className="modal-backdrop" onClick={()=>!refreshBusy&&setRefreshOpen(false)}><div className="schedule-refresh-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>Ödev tarihlerini tazele</strong><button onClick={()=>!refreshBusy&&setRefreshOpen(false)}>×</button></div><div className="schedule-refresh-body"><p>Yeni programa göre açık normal ödevler, <strong>ilgili dersin ilk günü</strong>ne taşınır. Tamamlanan, teslim edilen ve proje ödevlerine dokunulmaz.</p>{proposedDateChanges.length===0?<div className="home-empty">Değişecek ödev tarihi yok.</div>:<div className="schedule-refresh-list">{proposedDateChanges.map(row=><div key={row.task.id}><strong>{row.task.title}</strong><span>{formatShortDate(row.oldDate)} → <b>{formatShortDate(row.newDate)}</b></span></div>)}</div>}<button type="button" className="schedule-refresh-apply" disabled={refreshBusy} onClick={applyTaskDateRefresh}>{refreshBusy?'Güncelleniyor…':proposedDateChanges.length?('✓ '+proposedDateChanges.length+' ödevi güncelle'):'Tamam'}</button></div></div></div>}
   {subjectPick&&<div className="modal-backdrop" onClick={()=>setSubjectPick(null)}><div className="subject-pick-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>Ders seç</strong><button onClick={()=>setSubjectPick(null)}>×</button></div><div className="subject-pick-grid">{subjects.map(s=><button key={s.id} style={{background:s.color,color:s.textColor||'#000000'}} onClick={()=>{setLesson(subjectPick.day,subjectPick.rowId,s.id);setSubjectPick(null)}}>{s.name}</button>)}</div></div></div>}
   {menu&&<div className="modal-backdrop" onClick={()=>setMenu(null)}><div className="lesson-action-menu" onClick={e=>e.stopPropagation()}><div className="modal-head"><strong>{menu.sub.name} · {menu.day} · {formatShortDate(menu.date)}</strong><button onClick={()=>setMenu(null)}>×</button></div><button onClick={()=>{chooseSubject(menu.day,menu.row.id);setMenu(null)}}>🔄 Dersi değiştir</button><button onClick={()=>addNote(false)}>📝 Not ekle</button><button onClick={()=>addNote(true)}>📅 Takvime not ekle</button><button onClick={addHomework}>📚 Bu derse ödev ekle</button><button onClick={()=>{setLesson(menu.day,menu.row.id,'');setMenu(null)}}>🗑️ Dersi kaldır</button></div></div>}
  </section>;
@@ -4072,7 +4174,7 @@ function localDateISO(d=new Date()){const x=new Date(d);return x.getFullYear()+'
 function shiftDate(days){const d=new Date();d.setDate(d.getDate()+days);return localDateISO(d)}
 function nextWeekdayDate(){const d=new Date();const day=d.getDay();const add=day===0?1:8-day;d.setDate(d.getDate()+add);return localDateISO(d)}
 function nextMonthDate(){const d=new Date();d.setMonth(d.getMonth()+1);return localDateISO(d)}
-const SHARED_MAP={subjects:'dnh_subjects',school_settings:'dnh_school_settings',schedule_plan:'dnh_schedule_plan',calendar_events:'dnh_calendar_events',holidays:'dnh_holidays',calendar_colors:'dnh_calendar_colors',family_notes:'dnh_family_notes',reading_log:'dnh_reading_log'};
+const SHARED_MAP={subjects:'dnh_subjects',school_settings:'dnh_school_settings',schedule_plan:'dnh_schedule_plan',schedule_revision:'dnh_schedule_revision',calendar_events:'dnh_calendar_events',holidays:'dnh_holidays',calendar_colors:'dnh_calendar_colors',family_notes:'dnh_family_notes',reading_log:'dnh_reading_log'};
 const SHARED_PENDING=new Set();
 async function sharedPull(){
  const {data,error}=await supabase.from('app_shared_state').select('key,value');
