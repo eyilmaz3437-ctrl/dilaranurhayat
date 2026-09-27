@@ -1955,7 +1955,7 @@ const MEB_TEXTBOOKS={
   din:{
     title:'Din Kültürü ve Ahlak Bilgisi',
     source:'MEB · TYMM',
-    books:[{id:'din-2026',label:'9. Sınıf Ders Kitabı · MEB resmî nüsha',kind:'pdf',url:'https://tymm.meb.gov.tr/assets/pdf/din-kulturu-ve-ahlak-bilgisi-9.pdf'}]
+    books:[{id:'din-2026-ogm-v2',label:'9. Sınıf Ders Kitabı · MEB 2026 nüshası',kind:'pdf',url:'https://tymm.meb.gov.tr/upload/kitap/ogm/din-kulturu-ve-ahlak-bilgisi-9.pdf'}]
   },
   ingilizce:{
     title:'İngilizce',
@@ -2075,7 +2075,8 @@ function textbookReaderUrl(bookId,page){
 }
 const TEXTBOOK_PAGE_OFFSETS={
   din:0,
-  'din-2026':0
+  'din-2026':0,
+  'din-2026-ogm-v2':0
 };
 function textbookPageOffset(bookId){
   return Object.prototype.hasOwnProperty.call(TEXTBOOK_PAGE_OFFSETS,bookId)?TEXTBOOK_PAGE_OFFSETS[bookId]:1;
@@ -2350,7 +2351,11 @@ function TextbooksPage({goHome}){
       if('caches' in window){
         try{
           const cache=await caches.open(TEXTBOOK_CACHE_NAME);
-          if(!(await cache.match('/offline-pdf/din-2026.pdf')))await cache.delete('/offline-pdf/din.pdf');
+          const current='/offline-pdf/din-2026-ogm-v2.pdf';
+          if(!(await cache.match(current))){
+            await cache.delete('/offline-pdf/din.pdf');
+            await cache.delete('/offline-pdf/din-2026.pdf');
+          }
         }catch{}
       }
       const next=new Set();
