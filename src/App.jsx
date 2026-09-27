@@ -2073,6 +2073,19 @@ function textbookReaderUrl(bookId,page){
   if(page)q.set('page',String(page));
   return '/?'+q.toString();
 }
+const TEXTBOOK_PAGE_OFFSETS={
+  din:0
+};
+function textbookPageOffset(bookId){
+  return Object.prototype.hasOwnProperty.call(TEXTBOOK_PAGE_OFFSETS,bookId)?TEXTBOOK_PAGE_OFFSETS[bookId]:1;
+}
+function openTextbookReaderWindow(e,url){
+  e?.preventDefault?.();
+  e?.stopPropagation?.();
+  const child=window.open(url,'dnh_pdf_reader');
+  if(child){try{child.focus()}catch{};return}
+  window.location.href=url;
+}
 function textbookTitleByBookId(bookId){
   for(const resource of Object.values(MEB_TEXTBOOKS)){
     const book=(resource.books||[]).find(x=>x.id===bookId);
@@ -2080,16 +2093,17 @@ function textbookTitleByBookId(bookId){
   }
   return {resource:null,book:null};
 }
-async function resolveRequestedPdfPage(pdf,requestedPage){
+async function resolveRequestedPdfPage(pdf,requestedPage,bookId){
   const requested=Math.max(1,Number(requestedPage)||1);
   try{
     const labels=await pdf.getPageLabels();
     if(Array.isArray(labels)){
       const exact=labels.findIndex(label=>String(label||'').trim()===String(requested));
-      if(exact>=0)return {pdfPage:exact+1,label:String(requested),mapped:true};
+      if(exact>=0)return {pdfPage:exact+1,label:String(requested),mapped:true,offset:0};
     }
   }catch{}
-  return {pdfPage:Math.min(requested,pdf.numPages),label:String(requested),mapped:false};
+  const offset=textbookPageOffset(bookId);
+  return {pdfPage:Math.min(Math.max(1,requested+offset),pdf.numPages),label:String(requested),mapped:offset!==0,offset};
 }
 
 function StandalonePdfViewer({bookId,requestedPage=1}){
@@ -2100,6 +2114,7 @@ function StandalonePdfViewer({bookId,requestedPage=1}){
   const [pageLabel,setPageLabel]=useState(String(Math.max(1,requestedPage||1)));
   const [pageLabels,setPageLabels]=useState(null);
   const [loading,setLoading]=useState(true);
+  const [loadingNote,setLoadingNote]=useState('PDF hazırlanıyor…');
   const [rendering,setRendering]=useState(false);
   const [error,setError]=useState('');
   const [mapped,setMapped]=useState(false);
@@ -2108,27 +2123,49 @@ function StandalonePdfViewer({bookId,requestedPage=1}){
 
   useEffect(()=>{
     let active=true;
-    const task=pdfjsLib.getDocument({url:nativeUrl});
-    setLoading(true);setError('');
-    task.promise.then(async doc=>{
-      if(!active){doc.destroy();return}
-      setPdf(doc);
-      let labels=null;
-      try{labels=await doc.getPageLabels()}catch{}
-      if(active)setPageLabels(labels);
-      const target=await resolveRequestedPdfPage(doc,requestedPage);
-      if(!active)return;
-      setPdfPage(target.pdfPage);
-      setPageLabel(target.label);
-      setMapped(target.mapped);
-      setPageInput(String(requestedPage||1));
-      setLoading(false);
-    }).catch(err=>{
-      if(!active)return;
-      setLoading(false);
-      setError('PDF açılamadı: '+(err?.message||'Bilinmeyen hata'));
-    });
-    return()=>{active=false;task.destroy?.()};
+    let task=null;
+    (async()=>{
+      setLoading(true);setLoadingNote('PDF hazırlanıyor…');setError('');
+      try{
+        task=pdfjsLib.getDocument({url:nativeUrl});
+        let doc;
+        try{
+          doc=await Promise.race([
+            task.promise,
+            new Promise((_,reject)=>setTimeout(()=>reject(new Error('İlk açılış zaman aşımına uğradı')),18000))
+          ]);
+        }catch(firstErr){
+          task?.destroy?.();
+          if(!active)return;
+          setLoadingNote('Telefondaki kopya doğrudan okunuyor…');
+          if(!('caches' in window))throw firstErr;
+          const cache=await caches.open(TEXTBOOK_CACHE_NAME);
+          const saved=await cache.match('/offline-pdf/'+encodeURIComponent(bookId)+'.pdf');
+          if(!saved)throw firstErr;
+          const buffer=await saved.arrayBuffer();
+          if(!active)return;
+          task=pdfjsLib.getDocument({data:new Uint8Array(buffer)});
+          doc=await task.promise;
+        }
+        if(!active){doc?.destroy?.();return}
+        setPdf(doc);
+        let labels=null;
+        try{labels=await doc.getPageLabels()}catch{}
+        if(active)setPageLabels(labels);
+        const target=await resolveRequestedPdfPage(doc,requestedPage,bookId);
+        if(!active)return;
+        setPdfPage(target.pdfPage);
+        setPageLabel(target.label);
+        setMapped(target.mapped);
+        setPageInput(String(requestedPage||1));
+        setLoading(false);
+      }catch(err){
+        if(!active)return;
+        setLoading(false);
+        setError('PDF açılamadı: '+(err?.message||'Bilinmeyen hata'));
+      }
+    })();
+    return()=>{active=false;task?.destroy?.()};
   },[bookId]);
 
   useEffect(()=>{
@@ -2165,7 +2202,7 @@ function StandalonePdfViewer({bookId,requestedPage=1}){
   async function goPrintedPage(value){
     if(!pdf)return;
     const requested=Math.max(1,Number(value)||1);
-    const target=await resolveRequestedPdfPage(pdf,requested);
+    const target=await resolveRequestedPdfPage(pdf,requested,bookId);
     setPdfPage(target.pdfPage);
     setPageLabel(target.label);
     setMapped(target.mapped);
@@ -2180,9 +2217,26 @@ function StandalonePdfViewer({bookId,requestedPage=1}){
     setPageInput(label&&/^\d+$/.test(String(label))?String(label):String(p));
     setMapped(!!label);
   }
+  function returnToDnh(){
+    try{
+      if(window.opener&&!window.opener.closed){
+        window.opener.focus?.();
+        window.close();
+        setTimeout(()=>{if(document.visibilityState==='visible')window.location.href='/'},250);
+        return;
+      }
+    }catch{}
+    if(window.history.length>1){
+      window.history.back();
+      setTimeout(()=>{if(document.visibilityState==='visible')window.location.href='/'},350);
+    }else{
+      window.location.href='/';
+    }
+  }
 
   return <div className="standalone-pdf-viewer">
     <header className="pdf-viewer-toolbar">
+      <button type="button" className="pdf-return-dnh" onClick={returnToDnh}>← DNH’ye dön</button>
       <div className="pdf-viewer-book">
         <span>📕</span>
         <div><strong>{bookInfo.resource?.title||'Ders Kitabı'}</strong><small>{bookInfo.book?.label||'MEB PDF'}</small></div>
@@ -2206,7 +2260,7 @@ function StandalonePdfViewer({bookId,requestedPage=1}){
     </div>
 
     <main className="pdf-canvas-stage">
-      {loading&&<div className="pdf-viewer-loading">PDF hazırlanıyor…</div>}
+      {loading&&<div className="pdf-viewer-loading">{loadingNote}</div>}
       {error&&<div className="pdf-viewer-error">{error}</div>}
       <canvas ref={canvasRef} aria-label={'PDF sayfası '+pageLabel}></canvas>
     </main>
@@ -2247,7 +2301,7 @@ function TaskPdfLink({task,subjects,label='PDF'}){
   if(!book?.id)return null;
   const page=extractHomeworkPage(task?.content);
   const url=page?textbookReaderUrl(book.id,page):offlinePdfUrl(book.id);
-  return <a className="task-pdf-link" href={url} target="_blank" rel="noopener noreferrer" onClick={e=>e.stopPropagation()} title={page?('Kitabı '+page+'. sayfadan aç'):'MEB ders kitabını aç'}>📕 {label}{page?(' · s.'+page):''}</a>;
+  return <a className="task-pdf-link" href={url} target="_blank" onClick={e=>page?openTextbookReaderWindow(e,url):e.stopPropagation()} title={page?('Kitabı '+page+'. sayfadan ayrı pencerede aç'):'MEB ders kitabını aç'}>📕 {label}{page?(' · s.'+page):''}</a>;
 }
 
 function TextbooksPage({goHome}){
