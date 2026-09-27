@@ -4320,3 +4320,157 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
   .subject-name-preview{grid-column:auto}
   .subject-color-controls{grid-column:auto;flex-wrap:nowrap}
 }
+
+
+/* v66 MEB ders kitapları ve ödev PDF kısayolları */
+.task-pdf-link{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  min-height:28px;
+  box-sizing:border-box;
+  border:1px solid #fecdd3!important;
+  border-radius:9px;
+  background:#fff1f2!important;
+  color:#9f1239!important;
+  -webkit-text-fill-color:#9f1239!important;
+  padding:5px 8px;
+  font-size:10px;
+  line-height:1;
+  font-weight:900;
+  text-decoration:none!important;
+  white-space:nowrap;
+}
+.task-pdf-link:active{transform:translateY(1px)}
+.task-form-book-link{
+  display:flex;
+  align-items:center;
+  min-height:38px;
+}
+.task-form-book-link:empty{display:none}
+.task-read-title-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.task-read-title-row h2{min-width:0;flex:1;margin:6px 0 8px}
+.task-card.compact .task-pdf-link{
+  justify-self:start;
+  padding:5px 7px;
+}
+.textbook-page{
+  max-width:980px;
+  margin:0 auto;
+}
+.textbook-info{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  margin-bottom:12px;
+  padding:12px 14px;
+  border:1px solid #bfdbfe;
+  border-radius:15px;
+  background:#eff6ff;
+  color:#1e3a8a;
+}
+.textbook-info strong{font-size:14px}
+.textbook-info span{font-size:11px;color:#475569}
+.textbook-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:10px;
+}
+.textbook-card{
+  min-width:0;
+  border:1px solid #e2e8f0;
+  border-radius:17px;
+  background:var(--dnh-card-bg,#fff);
+  padding:13px;
+  box-shadow:0 4px 14px rgba(15,23,42,.035);
+}
+.textbook-card-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.textbook-card-head>small{
+  color:#64748b;
+  font-size:9px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.textbook-subject-badge{
+  display:inline-block;
+  min-width:0;
+  max-width:75%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  border-radius:9px;
+  padding:6px 8px;
+  font-size:11px;
+  font-weight:900;
+  border:1px solid rgba(15,23,42,.08);
+}
+.textbook-card h3{
+  margin:11px 0 9px;
+  color:#172033;
+  font-size:15px;
+}
+.textbook-links{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+.textbook-links a{
+  display:inline-flex;
+  align-items:center;
+  border:1px solid #dbe3ee;
+  border-radius:10px;
+  padding:8px 9px;
+  background:#fff;
+  color:#172033!important;
+  -webkit-text-fill-color:#172033!important;
+  text-decoration:none;
+  font-size:11px;
+  font-weight:900;
+}
+.textbook-links .pdf-book-link{
+  border-color:#fecdd3;
+  background:#fff1f2;
+  color:#9f1239!important;
+  -webkit-text-fill-color:#9f1239!important;
+}
+.textbook-links .web-book-link{
+  border-color:#bfdbfe;
+  background:#eff6ff;
+  color:#1d4ed8!important;
+  -webkit-text-fill-color:#1d4ed8!important;
+}
+.textbook-note{
+  display:block;
+  margin-top:9px;
+  color:#64748b;
+  font-size:10px;
+  line-height:1.35;
+}
+.textbook-no-pdf{
+  border:1px dashed #cbd5e1;
+  border-radius:10px;
+  padding:9px;
+  background:#f8fafc;
+  color:#64748b;
+  font-size:10px;
+}
+@media(max-width:700px){
+  .textbook-grid{grid-template-columns:1fr}
+  .textbook-card{padding:11px}
+  .task-pdf-link{font-size:9px;padding:5px 7px}
+  .task-form-book-link{grid-column:1/-1}
+  .task-card.compact .task-pdf-link{grid-column:4/5;grid-row:auto}
+}
