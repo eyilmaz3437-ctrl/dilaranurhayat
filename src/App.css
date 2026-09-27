@@ -4474,3 +4474,110 @@ html,body,#root,.app{max-width:100%;overflow-x:hidden}
   .task-form-book-link{grid-column:1/-1}
   .task-card.compact .task-pdf-link{grid-column:4/5;grid-row:auto}
 }
+
+
+/* v66.1 çevrimdışı ders kitabı indirme */
+.textbook-offline-panel{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  margin:0 0 12px;
+  padding:12px 14px;
+  border:1px solid #bbf7d0;
+  border-radius:16px;
+  background:#f0fdf4;
+}
+.textbook-offline-panel>div:first-child{min-width:0}
+.textbook-offline-panel strong,
+.textbook-offline-panel span,
+.textbook-offline-panel small{display:block}
+.textbook-offline-panel strong{color:#166534;font-size:14px}
+.textbook-offline-panel span{margin-top:3px;color:#334155;font-size:11px;font-weight:800}
+.textbook-offline-panel small{margin-top:3px;color:#64748b;font-size:9px}
+.textbook-offline-panel>button{
+  border:0;
+  border-radius:12px;
+  background:#166534;
+  color:#fff;
+  padding:10px 12px;
+  font-weight:900;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.textbook-offline-panel>button:disabled{opacity:.55}
+.textbook-size-warning{
+  grid-column:1/-1;
+  color:#92400e!important;
+  background:#fffbeb;
+  border:1px solid #fde68a;
+  border-radius:9px;
+  padding:7px 9px;
+  font-size:9px!important;
+  line-height:1.35;
+}
+.textbook-download-msg{
+  grid-column:1/-1;
+  border-radius:10px;
+  background:#fff;
+  border:1px solid #dbe3ee;
+  padding:8px 9px;
+  color:#172033;
+  font-size:10px;
+  font-weight:800;
+}
+.textbook-pdf-row{
+  width:100%;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  gap:6px;
+  align-items:center;
+}
+.textbook-pdf-row>a{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.offline-ready{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:#dcfce7;
+  color:#166534;
+  padding:6px 8px;
+  font-size:9px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.offline-download-one,
+.offline-remove{
+  border:1px solid #cbd5e1;
+  border-radius:9px;
+  padding:6px 8px;
+  background:#fff;
+  color:#172033;
+  font-size:9px;
+  font-weight:900;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.offline-download-one{
+  border-color:#bbf7d0;
+  color:#166534;
+  background:#f0fdf4;
+}
+.offline-remove{
+  border-color:#fecdd3;
+  color:#be123c;
+  background:#fff1f2;
+}
+.offline-download-one:disabled,.offline-remove:disabled{opacity:.5}
+@media(max-width:700px){
+  .textbook-offline-panel{grid-template-columns:1fr;padding:10px}
+  .textbook-offline-panel>button{width:100%}
+  .textbook-pdf-row{grid-template-columns:minmax(0,1fr) auto}
+  .textbook-pdf-row .offline-remove{grid-column:2}
+  .offline-ready{grid-column:2}
+}
